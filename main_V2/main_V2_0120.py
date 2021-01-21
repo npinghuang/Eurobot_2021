@@ -211,8 +211,8 @@ def evaluate(current, robot):
     m = 0
     for m in current.achieved:
         # print("name", m.name, score)
-        if m.name == 'windsock1' or m.name == 'windsock2':
-            score += 15
+        if m.name == 'windsock':
+            score += 15 * 2
         elif m.name == 'lhouse':
             score += 10
         elif m.name == 'anchorN' or  m.name == 'anchorS':
@@ -284,17 +284,17 @@ windsock.myfunc("windsock")
 lhouse = Mission_precondition( "lhouse", ( 0, 300 ), None, None, None, None, None, None, 0, 2, 50,[None, None, None, None, None, 1])
 lhouse.myfunc("lhouse")
 
-getcup = Mission_precondition( "getcup", ( 0, 0 ), None, None, None, None, None, None, None, 2, 40,[None, None, None, None, None, None])
+getcup = Mission_precondition( "getcup", ( 0, 0 ), None, None, None, None, None, None, None, 2, 20,[None, None, None, None, None, None])
 getcup.myfunc("getcup")
 
 #reef cup counts separately
 reef_private = Mission_precondition( "reef_private", ( 1600, 0 ), None, None, 1, None, None, None, None, 9, 100,[0, None, None, None, None, None])
 reef_private.myfunc("reef_private")
 
-reef_left = Mission_precondition( "reef_left", ( 0, 850 ), None, None, None, 1, None, None, None, 9, 100,[None, None, 0, None, None, None])
+reef_left = Mission_precondition( "reef_left", ( 0, 850 ), None, None, None, 1, None, None, None, 9, 200,[None, None, 0, None, None, None])
 reef_left.myfunc("reef_left")
 
-reef_right = Mission_precondition( "reef_right", ( 0, 2150 ), None, None, None, 1, None, None, None, 9, 100,[None, 0, None, None, None, None])
+reef_right = Mission_precondition( "reef_right", ( 0, 2150 ), None, None, None, 1, None, None, None, 9, 200,[None, 0, None, None, None, None])
 reef_right.myfunc("reef_right")
 
 placecup_reef = Mission_precondition( "placecup_reef", ( 800, 200 ), None, None, None, None, None, None, None, 5, 10000,[None, None, None, None, None, None])
@@ -319,7 +319,7 @@ leaf = [ anchorN, anchorS, flag, windsock, lhouse, getcup, reef_private, reef_le
 tmp = 0
 mission = len(leaf)
 while cur.time < 95:
-    print("time", cur.time)
+    # print("time", cur.time)
     if tmp  == 0:
     #check if current states meet preconditions
         checkpreconditions(cur, leaf, robot1)
@@ -346,16 +346,22 @@ if cur.NS == anchorN.NS:
 else:
     cur.achieved.append(anchorS)
         
-
+mission_list = []
 temp = 0
 for a in cur.achieved:
     if a.name == 'getcup':
         # print("debug",len(cur.cup_order))
         print("achieved", a.name, cur.cup_order[temp])
         # print("achieved", a.name)
+        c = (a.name, (cur.cup_order[temp]['location']))
+        mission_list.append(c)
         temp = temp + 1
     else:
         print("achieved", a.name, a.location)
+        c = (a.name, a.location)
+        mission_list.append(c)
 
 score = evaluate(cur, robot1)
 print("score", score)
+# for p in mission_list:
+#     print("mission_list", p)
