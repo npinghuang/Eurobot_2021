@@ -9,9 +9,10 @@ cup_state = [ { 'location' : ( 510, 450 ), 'state' : 1, 'color' : 2, 'type' : 0 
                 { 'location' : ( 800, 1900 ), 'state' : 1, 'color' : 3, 'type' : 1 }, { 'location' : ( 100, 2330 ), 'state' : 1, 'color' : 3, 'type' : 1 } ]  
 #  change get cup place cup to soecific location
 class robotsetting:
-    def __init__(self, a):
+    def __init__(self, a, b):
         self.cupstorage = a
         self.freestorage = a
+        self.reef = b
         # print("debug", self.cupstorage , self.freestorage)
     def cup(self, num):
         # print("debug", self.cupstorage , num)
@@ -19,32 +20,34 @@ class robotsetting:
         # print("free storage = ", self.freestorage)
 
 class current_state:
-    def __init__(self, name, location, cup_num, NS, windsock1, windsock2, flag, lhouse, time, cost):
+    def __init__(self, name, location, NS, reef_p, reef_l, reef_r, windsock, flag, lhouse, time):
         self.name = name
         self.location = location 
-        self.cup_num = cup_num
         self.NS = NS
-        self.windsock1 = windsock1
-        self.windsock2 = windsock2
+        self.reef_p = reef_p
+        self.reef_l = reef_l
+        self.reef_r = reef_r
+        self.windsock = windsock
         self.flag = flag
         self.lhouse = lhouse
         self.time = time
-        self.cost = cost
+        self.placecup_reef = 0
         self.check = 0
         self.candidate = []
         self.achieved = []
         self.cup_order = []
     def myfunc(self, name):
-        print(name, self.cup_num, self.NS, self.windsock1, self.flag, self.lhouse, self.time, self.candidate)
+        print(name, self.NS, self.windsock, self.flag, self.lhouse, self.time, self.candidate)
 
 class Mission_precondition:
-    def __init__(self, name, location, cup_num, NS, windsock1, windsock2, flag, lhouse, time, reward, effect):
+    def __init__(self, name, location, NS, reef_p, reef_l, reef_r, windsock, flag, lhouse, time, reward, effect):
         self.name = name
         self.location = location
-        self.cup_num = cup_num
         self.NS = NS
-        self.windsock1 = windsock1
-        self.windsock2 = windsock2
+        self.reef_p = reef_p
+        self.reef_l = reef_l
+        self.reef_r = reef_r
+        self.windsock = windsock
         self.flag = flag
         self.lhouse = lhouse
         self.time = time
@@ -54,7 +57,7 @@ class Mission_precondition:
         self.cup = None
         self.effect = effect
     def myfunc(self, name):
-        print("mission " + name, self.cup_num, self.NS, self.windsock1, self.flag, self.lhouse, self.time)
+        print("mission " + name, self.NS, self.windsock, self.flag, self.lhouse, self.time)
 
 def checkpreconditions( current, mis, robot):
     for m in mis:
@@ -71,17 +74,13 @@ def checkpreconditions( current, mis, robot):
                     current.candidate.append(m)
         elif m.name == 'placecupP' or m.name == 'placecupH':
             if robot.freestorage < robot.cupstorage:
-                if current.time < 92:
+                if current.time < 70:
                     m.cost = distance( current.location, m.location ) - m.reward * ( robot.cupstorage - robot.freestorage - 12 ) + m.time
                 else:
                     m.cost = distance( current.location, m.location ) - m.reward * (100 * ( robot.cupstorage - robot.freestorage ))**5 + m.time
                 current.candidate.append(m)
-        elif m.name == 'windsock1':
-            if current.windsock1 != 1:
-                m.cost = distance( current.location, m.location ) - m.reward + m.time
-                current.candidate.append(m)
-        elif m.name == 'windsock2':
-            if current.windsock2 != 1:
+        elif m.name == 'windsock':
+            if current.windsock != 1:
                 m.cost = distance( current.location, m.location ) - m.reward + m.time
                 current.candidate.append(m)
         elif m.name == 'lhouse':
@@ -97,6 +96,22 @@ def checkpreconditions( current, mis, robot):
                 m.cost = distance( current.location, m.location ) - m.reward + m.time
                 current.candidate.append(m)
             # print("candidate", m.name)
+        elif m.name == 'reef_rivate':
+            if robot1.reef == 1 and current.reef_p == 1:
+                m.cost = distance( current.location, m.location ) - m.reward + m.time
+                current.candidate.append(m)
+        elif m.name == 'reef_left':
+            if robot1.reef == 1 and current.reef_l == 1:
+                m.cost = distance( current.location, m.location ) - m.reward + m.time
+                current.candidate.append(m)
+        elif m.name == 'reef_right':
+            if robot1.reef == 1 and current.reef_r == 1:
+                m.cost = distance( current.location, m.location ) - m.reward + m.time
+                current.candidate.append(m)
+        elif m.name == 'placecup_reef':
+            if current.placecup_reef == 1:
+                m.cost = distance( current.location, m.location ) - m.reward + m.time
+                current.candidate.append(m)
 def cup_cost(current, mission, robot):
     global cup_state 
     # calculate Manhattan distance
@@ -127,38 +142,47 @@ def cup_cost(current, mission, robot):
 def refreshstate(current, mission, robot):
     # for i in mission.effect:
         # print("refresh", i)
-    if current.cup_num != None and mission.effect[0] != None:
-        robot.cup(mission.effect[0])
-        current.cup_num += mission.effect[0]
+    # if current.cup_num != None and mission.effect[0] != None:
+    #     robot.cup(mission.effect[0])
+    #     current.cup_num += mission.effect[0]
     if mission.name == "getcup":
         global cup_state
+        robot.cup(1)
         current.cup_order.append(mission.cup)
         for c in cup_state:
             if mission.location == c['location']:
                 c['state'] = 0
-    # if current.NS != None:
-    #     current.NS = mission.effect[1]
+
+    elif mission.name == 'placecupH' or mission.name == 'placecupP':
+        robot.cup(-12)
+
+    if mission.effect[0] != None:
+        current.reef_p = mission.effect[0]
+        current.placecup_reef = 1
+    if mission.effect[1] != None:
+        current.reef_r = mission.effect[1]
+        current.placecup_reef = 1
     if mission.effect[2] != None:
-        # print("de", current.windsock1, mission.effect[2])
-        current.windsock1 = mission.effect[2]
+        current.reef_l = mission.effect[2]
+        current.placecup_reef = 1
     if mission.effect[3] != None:
-        # print("bug", current.windsock2, mission.effect[3])
-        current.windsock2 = mission.effect[3]
+        current.windsock = mission.effect[3]
     if mission.effect[4] != None:
         current.flag = mission.effect[4]
     if mission.effect[5] != None:
         current.lhouse = mission.effect[5]
-        
-    # if mission.effect[5] != None:
+    if mission.name == 'placecup_reef':
+        current.placecup_reef = 0        
+
     if mission.name == 'flag':
         current.time += mission.effect[5]
     else:
         d = distance( current.location, mission.location )
         # d = abs( current.location[0] - mission.location[0] ) + abs( current.location[1] -  mission.location[1])
-        if mission.effect[5] == None:
-             current.time += d / 500
-        else:
-            current.time += mission.effect[5] + d / 500 
+        # if mission.effect[5] == None:
+        #      current.time += d / 500
+        # else:
+        current.time += mission.time + d / 500 
         # print("debuggg", current.time)
     # print("refresh", current.cup_num, current.windsock)
     if mission.location != None:
@@ -195,8 +219,10 @@ def evaluate(current, robot):
             score += 10
         elif  m.name == 'flag':
             score += 10
+        elif m.name == 'placecup_reef':
+            score += 2*5 + 2*2
         elif m.name == 'placecupH' or  m.name == 'placecupP':
-            score += 2 * robot.cupstorage
+            score += 2 * robot1.cupstorage
             i = 0
             # for c in cup_state:
             #     if current.cup_order[ cup ] == c['location']:
@@ -228,59 +254,72 @@ def evaluate(current, robot):
                                 red += 1
                             break
                     cup += 1
-    
+        
+                
+
     #calculate how many paired cup
     if red > green:
         score += 2 * green
     else:
         score += 2 * red
     return score
-mission = 10 - 3
 
-#setting of robot1
+
+#setting of robot1 cup capacity and if can pick cup from reef
 current_cup = 0
-robot1 = robotsetting(12)
+robot1 = robotsetting(12, 0)
+# robot1 = robotsetting(5, 1)
 robot1.cup(current_cup)
 #print("func", robot1.freestorage)
 
 #setting of current state
-#name, location, cup_num, NS, windsock1, windsock2, flag, lhouse, time, cost
-cur = current_state( "cur", ( 200, 750 ), 0, 1, 0, 0, 0, 0, 0, 0)
+#name, location, NS, reef_p, reef_l, reef_r, windsock, flag, lhouse, time):
+cur = current_state( "cur", ( 800, 200 ), 0, 1, 1, 1, 0, 0, 0, 0)
 cur.myfunc("current")
 #setting of mission precondition 
-#name, location, cup_num, NS, windsock1, windsock2, flag, lhouse, time, reward, effect
-windsock1 = Mission_precondition( "windsock1", ( 2000, 230 ), None, None, 0, None, None, None, 2, 15, [None, None, 1, None, None, None, 2])
-windsock1.myfunc("windsock1")
+#name, location, NS, reefp, reefr, reefl, windsock, flag, lhouse, time, reward, effect[reefp, reefr, reefl, windsock, flag, lhouse]
+windsock = Mission_precondition( "windsock", ( 2000, 430 ), None, None, None, None, 0, None, None, 2, 80, [None, None, None, 1, None, None, None, 2])
+windsock.myfunc("windsock")
 
-windsock2 = Mission_precondition( "windsock2", ( 2000, 635 ), None, None, None, 0, None, None, 2, 15, [None, None, None, 1, None, None, 2])
-windsock2.myfunc("windsock2")
-
-lhouse = Mission_precondition( "lhouse", ( 0, 300 ), None, None, None, None, None, 0, 2, 50,[None, None, None, None, None, 1, 2])
+lhouse = Mission_precondition( "lhouse", ( 0, 300 ), None, None, None, None, None, None, 0, 2, 50,[None, None, None, None, None, 1])
 lhouse.myfunc("lhouse")
 
-
-
-getcup = Mission_precondition( "getcup", ( 0, 0 ), 1, None, None, None, None, None, 90, 60,[1, None, None, None, None, None, 5])
+getcup = Mission_precondition( "getcup", ( 0, 0 ), None, None, None, None, None, None, None, 2, 40,[None, None, None, None, None, None])
 getcup.myfunc("getcup")
 
-placecupP = Mission_precondition( "placecupP", ( 515, 200 ), -12, None, None, None, None, None, 5, 40,[-12, None, None, None, None, None, 1])
+#reef cup counts separately
+reef_private = Mission_precondition( "reef_private", ( 1600, 0 ), None, None, 1, None, None, None, None, 9, 100,[0, None, None, None, None, None])
+reef_private.myfunc("reef_private")
+
+reef_left = Mission_precondition( "reef_left", ( 0, 850 ), None, None, None, 1, None, None, None, 9, 100,[None, None, 0, None, None, None])
+reef_left.myfunc("reef_left")
+
+reef_right = Mission_precondition( "reef_right", ( 0, 2150 ), None, None, None, 1, None, None, None, 9, 100,[None, 0, None, None, None, None])
+reef_right.myfunc("reef_right")
+
+placecup_reef = Mission_precondition( "placecup_reef", ( 800, 200 ), None, None, None, None, None, None, None, 5, 10000,[None, None, None, None, None, None])
+placecup_reef.myfunc("placecup_reef")
+
+placecupP = Mission_precondition( "placecupP", ( 515, 200 ), None, None, None, None, None, None, None, 5, 40,[None, None, None, None, None, None])
 placecupP.myfunc("placecupP")
 
-placecupH = Mission_precondition( "placecupH", ( 1850, 1800 ), -12, None, None, None, None, None, 5, 40,[-12, None, None, None, None, None, 1])
+placecupH = Mission_precondition( "placecupH", ( 1850, 1800 ), None, None, None, None, None, None, None, 5, 40,[None, None, None, None, None, None])
 placecupH.myfunc("placecupH")
 #temporay set that it has to be done last
-anchorN = Mission_precondition( "anchorN", (300, 200 ), None, 1, 1, 1, None, 1, 2, 10000,[None, None, None, None, None, 2])
+anchorN = Mission_precondition( "anchorN", (300, 200 ), None, None, None, None, None, None, None, 2, 10000,[None, None, None, None, None, None])
 anchorN.myfunc("anchorN")
-anchorS = Mission_precondition( "anchorS", ( 1300, 200 ), None, 0, 1, 1, None, 1, 2, 10000,[None, None, None, None, None, 2])
+anchorS = Mission_precondition( "anchorS", ( 1300, 200 ), None, None, None, None, None, None, None, 2, 10000,[None, None, None, None, None, None])
 anchorS.myfunc("anchorS")
 
 #temporay set that it has to be done after lhouse and windsock
-flag = Mission_precondition( "flag", None, None, None, 1, 1, 0, 1, 0, 20000,[None, None, None, 1, None, 1])
+flag = Mission_precondition( "flag", None, None, None, None, 1, 1, 0, 1, 0, 20000,[None, None, None, 1, None, 1])
 flag.myfunc("flag")  
 
-leaf = [ anchorN, anchorS, flag, windsock1, windsock2, lhouse, getcup, placecupP, placecupH ]
+leaf = [ anchorN, anchorS, flag, windsock, lhouse, getcup, reef_private, reef_left, reef_right, placecupP, placecupH, placecup_reef ]
 tmp = 0
+mission = len(leaf)
 while cur.time < 95:
+    print("time", cur.time)
     if tmp  == 0:
     #check if current states meet preconditions
         checkpreconditions(cur, leaf, robot1)
@@ -289,15 +328,7 @@ while cur.time < 95:
         refreshstate(cur, cur.candidate[0], robot1)
         tmp = tmp + 1
     else:
-        # for i in cur.achieved:
-        #     # print("e", i.name)
-        #     if i in leaf and i != 'getcup':
-        #         leaf.remove(i)
-        # for y in leaf:
-            # print("leaf", y.name)
-          
-        checkpreconditions(cur, leaf, robot1)
-               
+        checkpreconditions(cur, leaf, robot1)           
         if len(cur.candidate) != 0:
             compare_cost(cur.candidate)
             # print("aa", cur.candidate[0].name)
