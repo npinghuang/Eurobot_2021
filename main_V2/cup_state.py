@@ -50,3 +50,5 @@ def distance(a, b):
 
 p = distance((0,0), (30, 40))
 print(p)
+
+print("length", len(cup_state))

@@ -1,5 +1,4 @@
 import math
-
 # ( ( x, y ), 1 for cup still there 0 for cup gone,  2  for green 3 for red, type : private 0 or public 1 )
 cup_state = [ { 'location' : ( 510, 450 ), 'state' : 1, 'color' : 2, 'type' : 0 } , { 'location' : ( 1200, 300 ), 'state' : 1, 'color' : 2, 'type' : 0 },
                 { 'location' : ( 400, 300 ), 'state' : 1, 'color' : 3, 'type' : 0 }, { 'location' : ( 1080, 450 ), 'state' : 1, 'color' : 3, 'type' : 0 } ,
@@ -251,27 +250,13 @@ def evaluate(current, robot):
             score += 10
         elif m.name == 'placecup_reef':
             score += 2*5 + 2*2
-        elif m.name == 'placecupH' or  m.name == 'placecupP':
-            score += 2 * robot1.cupstorage
-            i = 0
-            #there are two cases, one is placecup when there is no freestorage, the other is place cup when there is still freestorage
-            if mm < num:
-                for i in range(0, robot.cupstorage):
-                    if current.cup_order[cup]['color'] == 2:
-                        green += 1
-                    else:
-                        red += 1
-                    cup += 1
-                mm += 1
-            elif mm < num + 1:
-                tmp = len(current.cup_order) - num * robot.cupstorage
-                for i in range(0, tmp ):
-                    if current.cup_order[cup]['color'] == 2:
-                        green += 1
-                    else:
-                        red += 1
-                    cup += 1
-                mm += 1
+    #cup score
+    score += 2 * len(current.cup_order)
+    for i in range(0, len(current.cup_order)):
+        if current.cup_order[i]['color'] == 2:
+            green += 1
+        else:
+            red += 1
     #calculate how many paired cup
     if red > green:
         score += 2 * green
