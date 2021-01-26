@@ -1,13 +1,15 @@
 import math
-# ( ( x, y ), 1 for cup still there 0 for cup gone,  2  for green 3 for red, type : private 0 or public 1 )
-cup_state = [ { 'location' : ( 510, 450 ), 'state' : 1, 'color' : 2, 'type' : 0 } , { 'location' : ( 1200, 300 ), 'state' : 1, 'color' : 2, 'type' : 0 },
-                { 'location' : ( 400, 300 ), 'state' : 1, 'color' : 3, 'type' : 0 }, { 'location' : ( 1080, 450 ), 'state' : 1, 'color' : 3, 'type' : 0 } ,
-                { 'location' : ( 1650, 1665 ), 'state' : 1, 'color' : 2, 'type' : 0 }, { 'location' : ( 1955, 1995 ), 'state' : 1, 'color' : 2, 'type' : 0 },
-                { 'location' : ( 1955, 1605 ), 'state' : 1, 'color' : 3, 'type' : 0 }, { 'location' : ( 1650, 1935 ), 'state' : 1, 'color' : 3, 'type' : 0 },
-                { 'location' : ( 100, 670 ), 'state' : 1, 'color' : 2, 'type' : 1 }, { 'location' : ( 800, 1100 ), 'state' : 1, 'color' : 2, 'type' : 1 },
-                { 'location' : ( 1200, 1730 ), 'state' : 1, 'color' : 2, 'type' : 1 } , { 'location' : ( 400, 2050 ), 'state' : 1, 'color' : 2, 'type' : 1 },
-                { 'location' : ( 400, 950 ), 'state' : 1, 'color' : 3, 'type' : 1 }, { 'location' : ( 1200, 1270 ), 'state' : 1, 'color' : 3, 'type' : 1 },
-                { 'location' : ( 800, 1900 ), 'state' : 1, 'color' : 3, 'type' : 1 }, { 'location' : ( 100, 2330 ), 'state' : 1, 'color' : 3, 'type' : 1 } ]  
+import rospy
+from goap_.srv import *
+# ( no, ( x, y ), 1 for cup still there 0 for cup gone,  2  for green 3 for red, type : private 0 or public 1 )
+cup_state = [  { 'no' : 1, 'location' : ( 1200, 300 ), 'state' : 1, 'color' : 2, 'type' : 0 }, { 'no' : 2, 'location' : ( 1085, 445 ), 'state' : 1, 'color' : 3, 'type' : 0 },
+               { 'no' : 3, 'location' : ( 515, 445 ), 'state' : 1, 'color' : 2, 'type' : 0 } , { 'no' : 4,'location' : ( 400, 300 ), 'state' : 1, 'color' : 3, 'type' : 0 },
+               { 'no' : 5, 'location' : ( 100, 670 ), 'state' : 1, 'color' : 2, 'type' : 1 }, { 'no' : 6, 'location' : ( 400, 956 ), 'state' : 1, 'color' : 3, 'type' : 1 }, 
+               { 'no' : 7, 'location' : ( 800, 1100 ), 'state' : 1, 'color' : 2, 'type' : 1 }, { 'no' : 8, 'location' : ( 1200, 1270 ), 'state' : 1, 'color' : 3, 'type' : 1 },
+               { 'no' : 9, 'location' : ( 1200, 1730 ), 'state' : 1, 'color' : 2, 'type' : 1 }, { 'no' : 10, 'location' : ( 800, 1900 ), 'state' : 1, 'color' : 3, 'type' : 1 },
+               { 'no' : 11, 'location' : ( 400, 2044 ), 'state' : 1, 'color' : 2, 'type' : 1 },  { 'no' : 12, 'location' : ( 100, 2330 ), 'state' : 1, 'color' : 3, 'type' : 1 },
+               { 'no' : 13, 'location' : ( 1655, 1665 ), 'state' : 1, 'color' : 2, 'type' : 0 }, { 'no' : 14, 'location' : ( 1655, 1935 ), 'state' : 1, 'color' : 3, 'type' : 0 },
+               { 'no' : 15, 'location' : ( 1955, 1605 ), 'state' : 1, 'color' : 3, 'type' : 0 }, { 'no' : 16, 'location' : ( 1955, 1995 ), 'state' : 1, 'color' : 2, 'type' : 0 } ]
 
 class robotsetting:
     def __init__(self, a, b):
@@ -21,7 +23,7 @@ class robotsetting:
         # print("free storage = ", self.freestorage)
 
 class current_state:
-    def __init__(self, name, location, NS, reef_p, reef_l, reef_r, windsock, flag, lhouse, time):
+    def __init__(self, name, location, NS, reef_p, reef_l, reef_r, windsock, flag, lhouse, time, emergency):
         self.name = name
         self.location = location 
         self.NS = NS
@@ -37,12 +39,13 @@ class current_state:
         self.candidate = []
         self.achieved = []
         self.cup_order = []
-        self.emergency = 0
+        self.emergency = emergency
     def myfunc(self, name):
         print(name, self.NS, self.windsock, self.flag, self.lhouse, self.time, self.candidate)
 
 class Mission_precondition:
-    def __init__(self, name, location, NS, reef_p, reef_l, reef_r, windsock, flag, lhouse, time, reward, effect):
+    def __init__(self, no, name, location, NS, reef_p, reef_l, reef_r, windsock, flag, lhouse, time, reward, effect):
+        self.no = no
         self.name = name
         self.location = location
         self.NS = NS
@@ -138,6 +141,7 @@ def cup_cost(current, mission, robot):
     return mission
 
 def refreshstate(current, mission, robot):
+    global cup_state 
     if mission.name == "getcup":
         global cup_state
         robot.cup(1)
@@ -176,7 +180,9 @@ def refreshstate(current, mission, robot):
     # print("refresh", current.cup_num, current.windsock)
     if mission.location != None:
         current.location = mission.location
-    
+    def myFunc(e):
+        return e['no']
+    cup_state.sort(key=myFunc)
 #compare cost of missions
 def compare_cost( array ):
     def myFunc(e):
@@ -264,111 +270,138 @@ def evaluate(current, robot):
         score += 2 * red
     return score
 
-#setting of robot1 cup capacity and if can pick cup from reef
-current_cup = 0
-robot1 = robotsetting(12, 0)
-# robot1 = robotsetting(5, 1)
-robot1.cup(current_cup)
-#setting of current state
-#name, location, NS, reef_p, reef_l, reef_r, windsock, flag, lhouse, time):
-cur = current_state( "cur", ( 800, 200, 0 ), 0, 1, 1, 1, 0, 0, 0, 0)
-cur.myfunc("current")
+# my_pos[0, 0, 0]
+# NS = 0
+# emergency = 0
+# time = 0
 
-location_setting = input ("Enter starting location = 1 no = 0 :") 
-if location_setting == 1:
-    cur.location = ( 800, 200, 0 )
-else:
-    x = input ("Enter location x : ")
-    y = input ("Enter location y : ")
-    theta = input ("Enter location theta : ")
-    cur.location = (x, y, theta) 
+def GOAP():
+    #setting of robot1 cup capacity and if can pick cup from reef
+    current_cup = 0
+    robot1 = robotsetting(12, 0)
+    robot1.cup(current_cup)
+    
+    #setting of mission precondition 
+    #name, location, NS, reefp, reefr, reefl, windsock, flag, lhouse, time, reward, effect[reefp, reefr, reefl, windsock, flag, lhouse]
+    1 = Mission_precondition( 1, "windsock", ( 2000, 430 ), None, None, None, None, 0, None, None, 2, 80, [None, None, None, 1, None, None, None, 2])
+    # windsock.myfunc("windsock")
+    2 = Mission_precondition( 2, "lhouse", ( 0, 300 ), None, None, None, None, None, None, 0, 2, 50,[None, None, None, None, None, 1])
+    # lhouse.myfunc("lhouse")
+    12 = Mission_precondition( 12, "getcup", ( 0, 0 ), None, None, None, None, None, None, None, 2, 20,[None, None, None, None, None, None])
+    # getcup.myfunc("getcup")
+    #reef cup counts separately
+    8 = Mission_precondition( 8, "reef_private", ( 1600, 0 ), None, None, 1, None, None, None, None, 9, 100,[0, None, None, None, None, None])
+    # reef_private.myfunc("reef_private")
+    6 = Mission_precondition( 6, "reef_left", ( 0, 850 ), None, None, None, 1, None, None, None, 9, 200,[None, None, 0, None, None, None])
+    # reef_left.myfunc("reef_left")
+    7 = Mission_precondition(7, "reef_right", ( 0, 2150 ), None, None, None, 1, None, None, None, 9, 200,[None, 0, None, None, None, None])
+    # reef_right.myfunc("reef_right")
+    11 = Mission_precondition( 11, "placecup_reef", ( 800, 200 ), None, None, None, None, None, None, None, 5, 10000,[None, None, None, None, None, None])
+    # placecup_reef.myfunc("placecup_reef")
+    10 = Mission_precondition( 10, "placecupP", ( 515, 200 ), None, None, None, None, None, None, None, 5, 40,[None, None, None, None, None, None])
+    # placecupP.myfunc("placecupP")
+    9 = Mission_precondition( 9, "placecupH", ( 1850, 1800 ), None, None, None, None, None, None, None, 5, 40,[None, None, None, None, None, None])
+    # placecupH.myfunc("placecupH")
+    #temporay set that it has to be done last
+    4 = Mission_precondition( 4, "anchorN", (300, 200 ), 0, None, None, None, None, None, None, 2, 10000,[None, None, None, None, None, None])
+    # anchorN.myfunc("anchorN")
+    5 = Mission_precondition( 5, "anchorS", ( 1300, 200 ), 1, None, None, None, None, None, None, 2, 10000,[None, None, None, None, None, None])
+    # anchorS.myfunc("anchorS")
+    3 = Mission_precondition( 3, "flag", None, None, None, None, 1, 1, 0, 1, 0, 20000,[None, None, None, 1, None, 1])
+    # flag.myfunc("flag")  
 
-cur.emergency = input ("Enter emergency = 1 non-emergency = 0 :") 
-print("emergency", cur.emergency) 
-#setting of mission precondition 
-#name, location, NS, reefp, reefr, reefl, windsock, flag, lhouse, time, reward, effect[reefp, reefr, reefl, windsock, flag, lhouse]
-windsock = Mission_precondition( "windsock", ( 2000, 430 ), None, None, None, None, 0, None, None, 2, 80, [None, None, None, 1, None, None, None, 2])
-# windsock.myfunc("windsock")
-lhouse = Mission_precondition( "lhouse", ( 0, 300 ), None, None, None, None, None, None, 0, 2, 50,[None, None, None, None, None, 1])
-# lhouse.myfunc("lhouse")
-getcup = Mission_precondition( "getcup", ( 0, 0 ), None, None, None, None, None, None, None, 2, 20,[None, None, None, None, None, None])
-# getcup.myfunc("getcup")
-#reef cup counts separately
-reef_private = Mission_precondition( "reef_private", ( 1600, 0 ), None, None, 1, None, None, None, None, 9, 100,[0, None, None, None, None, None])
-# reef_private.myfunc("reef_private")
-reef_left = Mission_precondition( "reef_left", ( 0, 850 ), None, None, None, 1, None, None, None, 9, 200,[None, None, 0, None, None, None])
-# reef_left.myfunc("reef_left")
-reef_right = Mission_precondition( "reef_right", ( 0, 2150 ), None, None, None, 1, None, None, None, 9, 200,[None, 0, None, None, None, None])
-# reef_right.myfunc("reef_right")
-placecup_reef = Mission_precondition( "placecup_reef", ( 800, 200 ), None, None, None, None, None, None, None, 5, 10000,[None, None, None, None, None, None])
-# placecup_reef.myfunc("placecup_reef")
-placecupP = Mission_precondition( "placecupP", ( 515, 200 ), None, None, None, None, None, None, None, 5, 40,[None, None, None, None, None, None])
-# placecupP.myfunc("placecupP")
-placecupH = Mission_precondition( "placecupH", ( 1850, 1800 ), None, None, None, None, None, None, None, 5, 40,[None, None, None, None, None, None])
-# placecupH.myfunc("placecupH")
-#temporay set that it has to be done last
-anchorN = Mission_precondition( "anchorN", (300, 200 ), None, None, None, None, None, None, None, 2, 10000,[None, None, None, None, None, None])
-# anchorN.myfunc("anchorN")
-anchorS = Mission_precondition( "anchorS", ( 1300, 200 ), None, None, None, None, None, None, None, 2, 10000,[None, None, None, None, None, None])
-# anchorS.myfunc("anchorS")
-flag = Mission_precondition( "flag", None, None, None, None, 1, 1, 0, 1, 0, 20000,[None, None, None, 1, None, 1])
-# flag.myfunc("flag")  
+    #setting of current state
+    ( x, y , theta ) = ( my_pos[0], my_pos[1], my_pos[2])
+    #name, location, NS, reef_p, reef_l, reef_r, windsock, flag, lhouse, time):
+    cur = current_state( "cur", ( x, y , theta ), NS, action_list[8], action_list[6], action_list[7], action_list[1], action_list[3], action_list[2], time, emergency)
+    cur.myfunc("current")
+    print("emergency", cur.emergency) 
+    #refresh cup state
+    for i in range( 0, len(cup) ):
+        cup_state[i]['state'] = cup[i]
+        
 
-leaf = [ anchorN, anchorS, flag, windsock, lhouse, getcup, reef_private, reef_left, reef_right, placecupP, placecupH, placecup_reef ]
-tmp = 0
-mission = len(leaf)
-state = 1
+    leaf = [ anchorN, anchorS, flag, windsock, lhouse, getcup, reef_private, reef_left, reef_right, placecupP, placecupH, placecup_reef ]
+    tmp = 0
+    mission = len(leaf)
+    state = 1
 
-while state == 1:
-    if cur.emergency == 0:
-        while cur.time < 95:
-            # print("time", cur.time)
-            if tmp  == 0:
-            #check if current states meet preconditions
-                checkpreconditions(cur, leaf, robot1)
-                compare_cost(cur.candidate)
-                cur.achieved.append(cur.candidate[0])
-                refreshstate(cur, cur.candidate[0], robot1)
-                tmp = tmp + 1
-            else:
-                checkpreconditions(cur, leaf, robot1)           
-                if len(cur.candidate) != 0:
+    while state == 1:
+        if cur.emergency == 0:
+            while cur.time < 95:
+                # print("time", cur.time)
+                if tmp  == 0:
+                #check if current states meet preconditions
+                    checkpreconditions(cur, leaf, robot1)
                     compare_cost(cur.candidate)
-                    # print("aa", cur.candidate[0].name)
                     cur.achieved.append(cur.candidate[0])
                     refreshstate(cur, cur.candidate[0], robot1)
+                    tmp = tmp + 1
                 else:
-                    cur.time += 1
-            #cur.candidate.clear()
-            del cur.candidate[:]
+                    checkpreconditions(cur, leaf, robot1)           
+                    if len(cur.candidate) != 0:
+                        compare_cost(cur.candidate)
+                        # print("aa", cur.candidate[0].name)
+                        cur.achieved.append(cur.candidate[0])
+                        refreshstate(cur, cur.candidate[0], robot1)
+                    else:
+                        cur.time += 1
+                #cur.candidate.clear()
+                del cur.candidate[:]
 
-        cur.achieved.append(flag)
-        if cur.NS == anchorN.NS:
-            cur.achieved.append(anchorN)
-        else:
-            cur.achieved.append(anchorS)
-                
-        mission_list = []
-        temp = 0
-        for a in cur.achieved:
-            if a.name == 'getcup':
-                # print("achieved", a.name, cur.cup_order[temp])
-                c = (a.name, (cur.cup_order[temp]['location']))
-                mission_list.append(c)
-                temp = temp + 1
+            cur.achieved.append(flag)
+            if cur.NS == anchorN.NS:
+                cur.achieved.append(anchorN)
             else:
-                # print("achieved", a.name, a.location)
-                c = (a.name, a.location)
-                mission_list.append(c)
+                cur.achieved.append(anchorS)
+                    
+            mission_list = []
+            temp = 0
 
-        score = evaluate(cur, robot1)
-        print("score", score)
-        for p in mission_list:
-            print("mission_list", p)
-        state = 0
-    else:
-        #return location (x, y, theta), try to get out
-        location = emergency(cur)
-        print("emergency", location) 
-        cur.emergency = input ("Enter emergency = 1 non-emergency = 0 :") 
-        
+            i = 0
+            for a in cur.achieved: 
+                if a.name == 'getcup':
+                    # print("achieved", a.name, cur.cup_order[temp])
+                    action[i][0] = cur.cup_order[temp]['location'][0]
+                    action[i][1] = cur.cup_order[temp]['location'][1]
+                    action[i][2] = cur.cup_order[temp]['location'][2]
+                    action[i][3] = 12
+                    action[i][4] = cur.cup_order[temp]['no']
+                    temp = temp + 1
+                    i += 1
+                else:
+                    # print("achieved", a.name, a.location)
+                    action[i][0] = a.location[0]
+                    action[i][1] = a.location[1]
+                    action[i][2] = a.location[2]
+                    action[i][3] = a.no
+                    action[i][4] = 0
+            for a in cur.achieved:
+                if a.name == 'getcup':
+                    # print("achieved", a.name, cur.cup_order[temp])
+                    c = (a.name, (cur.cup_order[temp]['location']))
+                    mission_list.append(c)
+                    temp = temp + 1
+                else:
+                    # print("achieved", a.name, a.location)
+                    c = (a.name, a.location)
+                    mission_list.append(c)
+
+            score = evaluate(cur, robot1)
+            print("score", score)
+            for p in mission_list:
+                print("mission_list", p)
+            state = 0
+        else:
+            #return location (x, y, theta), try to get out
+            location = emergency(cur)
+            print("emergency", location) 
+            cur.emergency = input ("Enter emergency = 1 non-emergency = 0 :") 
+
+def GOAP_server():
+    rospy.init_node('GOAP_server')
+    s = rospy.Service('GOAP', goap, GOAP)
+    rospy.spin()         
+
+if __name__ == "__main__":
+    GOAP_server()
