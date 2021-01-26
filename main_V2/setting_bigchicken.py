@@ -34,7 +34,7 @@ class Mission_precondition:
         print("mission " + name, self.NS, self.windsock, self.flag, self.lhouse, self.time)
 
 class current_state:
-    def __init__(self, name, location, NS, reef_p, reef_l, reef_r, windsock, flag, lhouse, time):
+    def __init__(self, name, location, NS, reef_p, reef_l, reef_r, windsock, flag, lhouse, time, e1_location, e2_location):
         self.name = name
         self.location = location 
         self.NS = NS
@@ -51,6 +51,8 @@ class current_state:
         self.achieved = []
         self.cup_order = []
         self.emergency = 0
+        self.enemy_1 = e1_location
+        self.enemy_2 = e2_location
     def myfunc(self, name):
         print(name, self.NS, self.windsock, self.flag, self.lhouse, self.time, self.candidate)
 
@@ -94,8 +96,8 @@ flag = Mission_precondition( "flag", None, None, None, None, 1, 1, 0, 1, 0, 2000
 # flag.myfunc("flag") 
 
 #setting of current state
-#name, location, NS, reef_p, reef_l, reef_r, windsock, flag, lhouse, time):
-cur = current_state( "cur", ( 800, 200, 0 ), 0, 1, 1, 1, 0, 0, 0, 0)
+#name, location, NS, reef_p, reef_l, reef_r, windsock, flag, lhouse, time, enemy1, enemy2):
+cur = current_state( "cur", ( 800, 200, 0 ), 0, 1, 1, 1, 0, 0, 0, 0, (500, 600), (900, 1500))
 cur.myfunc("current") 
 
 #setting of robot1 cup capacity and if can pick cup from reef
