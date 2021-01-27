@@ -18,3 +18,7 @@ cup_state = [  { 'no' : 1, 'location' : ( 1200, 300 ), 'state' : 1, 'color' : 2,
 
 
 print("check", cup_state[3])
+
+msi = []
+msi.append([0,1,2])
+print(msi[0][1])
