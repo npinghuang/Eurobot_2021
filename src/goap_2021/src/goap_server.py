@@ -34,13 +34,13 @@ def emergency(current):
             rad += math.pi / 4
         #check if ( x, y ) will hit cup or not
         else:
-            for c in cup_state:
+            for c in current.cup_state:
                 if (x, y) == c['location']:
                     rad += math.pi / 4
                     break
                 else:
                     count += 1
-            if count == len(cup_state):
+            if count == len(current.cup_state):
                 state = 1
     location = ( int(x), int(y), theta)
     current.location = location
@@ -80,70 +80,99 @@ def evaluate(current, robot):
     return score
 
 def GOAP(req):
-    mission_precondition(req)
+    (current, robot1) = mission_precondition(req)
     tmp = 0
-    mission = len(cur.mission_list)
+    mission = len(current.mission_list)
     state = 1
     
     # while state == 1:
-    if cur.emergency == 0:
-        while cur.time < 95:
-            # print("time", cur.time)
-            leaf = [ anchorN, anchorS, flag, windsock, lhouse, getcup, reef_private, reef_left, reef_right, placecupP, placecupH, placecup_reef ]
-            del cur.mission_list[:]
+    if current.emergency == 0:
+        while current.time < 95:
+            # print("time", current.time)
+            del current.mission_list[:]
             friend = 0
-            for a in range(0, len(action_list)):
-                if action_list[a] == 0:
-                    for m in leaf:
+            for a in range(0, len(req.action_list)):
+                if req.action_list[a] == 0:
+                    for m in current.leaf:
                         if m.no == a :
-                            if m.no == friend_action and (friend_action == 1 or friend_action == 2 or friend_action == 6 or friend_action == 7 or friend_action == 8 or friend_action == 9 or friend_action == 10 or friend_action == 11):
+                            if m.no == req.friend_action and (req.friend_action == 1 or req.friend_action == 2 or req.friend_action == 6 or req.friend_action == 7 or req.friend_action == 8 or req.friend_action == 9 or req.friend_action == 10 or req.friend_action == 11):
                                 friend = 1
                             else:
                                 friend = 0
-                                cur.mission_list.append(m)
-                if action_list[a] == 1:
-                    for m in leaf:
+                                current.mission_list.append(m)
+                if req.action_list[a] == 1:
+                    for m in current.leaf:
                         if m.no == a:
-                            refreshstate(cur, m, robot1)
-            # print("time", cur.time)
+                            refreshstate(current, m, robot1)
+            # print("time", current.time)
             if tmp  == 0:
             #check if current states meet preconditions
-                checkpreconditions(cur, cur.mission_list, robot1)
-                compare_cost(cur.candidate)
-                cur.achieved.append(cur.candidate[0])
-                refreshstate(cur, cur.candidate[0], robot1)
+                checkpreconditions(req, current, current.mission_list, robot1)
+                compare_cost(current.candidate)
+                current.achieved.append(current.candidate[0])
+                refreshstate(current, current.candidate[0], robot1)
                 tmp = tmp + 1
             else:
-                checkpreconditions(cur, cur.mission_list, robot1)           
-                if len(cur.candidate) != 0:
-                    compare_cost(cur.candidate)
+                checkpreconditions(req, current, current.mission_list, robot1)           
+                if len(current.candidate) != 0:
+                    compare_cost(current.candidate)
                     # print("aa", cur.candidate[0].name)
-                    cur.achieved.append(cur.candidate[0])
-                    refreshstate(cur, cur.candidate[0], robot1)
+                    current.achieved.append(current.candidate[0])
+                    refreshstate(current, current.candidate[0], robot1)
                 else:
-                    cur.time += 1
+                    current.time += 1
             #cur.candidate.clear()
-            del cur.candidate[:]
+            del current.candidate[:]
+	flag = current.leaf[11]
+	anchorN = current.leaf[9]
+	anchorS = current.leaf[10]
 
-        cur.achieved.append(flag)
-        if cur.NS == anchorN.NS:
-            cur.achieved.append(anchorN)
+        if current.NS == anchorN.NS:
+            current.achieved.append(anchorN)
         else:
-            cur.achieved.append(anchorS)
+            current.achieved.append(anchorS)
+        current.achieved.append(flag)
 
         temp = 0
         i = 0
-        # action = []*len(cur.achieved)[]*5
-        action = [[0 for x in range(len(cur.achieved))] for y in range(5)] 
-        # action = array((len(cur.achieved), 5))
-        ff = 0
+        action = []
+	action_pos = []
+	ff = 0
+        for a in current.achieved: 
+            if a.name == 'getcup':
+                print("action",current.cup_order[temp]['no'] , a.name, current.cup_order[temp]['location'][0], current.cup_order[temp]['location'][1], current.cup_order[temp]['location'][2])
+                action_pos.append(current.cup_order[temp]['location'][0])
+                action_pos.append( current.cup_order[temp]['location'][1])
+                action_pos.append( current.cup_order[temp]['location'][2])
+                action_pos.append( current.cup_order[temp]['no'])
+		action.append(a.no)
+                
+                temp = temp + 1
+                i += 1
+            else:
+                if a.location != None:
+                    print("action", a.no, a.name, a.location[0], a.location[1], a.location[2], 0)
+                    action.append(a.no)
+                    action_pos.append(a.location[0])
+                    action_pos.append( a.location[1])
+                    action_pos.append(a.location[2] )
+                    action_pos.append(0)
+
+                    i += 1
+                else:#flag has no location so i need to give last mission's location
+                    print("action", a.no, a.name,action_pos[-1])
+                    action.append(a.no)
+                    action_pos.append(action_pos[-4])
+                    action_pos.append( action_pos[-4])
+                    action_pos.append(action_pos[-4] )
+                    action_pos.append(0)
+                    i += 1
         
         mission_list = []
         temp = 0
-        for a in cur.achieved:
+        for a in current.achieved:
             if a.name == 'getcup':
-                print("temp", temp)
-                c = (a.name, (cur.cup_order[temp]['location']))
+                c = (a.name, (current.cup_order[temp]['location']))
                 mission_list.append(c)
                 temp = temp + 1
             else:
@@ -151,15 +180,16 @@ def GOAP(req):
                 c = (a.name, a.location)
                 mission_list.append(c)
 
-        score = evaluate(cur, robot1)
+        score = evaluate(current, robot1)
         print("score", score)
-        for p in mission_list:
-            print("mission_list", p)
+        #for p in mission_list:
+            #print("mission_list", p)
         state = 0
     else:
         #return location (x, y, theta), try to get out
-        location = emergency(cur)
+        location = emergency(current)
         print("emergency", location) 
+    return action, action_pos
 
 def goap_server():
     rospy.init_node('goap_server')

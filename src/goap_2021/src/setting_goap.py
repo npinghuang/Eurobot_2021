@@ -22,7 +22,9 @@ class current_state:
         self.placecup_reef = 0
         self.check = 0
         self.candidate = []
+	self.leaf = []
         self.mission_list = []
+	self.cup_state = []
         self.achieved = []
         self.cup_order = []
         self.emergency = emergency
@@ -63,16 +65,23 @@ class Mission_precondition:
     def myfunc(self, name):
         print("mission " + name, self.NS, self.windsock, self.flag, self.lhouse, self.time)
 
-#setting of robot1 cup capacity and if can pick cup from reef
-current_cup = 0
-robot1 = robotsetting(12, 0)
-robot1.cup(current_cup)
+
 # team = 0
 #setting of mission precondition
 def mission_precondition(req):
+	#setting of robot1 cup capacity and if can pick cup from reef
+	current_cup = 0
+	robot1 = robotsetting(12, 0)
+	robot1.cup(current_cup)
 	if req.team == 0: 
+	    #setting of current state
+	    ( x, y , theta ) = ( req.my_pos[0], req.my_pos[1], req.my_pos[2])
+	    e1 = (req.enemy_pos[0], req.enemy_pos[1])
+	    e2 = (req.enemy_pos[2], req.enemy_pos[3])
+	    #name, location, NS, reef_p, reef_l, reef_r, windsock, flag, lhouse, time, e1_location, e2_location
+	    cur = current_state( "cur", ( x, y , theta ), req.ns, req.action_list[8], req.action_list[6], req.action_list[7], req.action_list[1], req.action_list[3], req.action_list[2], req.time, req.emergency, e1, e2)
 	    # blue : ( no, ( x, y ), 1 for cup still there 0 for cup gone,  2  for green 3 for red, type : private 0 or public 1 )
-	    cup_state = [  { 'no' : 1, 'location' : ( 1200, 300, 0 ), 'state' : 1, 'color' : 2, 'type' : 0 }, { 'no' : 2, 'location' : ( 1085, 445, 0 ), 'state' : 1, 'color' : 3, 'type' : 0 },
+	    cur.cup_state = [  { 'no' : 1, 'location' : ( 1200, 300, 0 ), 'state' : 1, 'color' : 2, 'type' : 0 }, { 'no' : 2, 'location' : ( 1085, 445, 0 ), 'state' : 1, 'color' : 3, 'type' : 0 },
 			{ 'no' : 3, 'location' : ( 515, 445, 0 ), 'state' : 1, 'color' : 2, 'type' : 0 } , { 'no' : 4,'location' : ( 400, 300, 0 ), 'state' : 1, 'color' : 3, 'type' : 0 },
 			{ 'no' : 5, 'location' : ( 100, 670, 0 ), 'state' : 1, 'color' : 2, 'type' : 1 }, { 'no' : 6, 'location' : ( 400, 956, 0 ), 'state' : 1, 'color' : 3, 'type' : 1 }, 
 			{ 'no' : 7, 'location' : ( 800, 1100, 0 ), 'state' : 1, 'color' : 2, 'type' : 1 }, { 'no' : 8, 'location' : ( 1200, 1270, 0 ), 'state' : 1, 'color' : 3, 'type' : 1 },
@@ -109,19 +118,15 @@ def mission_precondition(req):
 	    flag = Mission_precondition( 3, "flag", None, None, None, None, 1, 1, 0, 1, 0, 20000,[None, None, None, 1, None, 1])
 	    # flag.myfunc("flag")  
 
-	#setting of current state
+	
+	cur.leaf = [windsock, lhouse, getcup, reef_private, reef_right, reef_left, placecup_reef, placecupP, placecupH, anchorN, anchorS, flag]
+	#cur.myfunc("current")
+	#print("emergency", cur.emergency) 
 
-	( x, y , theta ) = ( req.my_pos[0], req.my_pos[1], req.my_pos[2])
-	e1 = (req.enemy_pos[0], req.enemy_pos[1])
-	e2 = (req.enemy_pos[2], req.enemy_pos[3])
-	#name, location, NS, reef_p, reef_l, reef_r, windsock, flag, lhouse, time, e1_location, e2_location
-	cur = current_state( "cur", ( x, y , theta ), req.ns, req.action_list[8], req.action_list[6], req.action_list[7], req.action_list[1], req.action_list[3], req.action_list[2], req.time, req.emergency, e1, e2)
-	cur.myfunc("current")
-	print("emergency", cur.emergency) 
 	#refresh cup state
-	# for i in range( 0, len(cup) ):
-	#     cup_state[i]['state'] = cup[i]
 	tmp = 0
-	for c in cup:
-	    cup_state[tmp]['state'] = c
+	for c in req.cup:
+	    cur.cup_state[tmp]['state'] = c
 	    tmp += 1
+	return cur, robot1
+	
