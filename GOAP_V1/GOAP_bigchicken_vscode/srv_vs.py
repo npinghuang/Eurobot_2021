@@ -1,0 +1,12 @@
+my_pos = [800, 200, 0]
+# my_pos = [1500, 200, 0]
+friend_pos = [0, 0, 0]
+NS = 0
+emergency = 0
+team = 0
+time = 0
+friend_action = [7, 0]
+action_list = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+cup_color = [0,1,0,1,0]
+cup = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ]
+enemy_pos = [-100, 0,-100, 0]
