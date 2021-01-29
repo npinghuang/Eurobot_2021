@@ -4,7 +4,7 @@ import math
 import rospy
 from goap_2021.srv import *
 from precondition import *
-from setting_goap import *
+from setting_big_goap import *
 
 def emergency(current):
     location = current.location
@@ -96,7 +96,7 @@ def GOAP(req):
         print("emergency", location)    
 
     elif current.emergency == 0:
-        while current.time < 95:
+        while current.time < 90:
             # print("time", current.time)
             del current.mission_list[:]
             friend = 0
@@ -109,36 +109,51 @@ def GOAP(req):
                             else:
                                 friend = 0
                                 current.mission_list.append(m)
-                if req.action_list[a] == 1:
+                elif req.action_list[a] == 1:
                     for m in current.leaf:
                         if m.no == a:
-                            refreshstate(current, m, robot1)
+                            # print("debug", m.name)
+                            if m.name == 'getcup':
+                                current.mission_list.append(m)
+                            else:
+                                refreshstate(current, m, robot1, 0)
+                            # print("current windsock", current.windsock, current.lhouse)
+                elif req.action_list[a] == 3: #if mission failed 
+                    for m in current.leaf:
+                        if m.no == a : # some mission we don't won't to retry  bugg!!!! cup no and m.name != 'getcup'
+                            current.mission_list.append(m)
             # print("time", current.time)
             if tmp  == 0:
             #check if current states meet preconditions
                 checkpreconditions(req, current, current.mission_list, robot1)
-                compare_cost(current.candidate)
-                current.achieved.append(current.candidate[0])
-                refreshstate(current, current.candidate[0], robot1)
-                tmp = tmp + 1
+                if len(current.candidate) != 0:
+                    compare_cost(current.candidate)
+                    current.achieved.append(current.candidate[0])
+                    refreshstate(current, current.candidate[0], robot1, 1)
+                    tmp = tmp + 1
+                else:
+                    current.time += 1
+                    print("no mission")
             else:
                 checkpreconditions(req, current, current.mission_list, robot1)           
                 if len(current.candidate) != 0:
                     compare_cost(current.candidate)
                     # print("aa", current.candidate[0].name)
                     current.achieved.append(current.candidate[0])
-                    refreshstate(current, current.candidate[0], robot1)
+                    refreshstate(current, current.candidate[0], robot1, 1)
                 else:
                     current.time += 1
+                    print("no mission")
             del current.candidate[:]
-	flag = current.leaf[11]
-	anchorN = current.leaf[9]
-	anchorS = current.leaf[10]
-        if current.NS == anchorN.NS:
-            current.achieved.append(anchorN)
-        else:
-            current.achieved.append(anchorS)
-        current.achieved.append(flag)
+        if current.time <  100:
+            flag = current.leaf[11]
+            anchorN = current.leaf[9]
+            anchorS = current.leaf[10]
+            if current.NS == anchorN.NS:
+                current.achieved.append(anchorN)
+            else:
+                current.achieved.append(anchorS)
+            current.achieved.append(flag)
 
         temp = 0
         i = 0
@@ -151,8 +166,7 @@ def GOAP(req):
                 action_pos.append( current.cup_order[temp]['location'][1])
                 action_pos.append( current.cup_order[temp]['location'][2])
                 action_pos.append( current.cup_order[temp]['no'])
-		action.append(a.no)
-                
+                action.append(a.no)
                 temp = temp + 1
                 i += 1
             else:

@@ -5,9 +5,8 @@ check mission precondition and refresh current state
 #!/usr/bin/env python
 #coding=utf-8
 
-from setting_goap import *
+from setting_big_goap import *
 def checkpreconditions( req, current, mis, robot):
-    margin = 30
     for m in mis:
         if m.location != None:
             boom1 = check_boom( m.location, current.enemy_1)
@@ -38,12 +37,14 @@ def checkpreconditions( req, current, mis, robot):
                 m.cost = distance( current.location, m.location ) - m.reward + m.time
                 current.candidate.append(m)
         elif m.name == 'lhouse':
-            if current.lhouse != 1 and boom1 ==  1 and boom2 == 1 and boomf == 1:
-                m.cost = distance( current.location, m.location ) - m.reward + m.time
+            # print("lhouse", current.lhouse,boom1, boom2, boomf)
+            if current.lhouse != 1 and boom1 == 1 and boom2 == 1 and boomf == 1:
+                m.cost = distance( current.location, m.location ) - m.reward + m.time 
                 current.candidate.append(m)
+                # print("debug", m.cost)
         elif m.name == 'flag':
             if current.time >= 95 :
-                m.cost = distance( current.location, m.location ) - m.reward + m.time
+                m.cost =  - m.reward + m.time
                 current.candidate.append(m)
         elif m.name == 'anchorN' or m.name == 'anchorS':
             if current.NS == m.NS and current.time > 97 and boom1 ==  1 and boom2 == 1 and boomf == 1:
@@ -90,15 +91,16 @@ def cup_cost(req, current, mission, robot):
                 mission = current.cup_state[c]
                 i = 0
             # print( 'cup debug', current.cup_state[c])
-            
-        elif c >= len(current.cup_state) - 1:
+        elif current.cup_state[c]['state'] == 0:
+            c += 1 
+        if c >= len(current.cup_state) - 1:
             mission = None
             i = 0
-        else:
-            c += 1
+        
     return mission
 
-def refreshstate(current, mission, robot):
+def refreshstate(current, mission, robot, state):
+    #state =  1 -> this mission is done by self robotl; state = 0 -> this mission is done by other 
     if mission.name == "getcup":
         robot.cup(1)
         current.cup_order.append(mission.cup)
@@ -128,13 +130,15 @@ def refreshstate(current, mission, robot):
     if mission.name == 'placecup_reef':
         current.placecup_reef = 0        
 
-    if mission.name == 'flag':
-        current.time += mission.effect[5]
-    else:
-        d = distance( current.location, mission.location )
-        current.time += mission.time + d / 500 
-    if mission.location != None:
-        current.location = mission.location
+    if state == 1:
+        if mission.name == 'flag':
+            current.time += mission.effect[5]
+        else:
+            d = distance( current.location, mission.location )
+            rotate = rotate_time( current.location, mission.location )
+            current.time += mission.time + d / velocity  + rotate
+        if mission.location != None:
+            current.location = mission.location
     def myFunc(e):
         return e['no']
     current.cup_state.sort(key=myFunc)
@@ -147,6 +151,11 @@ def compare_cost( array ):
 def distance(a, b):
     d =int((abs( a[0] - b[0] )**2 + abs( a[1] - b[1])**2))**0.5
     return d
+
+def rotate_time(a, b):
+    r = abs( a[2] - b[2])
+    time = r / angular_velocity
+    return time
 
 #calculate the distance betwwen two robot and determine if it will bump into each other
 #just to clarify, this stupid name is named by susan hahaha

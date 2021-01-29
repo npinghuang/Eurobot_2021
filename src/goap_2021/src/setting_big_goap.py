@@ -6,6 +6,9 @@ this .py file is the only place you will need to change
 #!/usr/bin/env python
 #coding=utf-8
 
+velocity = 500
+angular_velocity = 200
+margin = 30 #safety distance between other robot
 # from srv import *
 class current_state:
     def __init__(self, name, location, NS, reef_p, reef_l, reef_r, windsock, flag, lhouse, time, emergency, e1_location, e2_location, friend_pos ):
@@ -88,32 +91,28 @@ def mission_precondition(req):
 			{ 'no' : 7, 'location' : ( 800, 1100, 0 ), 'state' : 1, 'color' : 2, 'type' : 1 }, { 'no' : 8, 'location' : ( 1200, 1270, 0 ), 'state' : 1, 'color' : 3, 'type' : 1 },
 			{ 'no' : 9, 'location' : ( 1200, 1730, 0 ), 'state' : 1, 'color' : 2, 'type' : 1 }, { 'no' : 10, 'location' : ( 800, 1900, 0 ), 'state' : 1, 'color' : 3, 'type' : 1 },
 			{ 'no' : 11, 'location' : ( 400, 2044, 0 ), 'state' : 1, 'color' : 2, 'type' : 1 },  { 'no' : 12, 'location' : ( 100, 2330, 0 ), 'state' : 1, 'color' : 3, 'type' : 1 },
-			{ 'no' : 13, 'location' : ( 1655, 1665, 0 ), 'state' : 1, 'color' : 2, 'type' : 0 }, { 'no' : 14, 'location' : ( 1655, 1935, 0 ), 'state' : 1, 'color' : 3, 'type' : 0 },
-			{ 'no' : 15, 'location' : ( 1955, 1605, 0 ), 'state' : 1, 'color' : 3, 'type' : 0 }, { 'no' : 16, 'location' : ( 1955, 1995, 0 ), 'state' : 1, 'color' : 2, 'type' : 0 },
+			{ 'no' : 13, 'location' : ( 1655, 1665, 0 ), 'state' : 0, 'color' : 2, 'type' : 0 }, { 'no' : 14, 'location' : ( 1655, 1935, 0 ), 'state' : 0, 'color' : 3, 'type' : 0 },
+			{ 'no' : 15, 'location' : ( 1955, 1605, 0 ), 'state' : 0, 'color' : 3, 'type' : 0 }, { 'no' : 16, 'location' : ( 1955, 1995, 0 ), 'state' : 0, 'color' : 2, 'type' : 0 },
 			{ 'no' : 17, 'location' : ( 0, 0, 0 ), 'state' : 0, 'color' : 3, 'type' : 1 }, { 'no' : 18, 'location' : ( 0, 0, 0 ), 'state' : 0, 'color' : 3, 'type' : 1 },
 			{ 'no' : 19, 'location' : ( 0, 0, 0 ), 'state' : 0, 'color' : 3, 'type' : 1 }, { 'no' : 20, 'location' : ( 0, 0, 0 ), 'state' : 0, 'color' : 3, 'type' : 1 },
 			{ 'no' : 21, 'location' : ( 0, 0, 0 ), 'state' : 0, 'color' : 3, 'type' : 1 }, { 'no' : 22, 'location' : ( 0, 0, 0 ), 'state' : 0, 'color' : 3, 'type' : 1 },
 			{ 'no' : 23, 'location' : ( 0, 0, 0 ), 'state' : 0, 'color' : 3, 'type' : 1 }, { 'no' : 24, 'location' : ( 0, 0, 0 ), 'state' : 0, 'color' : 3, 'type' : 1 }]
 
 	    #no, name, location, NS, reefp, reefr, reefl, windsock, flag, lhouse, time, reward, effect[reefp, reefr, reefl, windsock, flag, lhouse]
-	    windsock = Mission_precondition( 1, "windsock", ( 2000, 430, 0), None, None, None, None, 0, None, None, 2, 80, [None, None, None, 1, None, None,])
-	    # windsock.myfunc("windsock")
-
+	    windsock = Mission_precondition( 1, "windsock", ( 2000, 430, 0), None, None, None, None, 0, None, None, 8, 80, [None, None, None, 1, None, None,])
 	    lhouse = Mission_precondition( 2, "lhouse", ( 0, 300, 0 ), None, None, None, None, None, None, 0, 2, 50,[None, None, None, None, None, 1])
-	    getcup = Mission_precondition( 12, "getcup", ( 0, 0, 0), None, None, None, None, None, None, None, 2, 20,[None, None, None, None, None, None])
+	    getcup = Mission_precondition( 12, "getcup", ( 0, 0, 0), None, None, None, None, None, None, None, 5, 20,[None, None, None, None, None, None])
 	    #reef cup counts separately
 	    reef_private = Mission_precondition( 8, "reef_private", ( 1600, 0, 0 ), None, None, 1, None, None, None, None, 9, 100,[0, None, None, None, None, None])
 	    reef_left = Mission_precondition( 6, "reef_left", ( 0, 850, 0 ), None, None, None, 1, None, None, None, 9, 200,[None, None, 0, None, None, None])
 	    reef_right = Mission_precondition(7, "reef_right", ( 0, 2150, 0 ), None, None, None, 1, None, None, None, 9, 200,[None, 0, None, None, None, None])
-	    placecup_reef = Mission_precondition( 11, "placecup_reef", ( 800, 200, 0 ), None, None, None, None, None, None, None, 5, 10000,[None, None, None, None, None, None])
-	    placecupP = Mission_precondition( 10, "placecupP", ( 515, 200, 0 ), None, None, None, None, None, None, None, 5, 40,[None, None, None, None, None, None])
-	    placecupH = Mission_precondition( 9, "placecupH", ( 1850, 1800, 0 ), None, None, None, None, None, None, None, 5, 40,[None, None, None, None, None, None])
+	    placecup_reef = Mission_precondition( 11, "placecup_reef", ( 800, 200, 0 ), None, None, None, None, None, None, None, 10, 10000,[None, None, None, None, None, None])
+	    placecupP = Mission_precondition( 10, "placecupP", ( 515, 200, 0 ), None, None, None, None, None, None, None, 10, 40,[None, None, None, None, None, None])
+	    placecupH = Mission_precondition( 9, "placecupH", ( 1850, 1800, 0 ), None, None, None, None, None, None, None, 10, 40,[None, None, None, None, None, None])
 	    #temporay set that it has to be done last
 	    anchorN = Mission_precondition( 4, "anchorN", (300, 200, 0 ), 0, None, None, None, None, None, None, 2, 10000,[None, None, None, None, None, None])
 	    anchorS = Mission_precondition( 5, "anchorS", ( 1300, 200, 0 ), 1, None, None, None, None, None, None, 2, 10000,[None, None, None, None, None, None])
-	    # anchorS.myfunc("anchorS")
 	    flag = Mission_precondition( 3, "flag", None, None, None, None, 1, 1, 0, 1, 0, 20000,[None, None, None, None, 1, None])
-	    # flag.myfunc("flag")  
 
 	elif req.team == 1: 
 		# yellow : ( no, ( x, y ), 1 for cup still there 0 for cup gone,  2  for green 3 for red, type : private 0 or public 1 )
@@ -123,38 +122,37 @@ def mission_precondition(req):
 			{ 'no' : 7, 'location' : ( 800, 1100, 0 ), 'state' : 1, 'color' : 2, 'type' : 1 }, { 'no' : 8, 'location' : ( 1200, 1270, 0 ), 'state' : 1, 'color' : 3, 'type' : 1 },
 			{ 'no' : 9, 'location' : ( 1200, 1730, 0 ), 'state' : 1, 'color' : 2, 'type' : 1 }, { 'no' : 10, 'location' : ( 800, 1900, 0 ), 'state' : 1, 'color' : 3, 'type' : 1 },
 			{ 'no' : 11, 'location' : ( 400, 2044, 0 ), 'state' : 1, 'color' : 2, 'type' : 1 },  { 'no' : 12, 'location' : ( 100, 2330, 0 ), 'state' : 1, 'color' : 3, 'type' : 1 },
-			{ 'no' : 13, 'location' : ( 1655, 1065, 0 ), 'state' : 1, 'color' : 2, 'type' : 0 }, { 'no' : 14, 'location' : ( 1655, 1335, 0 ), 'state' : 1, 'color' : 3, 'type' : 0 },
-			{ 'no' : 15, 'location' : ( 1955, 1005, 0 ), 'state' : 1, 'color' : 3, 'type' : 0 }, { 'no' : 16, 'location' : ( 1955, 1395, 0 ), 'state' : 1, 'color' : 2, 'type' : 0 },
+			{ 'no' : 13, 'location' : ( 1655, 1065, 0 ), 'state' : 0, 'color' : 2, 'type' : 0 }, { 'no' : 14, 'location' : ( 1655, 1335, 0 ), 'state' : 0, 'color' : 3, 'type' : 0 },
+			{ 'no' : 15, 'location' : ( 1955, 1005, 0 ), 'state' : 0, 'color' : 3, 'type' : 0 }, { 'no' : 16, 'location' : ( 1955, 1395, 0 ), 'state' : 0, 'color' : 2, 'type' : 0 },
 			{ 'no' : 17, 'location' : ( 0, 0, 0 ), 'state' : 0, 'color' : 3, 'type' : 1 }, { 'no' : 18, 'location' : ( 0, 0, 0 ), 'state' : 0, 'color' : 3, 'type' : 1 },
 			{ 'no' : 19, 'location' : ( 0, 0, 0 ), 'state' : 0, 'color' : 3, 'type' : 1 }, { 'no' : 20, 'location' : ( 0, 0, 0 ), 'state' : 0, 'color' : 3, 'type' : 1 },
 			{ 'no' : 21, 'location' : ( 0, 0, 0 ), 'state' : 0, 'color' : 3, 'type' : 1 }, { 'no' : 22, 'location' : ( 0, 0, 0 ), 'state' : 0, 'color' : 3, 'type' : 1 },
 			{ 'no' : 23, 'location' : ( 0, 0, 0 ), 'state' : 0, 'color' : 3, 'type' : 1 }, { 'no' : 24, 'location' : ( 0, 0, 0 ), 'state' : 0, 'color' : 3, 'type' : 1 }]
 		
 	    #name, location, NS, reefp, reefr, reefl, windsock, flag, lhouse, time, reward, effect[reefp, reefr, reefl, windsock, flag, lhouse]
-	    windsock = Mission_precondition( 1, "windsock", ( 2000, 2330, 0), None, None, None, None, 0, None, None, 2, 80, [None, None, None, 1, None, None])
+	    windsock = Mission_precondition( 1, "windsock", ( 2000, 2330, 0), None, None, None, None, 0, None, None, 8, 80, [None, None, None, 1, None, None])
 	    lhouse = Mission_precondition( 2, "lhouse", ( 0, 2775, 0 ), None, None, None, None, None, None, 0, 2, 50,[None, None, None, None, None, 1])
-	    getcup = Mission_precondition( 12, "getcup", ( 0, 0, 0), None, None, None, None, None, None, None, 2, 20,[None, None, None, None, None, None])
+	    getcup = Mission_precondition( 12, "getcup", ( 0, 0, 0), None, None, None, None, None, None, None, 5, 20,[None, None, None, None, None, None])
 	    #reef cup counts separately
 	    reef_private = Mission_precondition( 8, "reef_private", ( 1600, 3000, 0 ), None, None, 1, None, None, None, None, 9, 100,[0, None, None, None, None, None])
 	    reef_left = Mission_precondition( 6, "reef_left", ( 0, 850, 0 ), None, None, None, 1, None, None, None, 9, 200,[None, None, 0, None, None, None])
 	    reef_right = Mission_precondition(7, "reef_right", ( 0, 2150, 0 ), None, None, None, 1, None, None, None, 9, 200,[None, 0, None, None, None, None])
-	    placecup_reef = Mission_precondition( 11, "placecup_reef", ( 800, 2775, 0 ), None, None, None, None, None, None, None, 5, 10000,[None, None, None, None, None, None])
-	    placecupP = Mission_precondition( 10, "placecupP", ( 515, 2775, 0 ), None, None, None, None, None, None, None, 5, 40,[None, None, None, None, None, None])
-	    placecupH = Mission_precondition( 9, "placecupH", ( 1850, 1200, 0 ), None, None, None, None, None, None, None, 5, 40,[None, None, None, None, None, None])
+	    placecup_reef = Mission_precondition( 11, "placecup_reef", ( 800, 2775, 0 ), None, None, None, None, None, None, None, 10, 10000,[None, None, None, None, None, None])
+	    placecupP = Mission_precondition( 10, "placecupP", ( 515, 2775, 0 ), None, None, None, None, None, None, None, 10, 40,[None, None, None, None, None, None])
+	    placecupH = Mission_precondition( 9, "placecupH", ( 1850, 1200, 0 ), None, None, None, None, None, None, None, 10, 40,[None, None, None, None, None, None])
 	    #temporay set that it has to be done last
 	    anchorN = Mission_precondition( 4, "anchorN", (300, 2775, 0 ), 0, None, None, None, None, None, None, 2, 10000,[None, None, None, None, None, None])
 	    anchorS = Mission_precondition( 5, "anchorS", ( 1300, 2775, 0 ), 1, None, None, None, None, None, None, 2, 10000,[None, None, None, None, None, None])
 	    flag = Mission_precondition( 3, "flag", None, None, None, None, 1, 1, 0, 1, 0, 20000,[None, None, None,None, 1,  None])	
 	cur.leaf = [windsock, lhouse, getcup, reef_private, reef_right, reef_left, placecup_reef, placecupP, placecupH, anchorN, anchorS, flag]
 	#cur.myfunc("current")
-	#print("emergency", cur.emergency) 
-
 	#refresh cup state
 	c = 0
 	ccup = req.cup
 	for i in range (len(cur.cup_state)):
 		c = int(ccup) % 2
-		cur.cup_state[i]['state'] = c
+		if c == 0:
+			cur.cup_state[i]['state'] = c
 		# print("c", c, i, cup)
 		ccup = int(ccup / 2)	
 	return cur, robot1
