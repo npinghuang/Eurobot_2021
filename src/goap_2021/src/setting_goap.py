@@ -8,7 +8,6 @@ this .py file is the only place you will need to change
 
 # from srv import *
 class current_state:
-<<<<<<< HEAD
     def __init__(self, name, location, NS, reef_p, reef_l, reef_r, windsock, flag, lhouse, time, emergency, e1_location, e2_location, friend_pos ):
 		self.name = name
 		self.location = location 
@@ -78,10 +77,8 @@ def mission_precondition(req):
 	( x, y , theta ) = ( req.my_pos[0], req.my_pos[1], req.my_pos[2])
 	e1 = (req.enemy_pos[0], req.enemy_pos[1])
 	e2 = (req.enemy_pos[2], req.enemy_pos[3])
-<<<<<<< HEAD
 	# name, location, NS, reef_p, reef_l, reef_r, windsock, flag, lhouse, time, emergency, e1_location, e2_location, friend_pos
 	cur = current_state( "cur", ( x, y , theta ), req.ns, req.action_list[8], req.action_list[6], req.action_list[7], req.action_list[1], req.action_list[3], req.action_list[2], req.time, req.emergency, e1, e2, req.friend_pos)
-=======
 
 	if req.team == 0: 
 	    # blue : ( no, ( x, y ), 1 for cup still there 0 for cup gone,  2  for green 3 for red, type : private 0 or public 1 )
@@ -98,7 +95,6 @@ def mission_precondition(req):
 			{ 'no' : 21, 'location' : ( 0, 0, 0 ), 'state' : 0, 'color' : 3, 'type' : 1 }, { 'no' : 22, 'location' : ( 0, 0, 0 ), 'state' : 0, 'color' : 3, 'type' : 1 },
 			{ 'no' : 23, 'location' : ( 0, 0, 0 ), 'state' : 0, 'color' : 3, 'type' : 1 }, { 'no' : 24, 'location' : ( 0, 0, 0 ), 'state' : 0, 'color' : 3, 'type' : 1 }]
 
-<<<<<<< HEAD
 	    #no, name, location, NS, reefp, reefr, reefl, windsock, flag, lhouse, time, reward, effect[reefp, reefr, reefl, windsock, flag, lhouse]
 	    windsock = Mission_precondition( 1, "windsock", ( 2000, 430, 0), None, None, None, None, 0, None, None, 2, 80, [None, None, None, 1, None, None,])
 	    # windsock.myfunc("windsock")
@@ -115,7 +111,6 @@ def mission_precondition(req):
 	    #temporay set that it has to be done last
 	    anchorN = Mission_precondition( 4, "anchorN", (300, 200, 0 ), 0, None, None, None, None, None, None, 2, 10000,[None, None, None, None, None, None])
 	    anchorS = Mission_precondition( 5, "anchorS", ( 1300, 200, 0 ), 1, None, None, None, None, None, None, 2, 10000,[None, None, None, None, None, None])
-<<<<<<< HEAD
 	    # anchorS.myfunc("anchorS")
 	    flag = Mission_precondition( 3, "flag", None, None, None, None, 1, 1, 0, 1, 0, 20000,[None, None, None, None, 1, None])
 	    # flag.myfunc("flag")  
@@ -135,7 +130,6 @@ def mission_precondition(req):
 			{ 'no' : 21, 'location' : ( 0, 0, 0 ), 'state' : 0, 'color' : 3, 'type' : 1 }, { 'no' : 22, 'location' : ( 0, 0, 0 ), 'state' : 0, 'color' : 3, 'type' : 1 },
 			{ 'no' : 23, 'location' : ( 0, 0, 0 ), 'state' : 0, 'color' : 3, 'type' : 1 }, { 'no' : 24, 'location' : ( 0, 0, 0 ), 'state' : 0, 'color' : 3, 'type' : 1 }]
 		
-<<<<<<< HEAD
 	    #name, location, NS, reefp, reefr, reefl, windsock, flag, lhouse, time, reward, effect[reefp, reefr, reefl, windsock, flag, lhouse]
 	    windsock = Mission_precondition( 1, "windsock", ( 2000, 2330, 0), None, None, None, None, 0, None, None, 2, 80, [None, None, None, 1, None, None])
 	    lhouse = Mission_precondition( 2, "lhouse", ( 0, 2775, 0 ), None, None, None, None, None, None, 0, 2, 50,[None, None, None, None, None, 1])
@@ -150,14 +144,12 @@ def mission_precondition(req):
 	    #temporay set that it has to be done last
 	    anchorN = Mission_precondition( 4, "anchorN", (300, 2775, 0 ), 0, None, None, None, None, None, None, 2, 10000,[None, None, None, None, None, None])
 	    anchorS = Mission_precondition( 5, "anchorS", ( 1300, 2775, 0 ), 1, None, None, None, None, None, None, 2, 10000,[None, None, None, None, None, None])
-<<<<<<< HEAD
 	    flag = Mission_precondition( 3, "flag", None, None, None, None, 1, 1, 0, 1, 0, 20000,[None, None, None,None, 1,  None])	
 	cur.leaf = [windsock, lhouse, getcup, reef_private, reef_right, reef_left, placecup_reef, placecupP, placecupH, anchorN, anchorS, flag]
 	#cur.myfunc("current")
 	#print("emergency", cur.emergency) 
 
 	#refresh cup state
-<<<<<<< HEAD
 	c = 0
 	ccup = req.cup
 	for i in range (len(cur.cup_state)):
@@ -165,6 +157,5 @@ def mission_precondition(req):
 		cur.cup_state[i]['state'] = c
 		# print("c", c, i, cup)
 		ccup = int(ccup / 2)	
-
 	return cur, robot1
 	
