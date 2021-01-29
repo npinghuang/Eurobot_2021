@@ -32,30 +32,7 @@ class current_state:
 		self.enemy_1 = e1_location
 		self.enemy_2 = e2_location
 		self.friend_pos = friend_pos
-=======
-    def __init__(self, name, location, NS, reef_p, reef_l, reef_r, windsock, flag, lhouse, time, emergency, e1_location, e2_location):
-        self.name = name
-        self.location = location 
-        self.NS = NS
-        self.reef_p = reef_p
-        self.reef_l = reef_l
-        self.reef_r = reef_r
-        self.windsock = windsock
-        self.flag = flag
-        self.lhouse = lhouse
-        self.time = time
-        self.placecup_reef = 0
-        self.check = 0
-        self.candidate = []
-		self.leaf = []
-        self.mission_list = []
-		self.cup_state = []
-        self.achieved = []
-        self.cup_order = []
-        self.emergency = emergency
-        self.enemy_1 = e1_location
-        self.enemy_2 = e2_location
->>>>>>> 9c6e1c731b2f77c52d988a4b79fa69f73164b842
+
     def myfunc(self, name):
         print(name, self.NS, self.windsock, self.flag, self.lhouse, self.time, self.candidate)
 
@@ -105,9 +82,7 @@ def mission_precondition(req):
 	# name, location, NS, reef_p, reef_l, reef_r, windsock, flag, lhouse, time, emergency, e1_location, e2_location, friend_pos
 	cur = current_state( "cur", ( x, y , theta ), req.ns, req.action_list[8], req.action_list[6], req.action_list[7], req.action_list[1], req.action_list[3], req.action_list[2], req.time, req.emergency, e1, e2, req.friend_pos)
 =======
-	#name, location, NS, reef_p, reef_l, reef_r, windsock, flag, lhouse, time, e1_location, e2_location
-	cur = current_state( "cur", ( x, y , theta ), req.ns, req.action_list[8], req.action_list[6], req.action_list[7], req.action_list[1], req.action_list[3], req.action_list[2], req.time, req.emergency, e1, e2)
->>>>>>> 9c6e1c731b2f77c52d988a4b79fa69f73164b842
+
 	if req.team == 0: 
 	    # blue : ( no, ( x, y ), 1 for cup still there 0 for cup gone,  2  for green 3 for red, type : private 0 or public 1 )
 	    cur.cup_state = [  { 'no' : 1, 'location' : ( 1200, 300, 0 ), 'state' : 1, 'color' : 2, 'type' : 0 }, { 'no' : 2, 'location' : ( 1085, 445, 0 ), 'state' : 1, 'color' : 3, 'type' : 0 },
@@ -127,10 +102,7 @@ def mission_precondition(req):
 	    #no, name, location, NS, reefp, reefr, reefl, windsock, flag, lhouse, time, reward, effect[reefp, reefr, reefl, windsock, flag, lhouse]
 	    windsock = Mission_precondition( 1, "windsock", ( 2000, 430, 0), None, None, None, None, 0, None, None, 2, 80, [None, None, None, 1, None, None,])
 	    # windsock.myfunc("windsock")
-=======
-	    #name, location, NS, reefp, reefr, reefl, windsock, flag, lhouse, time, reward, effect[reefp, reefr, reefl, windsock, flag, lhouse]
-	    windsock = Mission_precondition( 1, "windsock", ( 2000, 430, 0), None, None, None, None, 0, None, None, 2, 80, [None, None, None, 1, None, None, None])
->>>>>>> 9c6e1c731b2f77c52d988a4b79fa69f73164b842
+
 	    lhouse = Mission_precondition( 2, "lhouse", ( 0, 300, 0 ), None, None, None, None, None, None, 0, 2, 50,[None, None, None, None, None, 1])
 	    getcup = Mission_precondition( 12, "getcup", ( 0, 0, 0), None, None, None, None, None, None, None, 2, 20,[None, None, None, None, None, None])
 	    #reef cup counts separately
@@ -148,11 +120,6 @@ def mission_precondition(req):
 	    flag = Mission_precondition( 3, "flag", None, None, None, None, 1, 1, 0, 1, 0, 20000,[None, None, None, None, 1, None])
 	    # flag.myfunc("flag")  
 
-
-=======
-	    flag = Mission_precondition( 3, "flag", None, None, None, None, 1, 1, 0, 1, 0, 20000,[None, None, None, 1, None, 1])
-
->>>>>>> 9c6e1c731b2f77c52d988a4b79fa69f73164b842
 	elif req.team == 1: 
 		# yellow : ( no, ( x, y ), 1 for cup still there 0 for cup gone,  2  for green 3 for red, type : private 0 or public 1 )
 	    cur.cup_state = [  { 'no' : 1, 'location' : ( 1200, 2700, 0 ), 'state' : 1, 'color' : 2, 'type' : 0 }, { 'no' : 2, 'location' : ( 1085, 2555, 0 ), 'state' : 1, 'color' : 3, 'type' : 0 },
@@ -171,10 +138,6 @@ def mission_precondition(req):
 <<<<<<< HEAD
 	    #name, location, NS, reefp, reefr, reefl, windsock, flag, lhouse, time, reward, effect[reefp, reefr, reefl, windsock, flag, lhouse]
 	    windsock = Mission_precondition( 1, "windsock", ( 2000, 2330, 0), None, None, None, None, 0, None, None, 2, 80, [None, None, None, 1, None, None])
-=======
-		#name, location, NS, reefp, reefr, reefl, windsock, flag, lhouse, time, reward, effect[reefp, reefr, reefl, windsock, flag, lhouse]
-	    windsock = Mission_precondition( 1, "windsock", ( 2000, 2330, 0), None, None, None, None, 0, None, None, 2, 80, [None, None, None, 1, None, None, None])
->>>>>>> 9c6e1c731b2f77c52d988a4b79fa69f73164b842
 	    lhouse = Mission_precondition( 2, "lhouse", ( 0, 2775, 0 ), None, None, None, None, None, None, 0, 2, 50,[None, None, None, None, None, 1])
 	    getcup = Mission_precondition( 12, "getcup", ( 0, 0, 0), None, None, None, None, None, None, None, 2, 20,[None, None, None, None, None, None])
 	    #reef cup counts separately
@@ -189,9 +152,6 @@ def mission_precondition(req):
 	    anchorS = Mission_precondition( 5, "anchorS", ( 1300, 2775, 0 ), 1, None, None, None, None, None, None, 2, 10000,[None, None, None, None, None, None])
 <<<<<<< HEAD
 	    flag = Mission_precondition( 3, "flag", None, None, None, None, 1, 1, 0, 1, 0, 20000,[None, None, None,None, 1,  None])	
-=======
-	    flag = Mission_precondition( 3, "flag", None, None, None, None, 1, 1, 0, 1, 0, 20000,[None, None, None, 1, None, 1])
->>>>>>> 9c6e1c731b2f77c52d988a4b79fa69f73164b842
 	cur.leaf = [windsock, lhouse, getcup, reef_private, reef_right, reef_left, placecup_reef, placecupP, placecupH, anchorN, anchorS, flag]
 	#cur.myfunc("current")
 	#print("emergency", cur.emergency) 
@@ -205,17 +165,6 @@ def mission_precondition(req):
 		cur.cup_state[i]['state'] = c
 		# print("c", c, i, cup)
 		ccup = int(ccup / 2)	
-=======
-	# tmp = 0
-	# for c in req.cup:
-	#     cur.cup_state[tmp]['state'] = c
-	#     tmp += 1
-	c = 0
-	for i in range (len(cur.cup_state)):
-		c = int(req.cup) % 2
-		cur.cup_state[i]['state'] = c
-		# print("c", c, i, cup)
-		cup = int(cup / 2)		
->>>>>>> 9c6e1c731b2f77c52d988a4b79fa69f73164b842
+
 	return cur, robot1
 	

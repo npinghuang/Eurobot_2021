@@ -134,7 +134,6 @@ def GOAP(req):
 	flag = current.leaf[11]
 	anchorN = current.leaf[9]
 	anchorS = current.leaf[10]
-
         if current.NS == anchorN.NS:
             current.achieved.append(anchorN)
         else:
