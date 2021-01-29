@@ -7,7 +7,7 @@ from precondition import *
 from setting_goap import *
 
 def emergency(current):
-    location = cur.location
+    location = current.location
     #back away distance
     d = 50
     theta = current.location[2]
@@ -82,11 +82,20 @@ def evaluate(current, robot):
 def GOAP(req):
     (current, robot1) = mission_precondition(req)
     tmp = 0
+    action = []
+    action_pos = []
     mission = len(current.mission_list)
     state = 1
-    
-    # while state == 1:
-    if current.emergency == 0:
+    if current.emergency == 1:
+        #return location (x, y, theta), try to get out
+        location = emergency(current)
+        action.append(0)
+        action_pos.append(location[0])
+        action_pos.append(location[1])
+        action_pos.append(location[2] )
+        print("emergency", location)    
+
+    elif current.emergency == 0:
         while current.time < 95:
             # print("time", current.time)
             del current.mission_list[:]
@@ -116,12 +125,11 @@ def GOAP(req):
                 checkpreconditions(req, current, current.mission_list, robot1)           
                 if len(current.candidate) != 0:
                     compare_cost(current.candidate)
-                    # print("aa", cur.candidate[0].name)
+                    # print("aa", current.candidate[0].name)
                     current.achieved.append(current.candidate[0])
                     refreshstate(current, current.candidate[0], robot1)
                 else:
                     current.time += 1
-            #cur.candidate.clear()
             del current.candidate[:]
 	flag = current.leaf[11]
 	anchorN = current.leaf[9]
@@ -135,8 +143,7 @@ def GOAP(req):
 
         temp = 0
         i = 0
-        action = []
-	action_pos = []
+
 	ff = 0
         for a in current.achieved: 
             if a.name == 'getcup':
@@ -185,10 +192,7 @@ def GOAP(req):
         #for p in mission_list:
             #print("mission_list", p)
         state = 0
-    else:
-        #return location (x, y, theta), try to get out
-        location = emergency(current)
-        print("emergency", location) 
+
     return action, action_pos
 
 def goap_server():

@@ -9,6 +9,10 @@ from setting_goap import *
 def checkpreconditions( req, current, mis, robot):
     margin = 30
     for m in mis:
+        if m.location != None:
+            boom1 = check_boom( m.location, current.enemy_1)
+            boom2 = check_boom( m.location, current.enemy_2)
+            boomf = check_boom( m.location, current.friend_pos )
         if m.name == 'getcup':
             if robot.freestorage > 0 and current.time < 90:
                 cupp = cup_cost( req, current, m, robot )
@@ -16,45 +20,49 @@ def checkpreconditions( req, current, mis, robot):
                     m.cost = distance( current.location, cupp[ 'location' ] )- m.reward + m.time
                     m.location = cupp[ 'location' ]
                     m.cup = cupp
-                    if abs(cupp['location'][0] - current.enemy_1[0] ) > margin and abs(cupp['location'][1] - current.enemy_1[1] ) > margin and abs(cupp['location'][0] - current.enemy_2[0] ) > margin and abs(cupp['location'][1] - current.enemy_2[1] ) > margin:
+                    boom1 = check_boom( cupp['location'], current.enemy_1)
+                    boom2 = check_boom( cupp['location'], current.enemy_2)
+                    boomf = check_boom( cupp['location'], current.friend_pos)
+                    if boom1 ==  1 and boom2 == 1 and boomf == 1:
+                    # if abs(cupp['location'][0] - current.enemy_1[0] ) > margin and abs(cupp['location'][1] - current.enemy_1[1] ) > margin and abs(cupp['location'][0] - current.enemy_2[0] ) > margin and abs(cupp['location'][1] - current.enemy_2[1] ) > margin:
                         current.candidate.append(m)
         elif m.name == 'placecupP' or m.name == 'placecupH':
-            if robot.freestorage < robot.cupstorage and abs(m.location[0] - current.enemy_1[0] ) > margin and abs(m.location[1] - current.enemy_1[1] ) > margin and abs(m.location[0] - current.enemy_2[0] ) > margin and abs(m.location[1] - current.enemy_2[1] ) > margin:
+            if robot.freestorage < robot.cupstorage and boom1 ==  1 and boom2 == 1 and boomf == 1:
                 if current.time < 70:
                     m.cost = distance( current.location, m.location ) - m.reward * ( robot.cupstorage - robot.freestorage - 12 ) + m.time
                 else:
                     m.cost = distance( current.location, m.location ) - m.reward * (100 * ( robot.cupstorage - robot.freestorage ))**5 + m.time
                 current.candidate.append(m)
         elif m.name == 'windsock':
-            if current.windsock != 1 and (abs(m.location[0] - current.enemy_1[0] ) > margin and abs(m.location[1] - current.enemy_1[1] ) > margin and abs(m.location[0] - current.enemy_2[0] ) > margin and abs(m.location[1] - current.enemy_2[1] ) > margin):
+            if current.windsock != 1 and boom1 ==  1 and boom2 == 1 and boomf == 1:
                 m.cost = distance( current.location, m.location ) - m.reward + m.time
                 current.candidate.append(m)
         elif m.name == 'lhouse':
-            if current.lhouse != 1 and (abs(m.location[0] - current.enemy_1[0] ) > margin and abs(m.location[1] - current.enemy_1[1] ) > margin and abs(m.location[0] - current.enemy_2[0] ) > margin and abs(m.location[1] - current.enemy_2[1] ) > margin):
+            if current.lhouse != 1 and boom1 ==  1 and boom2 == 1 and boomf == 1:
                 m.cost = distance( current.location, m.location ) - m.reward + m.time
                 current.candidate.append(m)
         elif m.name == 'flag':
-            if current.time >= 95 and (abs(m.location[0] - current.enemy_1[0] ) > margin and abs(m.location[1] - current.enemy_1[1] ) > margin and abs(m.location[0] - current.enemy_2[0] ) > margin and abs(m.location[1] - current.enemy_2[1] ) > margin):
+            if current.time >= 95 :
                 m.cost = distance( current.location, m.location ) - m.reward + m.time
                 current.candidate.append(m)
         elif m.name == 'anchorN' or m.name == 'anchorS':
-            if current.NS == m.NS and current.time > 97 and (abs(m.location[0] - current.enemy_1[0] ) > margin and abs(m.location[1] - current.enemy_1[1] ) > margin and abs(m.location[0] - current.enemy_2[0] ) > margin and abs(m.location[1] - current.enemy_2[1] ) > margin):
+            if current.NS == m.NS and current.time > 97 and boom1 ==  1 and boom2 == 1 and boomf == 1:
                 m.cost = distance( current.location, m.location ) - m.reward + m.time
                 current.candidate.append(m)
         elif m.name == 'reef_private':
-            if robot.reef == 1 and current.reef_p == 1 and (abs(m.location[0] - current.enemy_1[0] ) > margin and abs(m.location[1] - current.enemy_1[1] ) > margin and abs(m.location[0] - current.enemy_2[0] ) > margin and abs(m.location[1] - current.enemy_2[1] ) > margin):
+            if robot.reef == 1 and current.reef_p == 1 and boom1 ==  1 and boom2 == 1 and boomf == 1:
                 m.cost = distance( current.location, m.location ) - m.reward + m.time
                 current.candidate.append(m)
         elif m.name == 'reef_left':
-            if robot.reef == 1 and current.reef_l == 1 and (abs(m.location[0] - current.enemy_1[0] ) > margin and abs(m.location[1] - current.enemy_1[1] ) > margin and abs(m.location[0] - current.enemy_2[0] ) > margin and abs(m.location[1] - current.enemy_2[1] ) > margin):
+            if robot.reef == 1 and current.reef_l == 1 and boom1 ==  1 and boom2 == 1 and boomf == 1:
                 m.cost = distance( current.location, m.location ) - m.reward + m.time
                 current.candidate.append(m)
         elif m.name == 'reef_right':
-            if robot.reef == 1 and current.reef_r == 1 and (abs(m.location[0] - current.enemy_1[0] ) > margin and abs(m.location[1] - current.enemy_1[1] ) > margin and abs(m.location[0] - current.enemy_2[0] ) > margin and abs(m.location[1] - current.enemy_2[1] ) > margin):
+            if robot.reef == 1 and current.reef_r == 1 and boom1 ==  1 and boom2 == 1 and boomf == 1:
                 m.cost = distance( current.location, m.location ) - m.reward + m.time
                 current.candidate.append(m)
         elif m.name == 'placecup_reef':
-            if current.placecup_reef == 1 and (abs(m.location[0] - current.enemy_1[0] ) > margin and abs(m.location[1] - current.enemy_1[1] ) > margin and abs(m.location[0] - current.enemy_2[0] ) > margin and abs(m.location[1] - current.enemy_2[1] ) > margin):
+            if current.placecup_reef == 1 and boom1 ==  1 and boom2 == 1 and boomf == 1:
                 m.cost = distance( current.location, m.location ) - m.reward + m.time
                 current.candidate.append(m)
         # print("cand", len(current.candidate))
@@ -67,7 +75,6 @@ def cup_cost(req, current, mission, robot):
     def myFunc(e):
         return e['distance']
     current.cup_state.sort(key=myFunc)
-
     i = 1
     c = 0
     #check if cup is still there
@@ -138,5 +145,16 @@ def compare_cost( array ):
     array.sort(key=myFunc)
 
 def distance(a, b):
-    d = int((abs( a[0] - b[0] )**2 + abs( a[1] - b[1])**2)**0.5)
+    d =int((abs( a[0] - b[0] )**2 + abs( a[1] - b[1])**2))**0.5
     return d
+
+#calculate the distance betwwen two robot and determine if it will bump into each other
+#just to clarify, this stupid name is named by susan hahaha
+def check_boom( a, b ):
+    margin = 50
+    distance_boom = distance(a,b)
+    if distance_boom < margin:
+        return False #don't go to that mission
+    else:
+        return True
+
