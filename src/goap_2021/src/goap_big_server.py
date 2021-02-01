@@ -11,7 +11,7 @@ def emergency(current):
     #back away distance
     d = 50
     theta = current.location[2]
-    rad = theta * math.pi / 180
+    rad = thta * math.pi / 180
     (x, y) = ( location[0], location[1])
     count = 0
     state = 0

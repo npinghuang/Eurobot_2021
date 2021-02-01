@@ -68,6 +68,10 @@ def checkpreconditions( req, current, mis, robot):
                 current.candidate.append(m)
         # print("cand", len(current.candidate))
 def cup_cost(req, current, mission, robot):
+    #see claw suction pos
+    claw_pos = []
+    for claw in robot1.claw:
+        claw_pos.append
     # calculate distance
     for cup in current.cup_state:
         d = distance( current.location, cup[ 'location' ])

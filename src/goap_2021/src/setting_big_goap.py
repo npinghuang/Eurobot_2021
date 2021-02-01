@@ -5,6 +5,7 @@ this .py file is the only place you will need to change
 """
 #!/usr/bin/env python
 #coding=utf-8
+import math
 
 velocity = 500
 angular_velocity = 200
@@ -43,6 +44,8 @@ class robotsetting:
         self.cupstorage = a
         self.freestorage = a
         self.reef = b
+		self.claw = [ ] # 0 ~ 1 for red, 2 ~ 3 for green 
+		self.suction = [  ] # 0 ~ 3 for red, 4 ~ 7 for green
         # print("debug", self.cupstorage , self.freestorage)
     def cup(self, num):
         # print("debug", self.cupstorage , num)
@@ -76,6 +79,20 @@ def mission_precondition(req):
 	current_cup = 0
 	robot1 = robotsetting(12, 0)
 	robot1.cup(current_cup)
+	#robot1 geometric setting 
+	a = 40
+	b = 50
+	c = 80
+	d = 70
+	theta_claw = ( math.pi ) / 6
+	theta_suction = ( math.pi ) / 4
+	#state : 0 for no cup, 1 for have cup, color : 2  for green 3 for red, 
+	robot1.claw = [ {'no ' : 0, 'name' : 'frontleft', 'location' : ( a, b, theta_claw), 'state' : 0, 'color' : 2}, {'no ' : 1, 'name' : 'frontright', 'location' : ( a, -b, -theta_claw), 'state' : 0, 'color' : 3},
+								{'no ' : 2, 'name' : 'backleft', 'location' :  ( -a, b, ( math.pi - theta_claw)), 'state' : 0, 'color' : 3}, {'no ' : 3, 'name' : 'backright', 'location' : ( -a, -b, ( math.pi + theta_claw)), 'state' : 0, 'color' : 2}]
+	robot1.suction = [ {'no ' : 0, 'name' : 'frontleftup', 'location' : ( c, d, theta_suction), 'state' : 0, 'color' : 2}, {'no ' : 1, 'name' : 'frontleftdown', 'location' : ( c, d, theta_suction), 'state' : 0, 'color' : 2},
+										{'no ' : 2, 'name' : 'frontrightup', 'location' : ( c, -d, -theta_suction), 'state' : 0, 'color' : 3}, {'no ' : 3, 'name' : 'frontrightdown', 'location' : ( c, -d, -theta_suction), 'state' : 0, 'color' : 3},
+										{'no ' : 4, 'name' : 'backleftup', 'location' :  ( -c, d,( math.pi - theta_suction)), 'state' : 0, 'color' : 3}, {'no ' : 5, 'name' : 'backleftdown', 'location' : ( -c, d,( math.pi - theta_suction)), 'state' : 0, 'color' : 3},
+										{'no ' : 6, 'name' : 'backrightup', 'location' : ( -c, -d,( math.pi + theta_suction)), 'state' : 0, 'color' : 2}, {'no ' : 7, 'name' : 'backrightdown ', 'location' : ( -c, -d,( math.pi + theta_suction)), 'state' : 0, 'color' : 2}]
 	#setting of current state
 	( x, y , theta ) = ( req.my_pos[0], req.my_pos[1], req.my_pos[2])
 	e1 = (req.enemy_pos[0], req.enemy_pos[1])
