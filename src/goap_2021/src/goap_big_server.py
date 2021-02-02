@@ -210,7 +210,7 @@ def GOAP(req):
 
 def goap_server():
     rospy.init_node('goap_server')
-    s = rospy.Service('goap', goap_, GOAP)
+    s = rospy.Service('goap', goap_srv, GOAP)
     rospy.spin()         
 
 if __name__ == "__main__":
