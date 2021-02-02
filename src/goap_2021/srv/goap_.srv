@@ -1,14 +1,16 @@
-int32[] my_pos
-int32[] friend_pos
+float32[] my_pos
+float32[] friend_pos
 bool ns
 bool emergency
 bool team
 float32 time
-int32 friend_action
+int32[] friend_action
 int32[] action_list
 int32[] cup_color
-int32[] enemy_pos
+int32 cup
+float32[] enemy_pos
 int32 strategy
 ---
 int32[] action
+float32[] action_pos
 
