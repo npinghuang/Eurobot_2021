@@ -95,8 +95,8 @@ def mission_precondition(req):
 										{'no' : 6, 'name' : 'backrightup', 'location' : ( -c, -d,( math.pi + theta_suction)), 'state' : 0, 'color' : 2}, {'no' : 7, 'name' : 'backrightdown ', 'location' : ( -c, -d,( math.pi + theta_suction)), 'state' : 0, 'color' : 2}]
 	#setting of current state
 	( x, y , theta ) = ( req.my_pos[0], req.my_pos[1], req.my_pos[2])
-	e1 = (req.enemy_pos[0], req.enemy_pos[1])
-	e2 = (req.enemy_pos[2], req.enemy_pos[3])
+	e1 = (req.enemy1_pos[0], req.enemy1_pos[1])
+	e2 = (req.enemy2_pos[0], req.enemy2_pos[1])
 	# name, location, NS, reef_p, reef_l, reef_r, windsock, flag, lhouse, time, emergency, e1_location, e2_location, friend_pos
 	cur = current_state( "cur", ( x, y , theta ), req.ns, req.action_list[8], req.action_list[6], req.action_list[7], req.action_list[1], req.action_list[3], req.action_list[2], req.time, req.emergency, e1, e2, req.friend_pos)
 
