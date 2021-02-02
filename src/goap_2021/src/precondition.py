@@ -16,6 +16,7 @@ def checkpreconditions( req, current, mis, robot):
             if robot.freestorage > 0 and current.time < 90:
                 cupp = cup_cost( req, current, m, robot )
                 if cupp != None:
+                    # print("debug cup no", cupp['no'])
                     m.cost = distance( current.location, cupp[ 'location' ] )- m.reward + m.time
                     m.location = cupp[ 'location' ]
                     m.cup = cupp
@@ -67,7 +68,9 @@ def checkpreconditions( req, current, mis, robot):
                 m.cost = distance( current.location, m.location ) - m.reward + m.time
                 current.candidate.append(m)
         # print("cand", len(current.candidate))
+
 def cup_cost(req, current, mission, robot):
+    cup_location_transfrom(current.cup_state)
     #see claw suction state ( whether they have room to take cup )
     claw_pos = []
     suction_pos = []
@@ -94,66 +97,76 @@ def cup_cost(req, current, mission, robot):
     front_location = [ (delta_x + current.location[0]), (delta_y + current.location[1]), current.location[2]]
     back_location = [ (-delta_x + current.location[0]), (-delta_y + current.location[1]), (current.location[2] + math.pi)]
     for cup in current.cup_state:
-        d_f = None
-        d_b = None
-         #the calculation should consider not using the origin of robot
-        if front_suction[ cup['color'] - 2 ] ==1 or front_claw[ cup['color'] - 2 ]  == 1:
-            d_f = distance( front_location, cup[ 'location' ])
-        if back_suction[ cup['color'] - 2 ] == 1 or back_claw[ cup['color'] - 2 ] == 1:
-            d_b = distance( back_location, cup['location'])
-        if d_f != None and d_b != None:
-            if d_f > d_b:
-                d = d_b
-            else:
-                d = d_f
-        elif d_f == None:
-            d = d_b
-        elif d_b == None:
-            d = d_f
-        cup['distance'] = d
-
+		#determine front or back
+        case = ''
+        if (front_suction[ cup['color'] - 2 ] ==1 or front_claw[ cup['color'] - 2 ]  == 1) and (back_suction[ cup['color'] - 2 ] == 1 or back_claw[ cup['color'] - 2 ] == 1):
+            case = front_back_determination( current.location, cup['location'])
+        elif back_suction[ cup['color'] - 2 ] == 1 or back_claw[ cup['color'] - 2 ] == 1:
+            case = 'back'
+        elif front_suction[ cup['color'] - 2 ] ==1 or front_claw[ cup['color'] - 2 ]  == 1:
+            case = 'front'
+		
+        #determine the closest distance between each cup
+        if case == 'front':
+            turn = 0
+        elif case == 'back':
+            turn = -math.pi
+        # if len(cup['robot_pos']) > 0:
+        #     print("debug robot_pos", cup['no'],  cup['robot_pos'])
+        #     d = distance( cup['robot_pos'][0], current.location)
+        # else:
+        #     mission = None
+        #     return mission
+        if len(cup['robot_pos']) > 0:
+            # print("cup debug", cup['no'], cup['robot_pos'][0])
+            d = distance( cup['robot_pos'][0], current.location)
+            for pos in cup['robot_pos']:
+                pos[2] += turn
+                dd = distance( pos, current.location)
+                if dd > d:
+                    cup['robot_pos'].remove(pos)
+                else:
+                    d = dd
+            cup['distance'] = d
+        else:
+            cup['distance'] = 9999999999
+        
+	#find closest cup
     def myFunc(e):
         return e['distance']
     current.cup_state.sort(key=myFunc)
     i = 1
     c = 0
     #check if cup is still there and determine use which hand
-    case = 'none'
+    # case = 'none'
     while i == 1 :
         if current.cup_state[c]['state'] == 1:
-            d_f = distance( front_location, current.cup_state[c][ 'location' ])
-            d_b = distance( back_location, current.cup_state[c][ 'location' ])
-            print("cup distance", current.cup_state[c]['no'], d_f, d_b)
             if req.friend_action[0] == 12: #check it is not the same cup as friend's action
                 if req.friend_action[1] != current.cup_state[c]['no']:
                     mission = current.cup_state[c]
+                    mission.location = current.cup_state[c]['robot_pos'][0]
                     #both front and back hand is availalbe
                     if (front_claw[ (current.cup_state[c]['color'] - 2)] == 1 or front_suction[ (current.cup_state[c]['color'] - 2)] == 1) and (back_claw[ (current.cup_state[c]['color'] - 2)] == 1 or back_suction[ (current.cup_state[c]['color'] - 2)] == 1): #determine use front or back
-                        if d_f < d_b:
-                        # if abs(current.cup_state[c]['location'][2] - current.location[2]) <= (math.pi / 2):#check if front is closer
-                            print("remember to debug this")
-                            case = 'front'
-                        else: #back is closer
-                            case = 'back'
+                        case = front_back_determination( current.location, current.cup_state[c]['robot_pos'][0])
                     elif front_claw[ (current.cup_state[c]['color'] - 2)] == 1 or front_suction[ (current.cup_state[c]['color'] - 2)] == 1: #only front is available
                         case = 'front'
                     elif back_claw[ (current.cup_state[c]['color'] - 2)] == 1 or back_suction[ (current.cup_state[c]['color'] - 2)] == 1: #only back is available
                         case = 'back'
+                    else:
+                        case = 'none'
                     i = 0
                 else: 
                     c += 1
             else:
                 mission = current.cup_state[c]
+                mission['location'] = current.cup_state[c]['robot_pos'][0]
                 #both front and back hand is availalbe
                 if (front_claw[ (current.cup_state[c]['color'] - 2)] == 1 or front_suction[ (current.cup_state[c]['color'] - 2)] == 1) and (back_claw[ (current.cup_state[c]['color'] - 2)] == 1 or back_suction[ (current.cup_state[c]['color'] - 2)] == 1): #determine use front or back
-                    if d_f < d_b:#check if front is closer
-                            case = 'front'
-                    else: #back is closer
-                            case = 'back'
+                    case = front_back_determination( current.location, current.cup_state[c]['robot_pos'][0])
                 elif front_claw[ (current.cup_state[c]['color'] - 2)] == 1 or front_suction[ (current.cup_state[c]['color'] - 2)] == 1: #only front is available
-                    case = 'front'
+					case = 'front'
                 elif back_claw[ (current.cup_state[c]['color'] - 2)] == 1 or back_suction[ (current.cup_state[c]['color'] - 2)] == 1: #only back is available
-                    case = 'back'
+					case = 'back'
                 i = 0
             # print( 'cup debug', current.cup_state[c])
         elif current.cup_state[c]['state'] == 0:
@@ -161,7 +174,8 @@ def cup_cost(req, current, mission, robot):
         if c >= len(current.cup_state) - 1:
             mission = None
             i = 0
-    if case == 'front':
+			
+    if case == 'front' and mission != None:
         print("check if there is bug")
         if mission['color'] == 2:
             if front_claw[0] == 1:
@@ -187,7 +201,7 @@ def cup_cost(req, current, mission, robot):
                 mission['location'][1] -= robot.suction[2]['location'][1] * math.sin(robot.suction[2]['location'][2])
                 mission['location'][2] += robot.suction[2]['location'][2]
                 mission['hand' ] = 5
-    elif case == 'back':
+    elif case == 'back' and mission != None:
         if mission['color'] == 2:
             if back_claw[0] == 1:
                 mission['location'][0] -= robot.claw[3]['location'][0] * math.cos(robot.claw[3]['location'][2])
@@ -213,13 +227,12 @@ def cup_cost(req, current, mission, robot):
     elif case == 'none':
         mission = None
     if mission != None:
-        print("cup", mission['no'], mission['location'], case) #,  mission['hand']
+        # print("cup", mission['no'], mission['location'], case) #,  mission['hand']
     del front_claw[:]
     del back_claw[:]
     del front_suction[:]
     del back_suction[:]
     return mission
-
 def refreshstate(current, mission, robot, state):
     #state =  1 -> this mission is done by self robotl; state = 0 -> this mission is done by other 
     if mission.name == "getcup":
@@ -236,7 +249,6 @@ def refreshstate(current, mission, robot, state):
         for c in current.cup_state:
             if mission.location == c['location']:
                 c['state'] = 0
-
     elif mission.name == 'placecupH' or mission.name == 'placecupP':
         n = robot.cupstorage - robot.freestorage
         robot.cup(-n)
@@ -282,10 +294,6 @@ def compare_cost( array ):
         return e.cost
     array.sort(key=myFunc)
 
-def distance(a, b):
-    d =int((abs( a[0] - b[0] )**2 + abs( a[1] - b[1])**2))**0.5
-    return d
-
 def rotate_time(a, b):
     r = abs( a[2] - b[2])
     time = r / angular_velocity
@@ -301,3 +309,25 @@ def check_boom( a, b ):
     else:
         return True
 
+def front_back_determination( current, pos):
+    x = current[0]
+    y = current[1]
+    theta = current[2]
+    if (theta == math.pi  / 2):
+        # print("tan90", math.tan(math.pi/2))
+        tangent = 1
+    elif  theta ==( -math.pi / 2):
+        tangent = -1
+    else:
+        tangent = math.tan(theta)
+    if tangent == 0:
+        line = ( y) * pos[0] + ( x + y * (tangent)) * pos[1]
+        tmp = ( y ) * ( x + y * (tangent))
+    else:
+        line = ( y + x / tangent) * pos[0] + ( x + y * (tangent)) * pos[1]
+        tmp = ( y + x / tangent) * ( x + y * (tangent))
+    # 1 for back 0 for front
+    if line < tmp:
+        return 'back'
+    else:
+		return 'front'

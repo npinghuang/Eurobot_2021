@@ -17,4 +17,19 @@ for a in cur.achieved:
 
 [ [400,300,0], [0,0,0],0, 0, 0, 0, 0, [0,0,0,0,0,0,0,0,0,0,0,0,0],  [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],[0,1,0,1,0] ,[0,0,0,0,0,0], 0]
 
+"my_pos: [800,200,0]
+friend_pos: [0,0,0]
+ns: false
+emergency: false
+team: false
+time: 0.0
+friend_action: [0,0]
+action_list: [0,0,0,0,0,0,0,0,0,0,0,0,0]^C
+cup_color: [0,1,0,1,0]
+cup: 65535
+enemy1_pos: [0,0]
+enemy2_pos: [0,0]
+strategy: 0" 
+
+
 

@@ -80,6 +80,7 @@ def evaluate(current, robot):
     return score
 
 def GOAP(req):
+    (current, robot1) = mission_precondition(req)
     tmp = 0
     action = []
     action_pos = []
