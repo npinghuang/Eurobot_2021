@@ -97,7 +97,7 @@ def GOAP(req):
 
     elif current.emergency == 0:
         while current.time < 90:
-            # print("time", current.time)
+            print("time", current.time)
             del current.mission_list[:]
             friend = 0
             for a in range(0, len(req.action_list)):
@@ -161,7 +161,7 @@ def GOAP(req):
 	ff = 0
         for a in current.achieved: 
             if a.name == 'getcup':
-                print("action",current.cup_order[temp]['no'] , a.name, current.cup_order[temp]['location'][0], current.cup_order[temp]['location'][1], current.cup_order[temp]['location'][2])
+                print("action",current.cup_order[temp]['no'] , a.name, current.cup_order[temp]['location'][0], current.cup_order[temp]['location'][1], current.cup_order[temp]['location'][2],"hand: ",current.cup_order[temp]['hand'])
                 action_pos.append(current.cup_order[temp]['location'][0])
                 action_pos.append( current.cup_order[temp]['location'][1])
                 action_pos.append( current.cup_order[temp]['location'][2])
