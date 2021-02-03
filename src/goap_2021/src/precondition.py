@@ -10,7 +10,10 @@ from cup_cost import*
 
 def checkpreconditions( req, current, mis, robot):
     for m in mis:
-        if m.location != None:
+        boom1 = 1
+        boom2 = 1
+        boomf = 1
+        if m.location != None and current.enemy_1  != None and current.enemy_2 != None  and current.friend_pos != None:
             boom1 = check_boom( m.location, current.enemy_1)
             boom2 = check_boom( m.location, current.enemy_2)
             boomf = check_boom( m.location, current.friend_pos )
@@ -24,9 +27,10 @@ def checkpreconditions( req, current, mis, robot):
                     m.location = cupp[ 'location' ]
                     m.cup = cupp
                     # print("cup no  check pre", cupp['no'])
-                    boom1 = check_boom( cupp['location'], current.enemy_1)
-                    boom2 = check_boom( cupp['location'], current.enemy_2)
-                    boomf = check_boom( cupp['location'], current.friend_pos)
+                    if cupp['location'] != None and current.enemy_1  != None and current.enemy_2 != None  and current.friend_pos != None:
+                        boom1 = check_boom( cupp['location'], current.enemy_1)
+                        boom2 = check_boom( cupp['location'], current.enemy_2)
+                        boomf = check_boom( cupp['location'], current.friend_pos)
                     if boom1 ==  1 and boom2 == 1 and boomf == 1:
                     # if abs(cupp['location'][0] - current.enemy_1[0] ) > margin and abs(cupp['location'][1] - current.enemy_1[1] ) > margin and abs(cupp['location'][0] - current.enemy_2[0] ) > margin and abs(cupp['location'][1] - current.enemy_2[1] ) > margin:
                         current.candidate.append(m)
@@ -164,7 +168,8 @@ def refreshstate(current, mission, robot, state):
 
     if state == 1:
         if mission.name == 'flag':
-            current.time += mission.effect[5]
+            if mission.effect[5] != None:
+                current.time += mission.effect[5]
         else:
             d = distance( current.location, mission.location )
             rotate = rotate_time( current.location, mission.location )
@@ -190,7 +195,9 @@ def rotate_time(a, b):
 def check_boom( a, b ):
     margin = 50
     distance_boom = distance(a,b)
-    if distance_boom < margin:
+    if distance_boom == None:
+        return True
+    elif distance_boom < margin:
         return False #don't go to that mission
     else:
         return True

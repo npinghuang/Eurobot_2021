@@ -11,6 +11,8 @@ velocity = 500
 angular_velocity = 200
 margin = 30 #safety distance between other robot
 # from srv import *
+# name, location, NS, reef_p, reef_l, reef_r, windsock, flag, lhouse, time, emergency, e1_location, e2_location, friend_pos
+
 class current_state:
     def __init__(self, name, location, NS, reef_p, reef_l, reef_r, windsock, flag, lhouse, time, emergency, e1_location, e2_location, friend_pos ):
 		self.name = name
@@ -35,10 +37,13 @@ class current_state:
 		self.enemy_1 = e1_location
 		self.enemy_2 = e2_location
 		self.friend_pos = friend_pos
+		self.mission = None
 
     def myfunc(self, name):
         print(name, self.NS, self.windsock, self.flag, self.lhouse, self.time, self.candidate)
-
+cur = current_state( "cur", ( None, None, None ), None, None, None,  None, None, None, None, None, None, None, None, None)
+cur.candidate = []
+print("cur initialize")
 class robotsetting:
     def __init__(self, a, b):
 		self.cupstorage = a #max cup storage
@@ -98,8 +103,22 @@ def mission_precondition(req):
 	e1 = (req.enemy1_pos[0], req.enemy1_pos[1])
 	e2 = (req.enemy2_pos[0], req.enemy2_pos[1])
 	# name, location, NS, reef_p, reef_l, reef_r, windsock, flag, lhouse, time, emergency, e1_location, e2_location, friend_pos
-	cur = current_state( "cur", ( x, y , theta ), req.ns, req.action_list[8], req.action_list[6], req.action_list[7], req.action_list[1], req.action_list[3], req.action_list[2], req.time, req.emergency, e1, e2, req.friend_pos)
-
+	# cur = current_state( "cur", ( x, y , theta ), req.ns, req.action_list[8], req.action_list[6], req.action_list[7], req.action_list[1], 
+	# req.action_list[3], req.action_list[2], req.time, req.emergency, e1, e2, req.friend_pos)
+	# cur.name = "cur"
+	cur.location = [x, y , theta]
+	cur.NS = req.ns
+	cur.reef_p = req.action_list[8]
+	cur.reef_l = req.action_list[6]
+	cur.reef_r = req.action_list[7]
+	cur.windsock = req.action_list[1]
+	cur.flag = req.action_list[3]
+	cur.lhouse = req.action_list[2]
+	cur.time = req.time
+	cur.emergency = req.emergency
+	cur.enemy_1= e1
+	cur.enemy_2 = e2
+	cur.friend_pos = req.friend_pos
 	if req.team == 0: 
 	    # blue : ( no, ( x, y ), 1 for cup still there 0 for cup gone,  2  for green 3 for red, type : private 0 or public 1 )
 	    cur.cup_state = [  { 'no' : 1, 'location' : [1200, 300, 0], 'state' : 1, 'color' : 2, 'type' : 0 , 'robot_pos' : []}, { 'no' : 2, 'location' : [ 1085, 445, 0 ], 'state' : 1, 'color' : 3, 'type' : 0 ,'robot_pos' : []},
@@ -168,7 +187,7 @@ def mission_precondition(req):
 	    anchorS = Mission_precondition( 5, "anchorS", ( 1300, 2775, 0 ), 1, None, None, None, None, None, None, 2, 10000,[None, None, None, None, None, None])
 	    flag = Mission_precondition( 3, "flag", None, None, None, None, 1, 1, 0, 1, 0, 20000,[None, None, None,None, 1,  None])	
 	cur.leaf = [ windsock, lhouse, getcup, getcup_12, getcup_34, reef_private, reef_right, reef_left, placecup_reef, placecupP, placecupH, anchorN, anchorS, flag]
-	#cur.myfunc("current")
+	# cur.myfunc("current")
 	#refresh cup state
 	c = 0
 	ccup = req.cup
@@ -230,5 +249,8 @@ def cup_location_transfrom(cup_state):
 		# print("cup", cup['no'], len(cup['robot_pos']))
 
 def distance(a, b):
-    d =int((abs( a[0] - b[0] )**2 + abs( a[1] - b[1])**2))**0.5
-    return d
+	if a != None and b != None:
+		d =int((abs( a[0] - b[0] )**2 + abs( a[1] - b[1])**2))**0.5
+		return d
+	else:
+		return None
