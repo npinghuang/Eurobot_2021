@@ -84,6 +84,7 @@ def GOAP(req):
     tmp = 0
     action = []
     action_pos = []
+    #current.mission_list => a list of action available
     mission = len(current.mission_list)
     state = 1
     if current.emergency == 1:
@@ -97,21 +98,22 @@ def GOAP(req):
 
     elif current.emergency == 0:
         while current.time < 90:
-            print("time", current.time)
+            # print("time", current.time)
             del current.mission_list[:]
             friend = 0
+            # print('debug', len(req.action_list), len(current.leaf))
             for a in range(0, len(req.action_list)):
                 if req.action_list[a] == 0:
                     for m in current.leaf:
-                        if m.no == a :
-                            if m.no == req.friend_action and (req.friend_action == 1 or req.friend_action == 2 or req.friend_action == 6 or req.friend_action == 7 or req.friend_action == 8 or req.friend_action == 9 or req.friend_action == 10 or req.friend_action == 11):
+                        if m.no == a + 1:
+                            if m.no == req.friend_action[0] and (req.friend_action[0] == 1 or req.friend_action[0] == 2 or req.friend_action[0] == 6 or req.friend_action[0] == 7 or req.friend_action == 8 or req.friend_action[0] == 9 or req.friend_action == 10 or req.friend_action[0] == 11):
                                 friend = 1
                             else:
                                 friend = 0
                                 current.mission_list.append(m)
                 elif req.action_list[a] == 1:
                     for m in current.leaf:
-                        if m.no == a:
+                        if m.no == a + 1:
                             # print("debug", m.name)
                             if m.name == 'getcup':
                                 current.mission_list.append(m)
@@ -129,6 +131,7 @@ def GOAP(req):
                 if len(current.candidate) != 0:
                     compare_cost(current.candidate)
                     current.achieved.append(current.candidate[0])
+                    # print("aa", current.candidate[0].name)
                     refreshstate(current, current.candidate[0], robot1, 1)
                     tmp = tmp + 1
                 else:
@@ -146,15 +149,19 @@ def GOAP(req):
                     print("no mission")
             del current.candidate[:]
         if current.time <  100:
-            flag = current.leaf[11]
-            anchorN = current.leaf[9]
-            anchorS = current.leaf[10]
+            #cur.leaf = [ windsock, lhouse, getcup, getcup_12, getcup_34, reef_private, reef_right, reef_left, placecup_reef, placecupP, placecupH, anchorN, anchorS, flag]
+            flag = current.leaf[13]
+            anchorN = current.leaf[11]
+            anchorS = current.leaf[12]
             if current.NS == anchorN.NS:
                 current.achieved.append(anchorN)
             else:
                 current.achieved.append(anchorS)
             current.achieved.append(flag)
-
+        
+        # print("debug len", len(current.mission_list))
+        # for p in current.mission_list:
+        #     print("name", p.name)
         temp = 0
         i = 0
 
@@ -169,6 +176,14 @@ def GOAP(req):
                 action.append(a.no)
                 temp = temp + 1
                 i += 1
+            elif a.name == 'getcup_12' or a.name == 'getcup_34':
+                print("action", a.no, a.name, a.location[0], a.location[1], a.location[2], 0)
+                action.append(a.no)
+                action_pos.append(a.location[0])
+                action_pos.append( a.location[1])
+                action_pos.append(a.location[2] )
+                action_pos.append(0)
+                temp += 2
             else:
                 if a.location != None:
                     print("action", a.no, a.name, a.location[0], a.location[1], a.location[2], 0)

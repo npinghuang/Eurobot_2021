@@ -44,7 +44,7 @@ class robotsetting:
 		self.cupstorage = a #max cup storage
 		self.freestorage = a #current free cup storage
 		self.reef = b
-		self.claw = [ 0, 0, 0, 0] # 0 ~ 1 for red, 2 ~ 3 for green 
+		self.claw = [ 0, 0, 0, 0] # 0 for red~ 1 for green 2for green  ~ 3 for red
 		self.suction = [ 0, 0, 0, 0, 0, 0, 0, 0  ] # 0 ~ 3 for red, 4 ~ 7 for green
         # print("debug", self.cupstorage , self.freestorage)
     def cup(self, num):
@@ -68,7 +68,7 @@ class Mission_precondition:
         self.reward = reward
         self.cost = 0
         self.check = 0
-        self.cup = None
+        self.cup = []
         self.effect = effect
     def myfunc(self, name):
         print("mission " + name, self.NS, self.windsock, self.flag, self.lhouse, self.time)
@@ -119,7 +119,10 @@ def mission_precondition(req):
 	    windsock = Mission_precondition( 1, "windsock", ( 2000, 430, 0), None, None, None, None, 0, None, None, 8, 80, [None, None, None, 1, None, None,])
 	    lhouse = Mission_precondition( 2, "lhouse", ( 0, 300, 0 ), None, None, None, None, None, None, 0, 2, 50,[None, None, None, None, None, 1])
 	    getcup = Mission_precondition( 12, "getcup", ( 0, 0, 0), None, None, None, None, None, None, None, 5, 20,[None, None, None, None, None, None])
-	    #reef cup counts separately
+		#special case for cup 12 34
+	    getcup_12 = Mission_precondition( 13, "getcup_12", ( 1085, 400, 0), None, None, None, None, None, None, None, 5, 100,[None, None, None, None, None, None])
+	    getcup_34 = Mission_precondition( 14, "getcup_34", ( 500, 400, 0), None, None, None, None, None, None, None, 5, 100,[None, None, None, None, None, None])
+		#reef cup counts separately
 	    reef_private = Mission_precondition( 8, "reef_private", ( 1600, 0, 0 ), None, None, 1, None, None, None, None, 9, 100,[0, None, None, None, None, None])
 	    reef_left = Mission_precondition( 6, "reef_left", ( 0, 850, 0 ), None, None, None, 1, None, None, None, 9, 200,[None, None, 0, None, None, None])
 	    reef_right = Mission_precondition(7, "reef_right", ( 0, 2150, 0 ), None, None, None, 1, None, None, None, 9, 200,[None, 0, None, None, None, None])
@@ -150,7 +153,10 @@ def mission_precondition(req):
 	    windsock = Mission_precondition( 1, "windsock", ( 2000, 2330, 0), None, None, None, None, 0, None, None, 8, 80, [None, None, None, 1, None, None])
 	    lhouse = Mission_precondition( 2, "lhouse", ( 0, 2775, 0 ), None, None, None, None, None, None, 0, 2, 50,[None, None, None, None, None, 1])
 	    getcup = Mission_precondition( 12, "getcup", ( 0, 0, 0), None, None, None, None, None, None, None, 5, 20,[None, None, None, None, None, None])
-	    #reef cup counts separately
+	    #special case for cup 12 34
+	    getcup_12 = Mission_precondition( 13, "getcup_12", ( 1085, 2600, 0), None, None, None, None, None, None, None, 10, 100,[None, None, None, None, None, None])
+	    getcup_34 = Mission_precondition( 14, "getcup_34", ( 500, 2600, 0), None, None, None, None, None, None, None, 10, 100,[None, None, None, None, None, None])
+		#reef cup counts separately
 	    reef_private = Mission_precondition( 8, "reef_private", ( 1600, 3000, 0 ), None, None, 1, None, None, None, None, 9, 100,[0, None, None, None, None, None])
 	    reef_left = Mission_precondition( 6, "reef_left", ( 0, 850, 0 ), None, None, None, 1, None, None, None, 9, 200,[None, None, 0, None, None, None])
 	    reef_right = Mission_precondition(7, "reef_right", ( 0, 2150, 0 ), None, None, None, 1, None, None, None, 9, 200,[None, 0, None, None, None, None])
@@ -161,7 +167,7 @@ def mission_precondition(req):
 	    anchorN = Mission_precondition( 4, "anchorN", (300, 2775, 0 ), 0, None, None, None, None, None, None, 2, 10000,[None, None, None, None, None, None])
 	    anchorS = Mission_precondition( 5, "anchorS", ( 1300, 2775, 0 ), 1, None, None, None, None, None, None, 2, 10000,[None, None, None, None, None, None])
 	    flag = Mission_precondition( 3, "flag", None, None, None, None, 1, 1, 0, 1, 0, 20000,[None, None, None,None, 1,  None])	
-	cur.leaf = [windsock, lhouse, getcup, reef_private, reef_right, reef_left, placecup_reef, placecupP, placecupH, anchorN, anchorS, flag]
+	cur.leaf = [ windsock, lhouse, getcup, getcup_12, getcup_34, reef_private, reef_right, reef_left, placecup_reef, placecupP, placecupH, anchorN, anchorS, flag]
 	#cur.myfunc("current")
 	#refresh cup state
 	c = 0
