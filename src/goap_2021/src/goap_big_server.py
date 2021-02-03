@@ -98,6 +98,7 @@ def GOAP(req):
     tmp = 0
     action = []
     action_pos = []
+    cup = []
     #current.mission_list => a list of action available
     mission = len(current.mission_list)
     state = 1
@@ -200,16 +201,20 @@ def GOAP(req):
                 action_pos.append( current.cup_order[temp]['location'][1])
                 action_pos.append( current.cup_order[temp]['location'][2])
                 action_pos.append( current.cup_order[temp]['no'])
-                action.append(a.no)
+                cup.append(current.cup_order[temp]['no'])
+                cup.append(current.cup_order[temp]['hand'])
                 temp = temp + 1
                 i += 1
             elif a.name == 'getcup_12' or a.name == 'getcup_34':
-                print("action", a.no, a.name, a.location[0], a.location[1], a.location[2], 0)
+                print("action", a.no, a.name, a.location[0], a.location[1], a.location[2], 0,"hand", a.cup[0]['hand'], a.cup[1]['hand'])
                 action.append(a.no)
                 action_pos.append(a.location[0])
                 action_pos.append( a.location[1])
                 action_pos.append(a.location[2] )
-                action_pos.append(0)
+                # action_pos.append(0)
+                handd = a.cup[0]['hand'] * 10 + a.cup[1]['hand']
+                cup.append( a.no * 10)
+                cup.append(handd)
                 temp += 2
             else:
                 if a.location != None:
@@ -218,7 +223,8 @@ def GOAP(req):
                     action_pos.append(a.location[0])
                     action_pos.append( a.location[1])
                     action_pos.append(a.location[2] )
-                    action_pos.append(0)
+                    # action_pos.append(0)
+                    # action_pos.append(None)
 
                     i += 1
                 else:#flag has no location so i need to give last mission's location
@@ -227,7 +233,7 @@ def GOAP(req):
                     action_pos.append(action_pos[-4])
                     action_pos.append( action_pos[-4])
                     action_pos.append(action_pos[-4] )
-                    action_pos.append(0)
+                    # action_pos.append(0)
                     i += 1
         current.mission = current.achieved[0]
         mission_list = []
@@ -248,7 +254,7 @@ def GOAP(req):
             #print("mission_list", p)
         state = 0
 
-    return action, action_pos
+    return action, action_pos, cup
 
 def goap_server():
     rospy.init_node('goap_server')

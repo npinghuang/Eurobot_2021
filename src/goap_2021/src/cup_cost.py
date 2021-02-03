@@ -94,7 +94,10 @@ def cup_cost(req, current, mission, robot):
                         cup['robot_pos'][0][0] -= robot.suction[0]['location'][0] * math.cos(robot.suction[0]['location'][2])
                         cup['robot_pos'][0][1] -= robot.suction[0]['location'][1] * math.sin(robot.suction[0]['location'][2])
                         cup['robot_pos'][0][2] += robot.suction[0]['location'][2]
-                        cup['hand' ] = 4
+                        if robot.suction[0]['state'] == 0:
+                            cup['hand' ] = 4
+                        else:
+                            cup['hand' ] = 5
                     else:
                         case = 'back'
                 else:#red
@@ -107,7 +110,10 @@ def cup_cost(req, current, mission, robot):
                         cup['robot_pos'][0][0] -= robot.suction[2]['location'][0] * math.cos(robot.suction[2]['location'][2])
                         cup['robot_pos'][0][1] -= robot.suction[2]['location'][1] * math.sin(robot.suction[2]['location'][2])
                         cup['robot_pos'][0][2] += robot.suction[2]['location'][2]
-                        cup['hand' ] = 5
+                        if robot.suction[2]['state'] == 0:
+                            cup['hand' ] = 6
+                        else:
+                            cup['hand' ] = 7
             elif case == 'back' and state != 0:
                 if cup['color'] == 2:
                     if back_claw[0] == 1:
@@ -119,7 +125,10 @@ def cup_cost(req, current, mission, robot):
                         cup['robot_pos'][0][0] -= robot.suction[7]['location'][0] * math.cos(robot.suction[7]['location'][2])
                         cup['robot_pos'][0][1] -= robot.suction[7]['location'][1] * math.sin(robot.suction[7]['location'][2])
                         cup['robot_pos'][0][2] += robot.suction[7]['location'][2]
-                        cup['hand' ] = 7
+                        if robot.suction[6]['state'] == 0:
+                            cup['hand' ] = 10
+                        else:
+                            cup['hand' ] = 11
                     else:
                         mission = None
                 else:#red
@@ -132,7 +141,10 @@ def cup_cost(req, current, mission, robot):
                         cup['robot_pos'][0][0] -= robot.suction[6]['location'][0] * math.cos(robot.suction[6]['location'][2])
                         cup['robot_pos'][0][1] -= robot.suction[6]['location'][1] * math.sin(robot.suction[6]['location'][2])
                         cup['robot_pos'][0][2] += robot.suction[6]['location'][2]
-                        cup['hand' ] = 6   
+                        if robot.suction[4]['state'] == 0:
+                            cup['hand' ] = 8
+                        else:
+                            cup['hand' ] = 9
             elif case == 'none':
                 mission = None
     

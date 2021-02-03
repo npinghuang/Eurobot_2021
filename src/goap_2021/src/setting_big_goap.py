@@ -43,7 +43,7 @@ class current_state:
         print(name, self.NS, self.windsock, self.flag, self.lhouse, self.time, self.candidate)
 cur = current_state( "cur", ( None, None, None ), None, None, None,  None, None, None, None, None, None, None, None, None)
 cur.candidate = []
-print("cur initialize")
+
 class robotsetting:
     def __init__(self, a, b):
 		self.cupstorage = a #max cup storage
@@ -81,9 +81,10 @@ class Mission_precondition:
 #setting of mission precondition
 def mission_precondition(req):
 	#setting of robot1 cup capacity and if can pick cup from reef
-	current_cup = 0
+	# current_cup = 0
 	robot1 = robotsetting(12, 0)
-	robot1.cup(current_cup)
+	# robot1.cup(current_cup)
+	
 	#robot1 geometric setting 
 	a = 40.0
 	b = 50.0
@@ -98,6 +99,16 @@ def mission_precondition(req):
 										{'no' : 2, 'name' : 'frontrightup', 'location' : ( c, -d, -theta_suction), 'state' : 0, 'color' : 3}, {'no' : 3, 'name' : 'frontrightdown', 'location' : ( c, -d, -theta_suction), 'state' : 0, 'color' : 3},
 										{'no' : 4, 'name' : 'backleftup', 'location' :  ( -c, d,( math.pi - theta_suction)), 'state' : 0, 'color' : 3}, {'no' : 5, 'name' : 'backleftdown', 'location' : ( -c, d,( math.pi - theta_suction)), 'state' : 0, 'color' : 3},
 										{'no' : 6, 'name' : 'backrightup', 'location' : ( -c, -d,( math.pi + theta_suction)), 'state' : 0, 'color' : 2}, {'no' : 7, 'name' : 'backrightdown ', 'location' : ( -c, -d,( math.pi + theta_suction)), 'state' : 0, 'color' : 2}]
+	# update hand status and robot freestorage
+	current_cup = 0
+	for i in range (0, len(req.hand)):
+		if req.hand[i] == 1:
+			current_cup += 1
+		if i < 4:
+			robot1.claw[i]['state'] = req.hand[i]
+		else:
+			robot1.suction[i - 4]['state'] = req.hand[i]
+	robot1.cup( current_cup )
 	#setting of current state
 	( x, y , theta ) = ( req.my_pos[0], req.my_pos[1], req.my_pos[2])
 	e1 = (req.enemy1_pos[0], req.enemy1_pos[1])

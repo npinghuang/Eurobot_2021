@@ -8,10 +8,11 @@ int32[] friend_action
 int32[] action_list
 int32[] cup_color
 int32 cup
+int32[] hand
 float32[] enemy1_pos
 float32[] enemy2_pos
 int32 strategy
 ---
 int32[] action
 float32[] action_pos
-
+int32[] cup

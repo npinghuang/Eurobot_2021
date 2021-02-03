@@ -119,11 +119,12 @@ def refreshstate(current, mission, robot, state):
         if mission.cup['hand'] < 4:#claw
             robot.claw[mission.cup['hand']]['state'] = 1
         elif mission.cup['hand'] >= 4:#suction
+            robot.suction[mission.cup['hand'] - 4]['state'] = 1
             i = 2 * (mission.cup['hand'] - 4)
-            if robot.suction[ i ]['state'] == 0:
-                robot.suction[ i ]['state'] = 1
-            elif robot.suction[ i ]['state'] == 1 and robot.suction[ i + 1 ]['state'] == 0:
-                robot.suction[ i + 1 ]['state'] = 1
+            # if robot.suction[ i ]['state'] == 0:
+            #     robot.suction[ i ]['state'] = 1
+            # elif robot.suction[ i ]['state'] == 1 and robot.suction[ i + 1 ]['state'] == 0:
+            #     robot.suction[ i + 1 ]['state'] = 1
         for c in current.cup_state:
             if mission.location == c['location']:
                 c['state'] = 0
@@ -146,8 +147,6 @@ def refreshstate(current, mission, robot, state):
             claw['state'] = 0
         for suc in robot.suction:
             suc['state'] = 0
-        
-
     if mission.effect[0] != None:
         current.reef_p = mission.effect[0]
         current.placecup_reef = 1
