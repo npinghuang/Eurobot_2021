@@ -201,6 +201,7 @@ def GOAP(req):
                 action_pos.append( current.cup_order[temp]['location'][1])
                 action_pos.append( current.cup_order[temp]['location'][2])
                 action_pos.append( current.cup_order[temp]['no'])
+                action.append(a.no)
                 cup.append(current.cup_order[temp]['no'])
                 cup.append(current.cup_order[temp]['hand'])
                 temp = temp + 1

@@ -129,16 +129,22 @@ def refreshstate(current, mission, robot, state):
             if mission.location == c['location']:
                 c['state'] = 0
     elif mission.name == 'getcup_12' or mission.name == 'getcup_34' :
-        robot.cup(2) #update robot cup storage status
-        current.cup_order.append(mission.cup[0])
-        current.cup_order.append(mission.cup[1])
-        # print("ah", mission.cup[0]['no'], mission.cup[1]['no'])
-        current.cup_state[ mission.cup[0]['no'] - 1]['state'] = 0
-        current.cup_state[ mission.cup[1]['no'] - 1]['state'] = 0
+        if state == 1:
+            robot.cup(2) #update robot cup storage status
+            current.cup_order.append(mission.cup[0])
+            current.cup_order.append(mission.cup[1])
+            robot.claw[mission.cup[0]['hand']]['state'] = 1
+            robot.claw[mission.cup[1]['hand']]['state'] = 1
+            # print("ah", mission.cup[0]['no'], mission.cup[1]['no'])
+        if mission.name == 'getcup_12':
+            current.cup_state[ 0]['state'] = 0
+            current.cup_state[ 1]['state'] = 0
+        else:
+            current.cup_state[ 2]['state'] = 0
+            current.cup_state[ 3]['state'] = 0
         # print("dddddd", current.cup_state[ mission.cup[0]['no'] - 1], current.cup_state[ mission.cup[1]['no'] - 1])
         # print("check refresh", mission.cup[1]['no']  ,current.cup_state[ mission.cup[1]['no'] - 1 ]['no'])
-        robot.claw[mission.cup[0]['hand']]['state'] = 1
-        robot.claw[mission.cup[1]['hand']]['state'] = 1
+        
     elif mission.name == 'placecupH' or mission.name == 'placecupP':
         n = robot.cupstorage - robot.freestorage
         robot.cup(-n)
