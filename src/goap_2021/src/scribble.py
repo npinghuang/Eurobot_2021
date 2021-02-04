@@ -1,4 +1,5 @@
 import math
+current.cup_state[a]['hand'] = ,current.cup_state[b]['hand'] = 0
 #old cup_cost
 def cup_cost(req, current, mission, robot):
     cup_location_transfrom(current.cup_state)

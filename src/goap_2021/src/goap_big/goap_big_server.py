@@ -97,7 +97,7 @@ def GOAP(req):
     # print("cur.time", current.time)
     tmp = 0
     action = []
-    action_pos = []
+    position = []
     cup = []
     #current.mission_list => a list of action available
     mission = len(current.mission_list)
@@ -109,9 +109,9 @@ def GOAP(req):
         # print("current", current)
         location = emergency(current)
         action.append(0)
-        action_pos.append(location[0])
-        action_pos.append(location[1])
-        action_pos.append(location[2] )
+        position.append(location[0])
+        position.append(location[1])
+        position.append(location[2] )
         print("emergency", location)    
 
     elif req.emergency == 0:
@@ -196,45 +196,49 @@ def GOAP(req):
     # if current.time >= 90:
         for a in current.achieved: 
             if a.name == 'getcup':
-                print("action",current.cup_order[temp]['no'] , a.name, current.cup_order[temp]['location'][0], current.cup_order[temp]['location'][1], current.cup_order[temp]['location'][2],"hand: ",current.cup_order[temp]['hand'])
-                action_pos.append(current.cup_order[temp]['location'][0])
-                action_pos.append( current.cup_order[temp]['location'][1])
-                action_pos.append( current.cup_order[temp]['location'][2])
-                action_pos.append( current.cup_order[temp]['no'])
+                print("action",current.cup_order[temp]['no'] , a.name, current.cup_order[temp]['location'][0], current.cup_order[temp]['location'][1], current.cup_order[temp]['location'][2],"hand: ",current.cup_order[temp]['hand'] + 1)
+                position.append(current.cup_order[temp]['location'][0])
+                position.append( current.cup_order[temp]['location'][1])
+                position.append( current.cup_order[temp]['location'][2])
+                position.append( current.cup_order[temp]['no'])
                 action.append(a.no)
                 cup.append(current.cup_order[temp]['no'])
-                cup.append(current.cup_order[temp]['hand'])
+                cup.append(current.cup_order[temp]['hand'] + 1) #change hand number to start from 1
                 temp = temp + 1
                 i += 1
             elif a.name == 'getcup_12' or a.name == 'getcup_34':
-                print("action", a.no, a.name, a.location[0], a.location[1], a.location[2], 0,"hand", a.cup[0]['hand'], a.cup[1]['hand'])
+                print("action", a.no, a.name, a.location[0], a.location[1], a.location[2], 0,"hand", a.cup[0]['hand'] + 1, a.cup[1]['hand'] + 1)
                 action.append(a.no)
-                action_pos.append(a.location[0])
-                action_pos.append( a.location[1])
-                action_pos.append(a.location[2] )
-                # action_pos.append(0)
-                handd = a.cup[0]['hand'] * 10 + a.cup[1]['hand']
-                cup.append( a.no * 10)
+                position.append(a.location[0])
+                position.append( a.location[1])
+                position.append(a.location[2] )
+                # position.append(0)
+                handd = (a.cup[0]['hand'] + 1) * 10 + a.cup[1]['hand'] + 1#change hand number to start from 1
+                cup.append( 0)
                 cup.append(handd)
                 temp += 2
             else:
                 if a.location != None:
                     print("action", a.no, a.name, a.location[0], a.location[1], a.location[2], 0)
                     action.append(a.no)
-                    action_pos.append(a.location[0])
-                    action_pos.append( a.location[1])
-                    action_pos.append(a.location[2] )
-                    # action_pos.append(0)
-                    # action_pos.append(None)
+                    position.append(a.location[0])
+                    position.append( a.location[1])
+                    position.append(a.location[2] )
+                    cup.append( 0)
+                    cup.append(0)
+                    # position.append(0)
+                    # position.append(None)
 
                     i += 1
                 else:#flag has no location so i need to give last mission's location
-                    print("action", a.no, a.name,action_pos[-1])
+                    print("action", a.no, a.name,position[-1])
                     action.append(a.no)
-                    action_pos.append(action_pos[-4])
-                    action_pos.append( action_pos[-4])
-                    action_pos.append(action_pos[-4] )
-                    # action_pos.append(0)
+                    position.append(position[-4])
+                    position.append( position[-4])
+                    position.append(position[-4] )
+                    cup.append( 0)
+                    cup.append(0)
+                    # position.append(0)
                     i += 1
         current.mission = current.achieved[0]
         mission_list = []
@@ -255,7 +259,7 @@ def GOAP(req):
             #print("mission_list", p)
         state = 0
 
-    return action, action_pos, cup
+    return action, position, cup
 
 def goap_server():
     rospy.init_node('goap_server')
