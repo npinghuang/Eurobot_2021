@@ -16,6 +16,23 @@ class robot1:
         self.flag = 0
         self.storage_red = 0
         self.storage_red = 0
+robot1 = robot1()
+print("robot", robot1.claw[0])
+class getcup_setting:
+    def __init__(self):
+        self.action_list = [ 1, 2, 3, 4, 5, 6]
+        self.cup_state =1 
+        self.count = 0 #record how many action had been done
+
+class placecup_setting:
+    def __init__(self):
+        self.action_list = [ 1, 2, 3, 4, 5, 6]
+        self.count = 0 #record how many action had been done
+
+def refreshmission():
+    getcupp = getcup_setting()
+    print("refresh")
+    return getcupp
 
 def getmissionname( no ):
     name = ''
