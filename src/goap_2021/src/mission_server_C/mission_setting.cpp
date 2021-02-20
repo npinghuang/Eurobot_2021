@@ -8,16 +8,16 @@ using namespace std;
 //     mission_name = name;
 //     printf("hi there");
 // }
-void mission::setting_(int num, string name, int no ){
+void mission_setting::setting_(int num, string name, int no ){
     mission_no = num;
     mission_name = name;
     count = no;
     printf("hi there : %d \n", mission_no);
 }
 
-mission::mission(int num, string name, int count){
+mission_setting::mission_setting(int num, string name, int count){
     setting_( num, name, count );
-    printf("constructor");
+    // printf("constructor");
 }
 
 

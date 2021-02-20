@@ -3,5 +3,9 @@
         "/home/nping/eurobot/devel/lib/python2.7/dist-packages",
         "/home/nping/catkin_ws/devel/lib/python2.7/dist-packages",
         "/opt/ros/melodic/lib/python2.7/dist-packages"
-    ]
+    ],
+    "files.associations": {
+        "typeindex": "cpp",
+        "typeinfo": "cpp"
+    }
 }

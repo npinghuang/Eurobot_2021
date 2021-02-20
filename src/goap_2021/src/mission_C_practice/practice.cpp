@@ -22,6 +22,10 @@ mission getcup(12, "getcup", 0);
 mission getcup_12( 13, "getcup_12", 0);
 mission getcup_34( 14, "getcup_34", 0);
 
+void testing(){
+    mission emergency;
+    
+}
 int main(){
     cout<<"Hello World"<<endl;
     cout<<"try"<<endl;
