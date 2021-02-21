@@ -66,6 +66,7 @@ def checkpreconditions( req, current, mis, robot):
                         m.cup.append( current.cup_state[b] )
                         m.cost = distance( current.location, m.location ) - m.reward + m.time
                         current.candidate.append(m)
+                        # print("debug", m.name, current.cup_state[a]['hand'])
         elif m.name == 'placecupP' or m.name == 'placecupH':
             if robot.freestorage < robot.cupstorage and boom1 ==  1 and boom2 == 1 and boomf == 1:
                 if current.time < 70:

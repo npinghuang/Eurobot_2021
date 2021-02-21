@@ -9,47 +9,51 @@ using namespace std;
 #include <goap_2021/mission_srv.h>
 
 // #include "mission_setting.h"
+#include "mission_action.h"
 
 class mission_setting{
     public:
         int mission_no;
         string mission_name;
         int count;
-        mission_setting(int num, string name, int count){
-            setting_( num, name, count );
-        }
-        void setting_ (int num, string name, int no ){
+        int action[10];
+        int prepare;
+        mission_setting(int num, string name, int no,  int pre){//int array[],
             mission_no = num;
             mission_name = name;
             count = no;
-            // printf("hi there : %d \n", mission_no);
+            // for( int i = 0; i < 10; i++){
+            //     action[ i ] = array[ i ];
+            // }
+            prepare = pre;
+            // setting_( num, name, count );
         }
-}; mission_setting emergency(0, "emergency", 0);
-    mission_setting windsock( 1, "windsock", 0);
-    mission_setting lhouse(2, "lhouse", 0);
-    mission_setting flag( 3, "flag", 0);
-    mission_setting anchorN(4, "anchorN", 0);
-    mission_setting anchorS(5, "anchorS", 0);
-    mission_setting reef_l( 6, "reef_l", 0);
-    mission_setting reef_r( 7, "reef_r", 0);
-    mission_setting reef_p( 8, "reef_p", 0);
-    mission_setting placecup_h( 9, "placecup_h", 0);
-    mission_setting placecup_p( 10, "placecup_p", 0);
-    mission_setting placecup_r( 11, "placecup_r", 0);
-    mission_setting getcup(12, "getcup", 0);
-    mission_setting getcup_12( 13, "getcup_12", 0);
-    mission_setting getcup_34( 14, "getcup_34", 0);
+}; mission_setting emergency(0, "emergency", 0, 0);//[0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 
+    mission_setting windsock( 1, "windsock", 0, 0);
+    mission_setting lhouse(2, "lhouse", 0, 0);
+    mission_setting flag( 3, "flag", 0, 0);
+    mission_setting anchorN(4, "anchorN", 0, 0);
+    mission_setting anchorS(5, "anchorS", 0, 0);
+    mission_setting reef_l( 6, "reef_l", 0, 0);
+    mission_setting reef_r( 7, "reef_r", 0, 0);
+    mission_setting reef_p( 8, "reef_p", 0, 0);
+    mission_setting placecup_h( 9, "placecup_h", 0, 0);
+    mission_setting placecup_p( 10, "placecup_p", 0, 0);
+    mission_setting placecup_r( 11, "placecup_r", 0, 0);
+    mission_setting getcup(12, "getcup", 0, 0);
+    mission_setting getcup_12( 13, "getcup_12", 0, 0);
+    mission_setting getcup_34( 14, "getcup_34", 0, 0);
 
 bool mission_main( goap_2021::mission_srv::Request  &req,
          goap_2021::mission_srv::Response &res ){
 
-    int success = 0, fail = 1, ing = 2, stop = 3;
+    int success = 1, fail = 0, ing = 2, stop = 3;
     switch (req.action)
     {
     case 0: //emergency
         res.state = stop;
         // ROS_INFO("case 0, name %d, count %d\n", emergency.mission_no, emergency.count );
-        emergency.count ++;
+        ROS_INFO("case 0, name %d, count %d, action %d\n", emergency.mission_no, emergency.count, action_0[0] );
         break;
     case 1: //windsock
         res.state = success;
