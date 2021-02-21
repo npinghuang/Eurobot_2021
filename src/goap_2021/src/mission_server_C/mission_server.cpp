@@ -22,7 +22,7 @@ class mission_setting{
             mission_no = num;
             mission_name = name;
             count = no;
-            printf("hi there : %d \n", mission_no);
+            // printf("hi there : %d \n", mission_no);
         }
 }; mission_setting emergency(0, "emergency", 0);
     mission_setting windsock( 1, "windsock", 0);
@@ -42,37 +42,67 @@ class mission_setting{
 
 bool mission_main( goap_2021::mission_srv::Request  &req,
          goap_2021::mission_srv::Response &res ){
-    // ROS_INFO("in void mission");
-    int state = 0;
-    switch (req.action[0])
-    {
-    case 0:
-        state = req.action[0] + req.cup[0];
-        res.state = state;
 
-        ROS_INFO("case 0, name %d, count %d\n", emergency.mission_no, emergency.count );
+    int success = 0, fail = 1, ing = 2, stop = 3;
+    switch (req.action)
+    {
+    case 0: //emergency
+        res.state = stop;
+        // ROS_INFO("case 0, name %d, count %d\n", emergency.mission_no, emergency.count );
         emergency.count ++;
         break;
-    case 1:
-        state = req.action[0] *10 + req.cup[0];
-        res.state = state;
+    case 1: //windsock
+        res.state = success;
+        break;
+    case 2: // lhouse
+        res.state = success;
+        break;
+    case 3: // flag
+        res.state = success;
+        break;
+    case 4: // anchorN
+        res.state = success;
+        break;
+    case 5: // anchorS
+        res.state = success;
+        break;
+    case 6: // reef_l
+        res.state = success;
+        break;
+    case 7: // reef_r
+        res.state = success;
+        break;
+    case 8: // reef_p
+        res.state = success;
+        break;
+    case 9: // placecup_h
+        res.state = success;
+        break;
+    case 10: // placecup_p 
+        res.state = success;
+        break;
+    case 11: // placecup_r
+        res.state = success;
+        break;
+    case 12: // getcup
+        res.state = success;
+        break;
+    case 13: // getcup12
+        res.state = success;
+        break;
+    case 14: // getcup34
+        res.state = success;
         break;
     default:
         break;
     }
     
-    ROS_INFO("in bool mission case = %d, state = %d", req.action[0],  state);
+    // ROS_INFO("in bool mission case = %d, state = %d", req.action[0],  state);
     return true;
 }
 
 int main(int argc, char **argv)
 {
-    // // define each mission
-
-    ROS_INFO("main, no %d\n", emergency.mission_no );
-
-    // ROS_INFO("main, no %d\n", mi.mission_no );
-    // ROS_INFO("main, name %s\n", emergency.mission_name ); bug here
     ros::init(argc, argv, "mission_server"); 
     ros::NodeHandle n; // node handler
 
