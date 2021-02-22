@@ -52,6 +52,7 @@ bool mission_main( goap_2021::mission_srv::Request  &req,
     {
     case 0: //emergency
         res.state = stop;
+        
         // ROS_INFO("case 0, name %d, count %d\n", emergency.mission_no, emergency.count );
         ROS_INFO("case 0, name %d, count %d, action %d\n", emergency.mission_no, emergency.count, action_0[0] );
         break;

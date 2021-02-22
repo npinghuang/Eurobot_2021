@@ -67,7 +67,7 @@ def cup_cost(req, current, mission, robot):
                     turn = -math.pi
                 
                 if len(cup['robot_pos']) > 0:
-                # print("cup debug", cup['no'], cup['robot_pos'][0])
+                    # print("cup debug", cup['no'], cup['robot_pos'][0])
                     d = distance( cup['robot_pos'][0], current.location)
                     for pos in cup['robot_pos']:
                         pos[2] += turn
@@ -81,76 +81,78 @@ def cup_cost(req, current, mission, robot):
                     state = 0
                     cup['distance'] = 9999999999
 
-            #determine which hand to use
-            if case == 'front' and state != 0:
-                # print("check if there is bug")
-                if cup['color'] == 2:
-                    if front_claw[0] == 1:
-                        cup['robot_pos'][0][0] -= robot.claw[0]['location'][0] * math.cos(robot.claw[0]['location'][2])
-                        cup['robot_pos'][0][1] -= robot.claw[0]['location'][1] * math.sin(robot.claw[0]['location'][2])
-                        cup['robot_pos'][0][2] += robot.claw[0]['location'][2]
-                        cup['hand'] = 0
-                    elif front_suction[0] == 1:
-                        cup['robot_pos'][0][0] -= robot.suction[0]['location'][0] * math.cos(robot.suction[0]['location'][2])
-                        cup['robot_pos'][0][1] -= robot.suction[0]['location'][1] * math.sin(robot.suction[0]['location'][2])
-                        cup['robot_pos'][0][2] += robot.suction[0]['location'][2]
-                        if robot.suction[0]['state'] == 0:
-                            cup['hand' ] = 4
+                #determine which hand to use
+                if case == 'front' and state != 0:
+                    # print("check if there is bug")
+                    if cup['color'] == 2:
+                        if front_claw[0] == 1:
+                            cup['robot_pos'][0][0] -= robot.claw[0]['location'][0] * math.cos(robot.claw[0]['location'][2])
+                            cup['robot_pos'][0][1] -= robot.claw[0]['location'][1] * math.sin(robot.claw[0]['location'][2])
+                            cup['robot_pos'][0][2] += robot.claw[0]['location'][2]
+                            cup['hand'] = 0
+                        elif front_suction[0] == 1:
+                            cup['robot_pos'][0][0] -= robot.suction[0]['location'][0] * math.cos(robot.suction[0]['location'][2])
+                            cup['robot_pos'][0][1] -= robot.suction[0]['location'][1] * math.sin(robot.suction[0]['location'][2])
+                            cup['robot_pos'][0][2] += robot.suction[0]['location'][2]
+                            if robot.suction[0]['state'] == 0:
+                                cup['hand' ] = 4
+                            else:
+                                cup['hand' ] = 5
                         else:
-                            cup['hand' ] = 5
-                    else:
-                        case = 'back'
-                else:#red
-                    if front_claw[1] == 1:
-                        cup['robot_pos'][0][0] -= robot.claw[1]['location'][0] * math.cos(robot.claw[1]['location'][2])
-                        cup['robot_pos'][0][1] -= robot.claw[1]['location'][1] * math.sin(robot.claw[1]['location'][2])
-                        cup['robot_pos'][0][2] += robot.claw[1]['location'][2]
-                        cup['hand'] = 1
-                    elif front_suction[1] == 1:
-                        cup['robot_pos'][0][0] -= robot.suction[2]['location'][0] * math.cos(robot.suction[2]['location'][2])
-                        cup['robot_pos'][0][1] -= robot.suction[2]['location'][1] * math.sin(robot.suction[2]['location'][2])
-                        cup['robot_pos'][0][2] += robot.suction[2]['location'][2]
-                        if robot.suction[2]['state'] == 0:
-                            cup['hand' ] = 6
+                            case = 'back'
+                    else:#red
+                        if front_claw[1] == 1:
+                            cup['robot_pos'][0][0] -= robot.claw[1]['location'][0] * math.cos(robot.claw[1]['location'][2])
+                            cup['robot_pos'][0][1] -= robot.claw[1]['location'][1] * math.sin(robot.claw[1]['location'][2])
+                            cup['robot_pos'][0][2] += robot.claw[1]['location'][2]
+                            cup['hand'] = 1
+                        elif front_suction[1] == 1:
+                            cup['robot_pos'][0][0] -= robot.suction[2]['location'][0] * math.cos(robot.suction[2]['location'][2])
+                            cup['robot_pos'][0][1] -= robot.suction[2]['location'][1] * math.sin(robot.suction[2]['location'][2])
+                            cup['robot_pos'][0][2] += robot.suction[2]['location'][2]
+                            if robot.suction[2]['state'] == 0:
+                                cup['hand' ] = 6
+                            else:
+                                cup['hand' ] = 7
+                elif case == 'back' and state != 0:
+                    if cup['color'] == 2:
+                        if back_claw[0] == 1:
+                            cup['robot_pos'][0][0] -= robot.claw[3]['location'][0] * math.cos(robot.claw[3]['location'][2])
+                            cup['robot_pos'][0][1] -= robot.claw[3]['location'][1] * math.sin(robot.claw[3]['location'][2])
+                            cup['robot_pos'][0][2] += robot.claw[3]['location'][2]
+                            cup['hand' ] = 3
+                        elif back_suction[0] == 1:
+                            cup['robot_pos'][0][0] -= robot.suction[7]['location'][0] * math.cos(robot.suction[7]['location'][2])
+                            cup['robot_pos'][0][1] -= robot.suction[7]['location'][1] * math.sin(robot.suction[7]['location'][2])
+                            cup['robot_pos'][0][2] += robot.suction[7]['location'][2]
+                            if robot.suction[6]['state'] == 0:
+                                cup['hand' ] = 10
+                            else:
+                                cup['hand' ] = 11
                         else:
-                            cup['hand' ] = 7
-            elif case == 'back' and state != 0:
-                if cup['color'] == 2:
-                    if back_claw[0] == 1:
-                        cup['robot_pos'][0][0] -= robot.claw[3]['location'][0] * math.cos(robot.claw[3]['location'][2])
-                        cup['robot_pos'][0][1] -= robot.claw[3]['location'][1] * math.sin(robot.claw[3]['location'][2])
-                        cup['robot_pos'][0][2] += robot.claw[3]['location'][2]
-                        cup['hand' ] = 3
-                    elif back_suction[0] == 1:
-                        cup['robot_pos'][0][0] -= robot.suction[7]['location'][0] * math.cos(robot.suction[7]['location'][2])
-                        cup['robot_pos'][0][1] -= robot.suction[7]['location'][1] * math.sin(robot.suction[7]['location'][2])
-                        cup['robot_pos'][0][2] += robot.suction[7]['location'][2]
-                        if robot.suction[6]['state'] == 0:
-                            cup['hand' ] = 10
-                        else:
-                            cup['hand' ] = 11
-                    else:
-                        mission = None
-                else:#red
-                    if back_claw[1] == 1:
-                        cup['robot_pos'][0][0] -= robot.claw[2]['location'][0] * math.cos(robot.claw[2]['location'][2])
-                        cup['robot_pos'][0][1] -= robot.claw[2]['location'][1] * math.sin(robot.claw[2]['location'][2])
-                        cup['robot_pos'][0][2] += robot.claw[2]['location'][2]
-                        cup['hand' ] = 2
-                    elif back_suction[1] == 1:
-                        cup['robot_pos'][0][0] -= robot.suction[6]['location'][0] * math.cos(robot.suction[6]['location'][2])
-                        cup['robot_pos'][0][1] -= robot.suction[6]['location'][1] * math.sin(robot.suction[6]['location'][2])
-                        cup['robot_pos'][0][2] += robot.suction[6]['location'][2]
-                        if robot.suction[4]['state'] == 0:
-                            cup['hand' ] = 8
-                        else:
-                            cup['hand' ] = 9
-            elif case == 'none':
-                mission = None
-    
-            if state != 0:
-                available_cup.append(cup)
+                            mission = None
+                    else:#red
+                        if back_claw[1] == 1:
+                            cup['robot_pos'][0][0] -= robot.claw[2]['location'][0] * math.cos(robot.claw[2]['location'][2])
+                            cup['robot_pos'][0][1] -= robot.claw[2]['location'][1] * math.sin(robot.claw[2]['location'][2])
+                            cup['robot_pos'][0][2] += robot.claw[2]['location'][2]
+                            cup['hand' ] = 2
+                        elif back_suction[1] == 1:
+                            cup['robot_pos'][0][0] -= robot.suction[6]['location'][0] * math.cos(robot.suction[6]['location'][2])
+                            cup['robot_pos'][0][1] -= robot.suction[6]['location'][1] * math.sin(robot.suction[6]['location'][2])
+                            cup['robot_pos'][0][2] += robot.suction[6]['location'][2]
+                            if robot.suction[4]['state'] == 0:
+                                cup['hand' ] = 8
+                            else:
+                                cup['hand' ] = 9
+                elif case == 'none':
+                    mission = None
         
+                if state != 0:
+                    available_cup.append(cup)
+    # print("debug", len(available_cup))
+    # for cup in available_cup:
+    #     print("cup", cup['no'], type(cup['distance']))
     def myFunc(e):
         return e['distance']
     available_cup.sort(key=myFunc)
