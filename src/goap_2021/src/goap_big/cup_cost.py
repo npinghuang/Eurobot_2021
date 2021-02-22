@@ -153,11 +153,12 @@ def cup_cost(req, current, mission, robot):
     # print("debug", len(available_cup))
     # for cup in available_cup:
     #     print("cup", cup['no'], type(cup['distance']))
-    def myFunc(e):
-        return e['distance']
-    available_cup.sort(key=myFunc)
+    
 
     if len( available_cup ) > 0:
+        def myFunc(e):
+            return e['distance']
+        available_cup.sort(key=myFunc)
         mission = available_cup[0]
         mission['location'] = available_cup[0]['robot_pos'][0]
     else :
