@@ -1,0 +1,4 @@
+int32 action
+float32[] action_pos
+int32[] cup
+int32[] hand

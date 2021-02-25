@@ -48,11 +48,11 @@ find_package(catkin REQUIRED COMPONENTS
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
 ## Generate messages in the 'msg' folder
-# add_message_files(
-#   FILES
-#   Message1.msg
-#   Message2.msg
-# )
+  add_message_files(
+   FILES
+    missiontomain.msg
+    maintomission.msg
+  )
 
 ## Generate services in the 'srv' folder
  add_service_files(
@@ -72,7 +72,7 @@ find_package(catkin REQUIRED COMPONENTS
  generate_messages(
    DEPENDENCIES
    std_msgs
- )
+)
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -136,7 +136,8 @@ include_directories(
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
  add_executable(mission_server src/mission_server_C/mission_server.cpp src/mission_server_C/mission_action.cpp)
-
+ add_executable(mission_topic src/mission_topic/mission_topic.cpp)
+ add_executable(main_talker src/mission_topic/main_talker.cpp)
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
 ## target back to the shorter version for ease of user use
@@ -151,7 +152,12 @@ include_directories(
  target_link_libraries(mission_server
    ${catkin_LIBRARIES}
  )
-
+ target_link_libraries(mission_topic
+   ${catkin_LIBRARIES}
+ )
+ target_link_libraries(main_talker
+   ${catkin_LIBRARIES}
+ )
 #############
 ## Install ##
 #############

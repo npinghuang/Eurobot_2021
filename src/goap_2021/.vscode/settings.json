@@ -6,6 +6,7 @@
     ],
     "files.associations": {
         "typeindex": "cpp",
-        "typeinfo": "cpp"
+        "typeinfo": "cpp",
+        "iosfwd": "cpp"
     }
 }

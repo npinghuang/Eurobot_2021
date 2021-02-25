@@ -46,5 +46,34 @@ enemy1_pos: [0,0]
 enemy2_pos: [0,0]
 strategy: 0" 
 
+"my_pos: [800,200,0]
+friend_pos: [0,0,0]
+ns: false
+emergency: false
+team: false
+time: 0.0
+friend_action: [0,0]
+action_list: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+cup_color: [0,1,0,1,0]
+cup: 61443
+hand: [1,1,1,1,1,1,1,1,1,1,1,0]
+enemy1_pos: [0,0]
+enemy2_pos: [0,0]
+strategy: 0" 
+
+"my_pos: [0]
+friend_pos: [0]
+ns: false
+emergency: false
+team: false
+time: 0.0
+friend_action: [0]
+action_list: [0]
+cup_color: [0]
+cup: 0
+hand: [0]
+enemy1_pos: [0]
+enemy2_pos: [0]
+strategy: 0" 
 
 
