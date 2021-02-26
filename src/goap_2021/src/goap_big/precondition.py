@@ -35,6 +35,7 @@ def checkpreconditions( req, current, mis, robot):
                     # if abs(cupp['location'][0] - current.enemy_1[0] ) > margin and abs(cupp['location'][1] - current.enemy_1[1] ) > margin and abs(cupp['location'][0] - current.enemy_2[0] ) > margin and abs(cupp['location'][1] - current.enemy_2[1] ) > margin:
                         current.candidate.append(m)
         elif m.name == 'getcup_12' or m.name == 'getcup_34':
+            # print("why!!", m.name)
             if m.name == 'getcup_12': #cup number
                 a = 0
                 b = 1
@@ -65,6 +66,7 @@ def checkpreconditions( req, current, mis, robot):
                         m.cup.append( current.cup_state[a] )
                         m.cup.append( current.cup_state[b] )
                         m.cost = distance( current.location, m.location ) - m.reward + m.time
+                        # print("debug", m.name)
                         current.candidate.append(m)
                         # print("debug", m.name, current.cup_state[a]['hand'])
         elif m.name == 'placecupP' or m.name == 'placecupH':
@@ -136,13 +138,14 @@ def refreshstate(current, mission, robot, state):
             current.cup_order.append(mission.cup[1])
             robot.claw[mission.cup[0]['hand']]['state'] = 1
             robot.claw[mission.cup[1]['hand']]['state'] = 1
+        # else:
             # print("ah", mission.cup[0]['no'], mission.cup[1]['no'])
-        if mission.name == 'getcup_12':
-            current.cup_state[ 0]['state'] = 0
-            current.cup_state[ 1]['state'] = 0
-        else:
-            current.cup_state[ 2]['state'] = 0
-            current.cup_state[ 3]['state'] = 0
+            if mission.name == 'getcup_12':
+                current.cup_state[ 0]['state'] = 0
+                current.cup_state[ 1]['state'] = 0
+            else:
+                current.cup_state[ 2]['state'] = 0
+                current.cup_state[ 3]['state'] = 0
         # print("dddddd", current.cup_state[ mission.cup[0]['no'] - 1], current.cup_state[ mission.cup[1]['no'] - 1])
         # print("check refresh", mission.cup[1]['no']  ,current.cup_state[ mission.cup[1]['no'] - 1 ]['no'])
         

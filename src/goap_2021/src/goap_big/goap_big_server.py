@@ -128,10 +128,10 @@ def GOAP(req):
             del current.mission_list[:] 
             friend = 0
             # print('debug', len(req.action_list), len(current.leaf))
-            for a in range(0, len(req.action_list)):
+            for a in range(0, len(req.action_list) ):
                 if req.action_list[a] == 0:
                     for m in current.leaf:
-                        if m.no == a + 1:
+                        if m.no == a:
                             if m.no == req.friend_action[0] and (req.friend_action[0] == 1 or req.friend_action[0] == 2 or req.friend_action[0] == 6 or req.friend_action[0] == 7 or req.friend_action == 8 or req.friend_action[0] == 9 or req.friend_action == 10 or req.friend_action[0] == 11):
                                 friend = 1
                             else:
@@ -139,7 +139,7 @@ def GOAP(req):
                                 current.mission_list.append(m)
                 elif req.action_list[a] == 1:
                     for m in current.leaf:
-                        if m.no == a + 1:
+                        if m.no == a:
                             # print("debug", m.name)
                             if m.name == 'getcup':
                                 current.mission_list.append(m)
@@ -148,7 +148,7 @@ def GOAP(req):
                             # print("current windsock", current.windsock, current.lhouse)
                 elif req.action_list[a] == 3: #if mission failed 
                     for m in current.leaf:
-                        if m.no == a : # some mission we don't won't to retry  bugg!!!! cup no and m.name != 'getcup'
+                        if m.no == a and a < 13: # some mission we don't won't to retry  bugg!!!! cup no and m.name != 'getcup'
                             current.mission_list.append(m)
             if penalty_mission != None and tt == 0: #penalty on mission which had led to emergency
                 tt = 1 #parameter to let penalty only be done once
@@ -271,8 +271,8 @@ def GOAP(req):
 
         score = evaluate(current, robot1)
         print("score", score)
-        #for p in mission_list:
-            #print("mission_list", p)
+        # for p in mission_list:
+        #     print("mission_list", p)
         state = 0
 
     return action, position, cup

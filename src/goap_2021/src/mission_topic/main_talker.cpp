@@ -64,6 +64,7 @@ int main(int argc, char **argv)
      * This is a message object. You stuff it with data, and then publish it.
      */
     goap_2021::maintomission to_mission;
+    // to_mission.action = 0 + count / 2;
     to_mission.action = 1;
     to_mission.action_pos = { 0, 0, 0 };
     to_mission.cup = {0};

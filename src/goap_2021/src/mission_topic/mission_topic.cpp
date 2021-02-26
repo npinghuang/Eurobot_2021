@@ -13,7 +13,7 @@
 using namespace std;
 
 // #include "mission_setting.h"
-// #include "mission_action.h"
+#include "mission_action.h"
 
 int ST1_rx = 9;
 int ST2_rx = 8;
@@ -67,8 +67,17 @@ void chatterCallback(const goap_2021::maintomission::ConstPtr& msg)
 
       break;
   case 1: //windsock
-      state = success;
-      break;
+    ROS_INFO("windsock action: [%d]", action_1[windsock.count]);
+    windsock.count ++;
+    if (windsock.count >= (sizeof(action_1)/sizeof(*action_1))){ //
+        windsock.count = 0;
+    }
+    // if (action_0[windsock.count] == NULL){ ///sizeof(*action_0)
+    //     windsock.count = 0;
+    // }
+    // printf("%d", action_0[ windsock.count]);
+    state = success;
+    break;
   case 2: // lhouse
       state = success;
       break;
