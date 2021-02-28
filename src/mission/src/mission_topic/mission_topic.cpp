@@ -2,6 +2,8 @@
 #include <ros/package.h> //not sure if needed
 // #include "std_msgs/String.h"
 #include <std_msgs/Int32MultiArray.h>
+#include <std_msgs/Float32MultiArray.h>
+#include<geometry_msgs/PoseStamped.h>
 #include "mission/maintomission.h"
 #include "mission/missiontomain.h"
 #include <sstream>
@@ -18,7 +20,8 @@ using namespace std;
 // #include "mission/mission_action.h"
 int ST1_rx = 9;
 int ST2_rx = 8;
-int ST1_tx = 88;
+// int ST1_tx = 88;
+std::vector<float> ST1_tx{0,0,0};
 int ST2_tx = 99;
 int state_ST1 = 0;
 int state_ST2 = 0;
@@ -26,11 +29,14 @@ int state_planer = 0;
 int state_mission;
 int tx = 101;
 int team;
+bool publish_ST1;
 class mission_setting{
     public:
         int mission_no;
         string mission_name;
         int count;
+        int count_ST1 = 0;
+        int count_ST2 = 0;
         int action[10];
         int prepare;
         mission_setting(int num, string name, int no,  int pre){//int array[],
@@ -45,7 +51,7 @@ class mission_setting{
         }
 }; mission_setting emergency(0, "emergency", 0, 0);//[0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 
     mission_setting windsock( 1, "windsock", 0, 2);
-    mission_setting lhouse(2, "lhouse", 0, 0);
+    mission_setting lhouse(2, "lhouse", 0, 2);
     mission_setting flag( 3, "flag", 0, 0);
     mission_setting anchorN(4, "anchorN", 0, 0);
     mission_setting anchorS(5, "anchorS", 0, 0);
@@ -84,26 +90,46 @@ void chatterCallback(const mission::maintomission::ConstPtr& msg)
       break;
   case 1: //windsock
     if ( windsock.count < windsock.prepare){
-        ST1_tx = action_1[windsock.count];
-        ST2_tx = action_1[windsock.count];  
+        // ST1_tx = action_1[windsock.count];
+        // ST2_tx = action_1[windsock.count];  
+        for (int i = 0; i < 3; i++) {
+            if ( team == 0 ){
+                ST1_tx[i] = action1_ST1_blue[windsock.count_ST1][i];
+            }
+            else if ( team == 1 ){
+                ST1_tx[i] = action1_ST1_yellow[windsock.count_ST1][i];
+            }
+        }
+        // ROS_INFO("debug h[ %2f ]", action1_ST1_blue[0][0]);
+        // ROS_INFO("debug main[ %2f]", ST1_tx[0]);
+        ST2_tx = action1_ST2_blue[windsock.count_ST2];  
         if( state_ST2 == 1 && state_ST1 == 1){
             windsock.count ++; 
         }
     }
     else if (windsock.count >= windsock.prepare && state_planer == 1)
     {
-        ST1_tx = action_1[windsock.count];
-        ST2_tx = action_1[windsock.count];  
+        for (int i = 0; i < 3; i++) {
+            if ( team == 0 ){
+                ST1_tx[i] = action1_ST1_blue[windsock.count_ST1][i];
+            }
+            else if ( team == 1 ){
+                ST1_tx[i] = action1_ST1_yellow[windsock.count_ST1][i];
+            }
+        }
+        ST2_tx = action1_ST2_blue[windsock.count_ST2];  
         if( state_ST2 == 1 && state_ST1 == 1){
             windsock.count ++; 
         }
     }
-    ROS_INFO("windsock action: [%d]", action_1[windsock.count - 1]);  
+    ROS_INFO("windsock action: [%f]", ST1_tx[0]);  
     // ROS_INFO("debug windsock action: [%d]", action_1[4]);  
-    if (windsock.count >= (sizeof(action_1)/sizeof(*action_1))){ //
+    if (windsock.count >= action1.size()){ //
         windsock.count = 0;
+        windsock.count_ST1 = 0;
+        windsock.count_ST2 = 0;
         state_mission = success;
-        ROS_INFO("flag success");  
+        // ROS_INFO("flag success");  
     }
     else{
         // ROS_INFO("debug windsock action: [%d], state = %d", windsock.count, state_mission);  
@@ -111,7 +137,58 @@ void chatterCallback(const mission::maintomission::ConstPtr& msg)
     }
     break;
   case 2: // lhouse
-      state_mission = success;
+    if ( lhouse.count < lhouse.prepare){
+        ROS_INFO("before at pos count [%d]", lhouse.count);
+        if (action2[lhouse.count] == 2){
+            ST2_tx = action1_ST2_blue[lhouse.count_ST2];  
+        }
+        if ( state_ST2 == 1){
+            lhouse.count++;
+            lhouse.count_ST2++;
+        }
+    }
+    
+    else if ( lhouse.count >= lhouse.prepare && state_planer == 1){
+        ROS_INFO("at pos count [%d]", lhouse.count);
+        switch (action2[lhouse.count]){
+        case 1:
+            for (int i = 0; i < 3; i++) {
+                if ( team == 0 ){
+                    ST1_tx[i] = action2_ST1_blue[lhouse.count_ST1][i];
+                }
+                else if ( team == 1 ){
+                    ST1_tx[i] = action2_ST1_yellow[lhouse.count_ST1][i];
+                }
+            }
+            if ( state_ST1 == 1){
+                lhouse.count++;
+                lhouse.count_ST1++;
+            }
+            break;
+        case 2:
+            ST2_tx = action1_ST2_blue[lhouse.count_ST2];  
+            if ( state_ST2 == 1){
+                lhouse.count++;
+                lhouse.count_ST2++;
+            }
+            break;
+        default:
+            break;
+        }
+        ROS_INFO("lhouse action: [%f]", ST1_tx[0]);  
+    // ROS_INFO("debug lhouse action: [%d]", action_1[4]);  
+        if (lhouse.count >= action2.size()){ //
+            lhouse.count = 0;
+            lhouse.count_ST1 = 0;
+            lhouse.count_ST2 = 0;
+            state_mission = success;
+            // ROS_INFO("flag success");  
+        }
+        else{
+        // ROS_INFO("debug windsock action: [%d], state = %d", windsock.count, state_mission);  
+            state_mission = ing;
+        }
+    }
       break;
   case 3: // flag
       state_mission = success;
@@ -158,20 +235,20 @@ void chatterCallback(const mission::maintomission::ConstPtr& msg)
 int main(int argc, char **argv)
 {
  
-  ros::init(argc, argv, "mission");
-  ros::NodeHandle n;
+ros::init(argc, argv, "mission");
+ros::NodeHandle n;
 
-  ros::Publisher forST1 = n.advertise<std_msgs::Int32MultiArray>("for_ST1", 1);
-  ros::Publisher forST2 = n.advertise<std_msgs::Int32MultiArray>("for_ST2", 1);
-  // ros::Publisher forST1 = n.advertise<std_msgs::String>("forST1", 1);
-  // ros::Publisher forST2 = n.advertise<std_msgs::String>("forST2", 1);
-  ros::Publisher tomain = n.advertise<mission::missiontomain>("mission", 1);
-
-  ros::Subscriber sub = n.subscribe("main", 1000, chatterCallback);
-  ros::Subscriber subST1 = n.subscribe("ST1_to_mission", 1, chatterCallback_ST1);
-  ros::Subscriber subST2 = n.subscribe("ST2_to_mission", 1, chatterCallback_ST2);
+ros::Publisher forST1 = n.advertise<std_msgs::Float32MultiArray>("MissionToST1", 1);
+ros::Publisher forST2 = n.advertise<std_msgs::Int32MultiArray>("MissionToST2", 1);
+// ros::Publisher forNavigation = n.advertise<geometry_msgs::PoseStamped>("move_base_simple/goal", 1);
+// ros::Publisher forST1 = n.advertise<std_msgs::String>("forST1", 1);
+// ros::Publisher forST2 = n.advertise<std_msgs::String>("forST2", 1);
+ros::Publisher tomain = n.advertise<mission::missiontomain>("MissionToMain", 1);
+ros::Subscriber sub = n.subscribe("MainToMission", 1, chatterCallback);
+ros::Subscriber subST1 = n.subscribe("ST1ToMission", 1, chatterCallback_ST1);
+ros::Subscriber subST2 = n.subscribe("ST2ToMission", 1, chatterCallback_ST2);
 //   ros::Publisher chatter_pub = n.advertise<std_msgs::String>("chatter", 1000);
-  ros::Rate loop_rate(10);
+ros::Rate loop_rate(10);
 
     int count = 0;
   while (ros::ok())
@@ -181,12 +258,14 @@ int main(int argc, char **argv)
     to_main.state = state_mission;
     tomain.publish(to_main);
 
-    std_msgs::Int32MultiArray for_st1;
-    for_st1.data.push_back(ST1_tx);
-    for_st1.data.push_back(ST1_rx);
+    std_msgs::Float32MultiArray for_st1;
+    // ROS_INFO("debug windsock action: [%f]", ST1_tx[0]);  
+    for_st1.data.push_back(ST1_tx[0]);
+    for_st1.data.push_back(ST1_tx[1]);
+    for_st1.data.push_back(ST1_tx[2]);
     std_msgs::Int32MultiArray for_st2;
     for_st2.data.push_back(ST2_tx);
-    for_st2.data.push_back(ST2_rx);
+    // for_st2.data.push_back(ST2_rx);
 
     // std_msgs::String msg;
 

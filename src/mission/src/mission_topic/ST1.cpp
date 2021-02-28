@@ -1,12 +1,13 @@
 #include "ros/ros.h"
 #include "std_msgs/String.h"
 #include <std_msgs/Int32MultiArray.h>
+#include <std_msgs/Float32MultiArray.h>
 #include <sstream>
 
 int ST1_rx = 9;
 int ST1_tx = 88;
 int state = 0;
-void chatterCallback(const std_msgs::Int32MultiArray::ConstPtr& msg)
+void chatterCallback(const std_msgs::Float32MultiArray::ConstPtr& msg)
 {
     state = 1;
     // ROS_INFO("I heard action:");
@@ -17,8 +18,8 @@ int main(int argc, char **argv)
 
   ros::NodeHandle n;
 
-  ros::Publisher ST1tomission = n.advertise<std_msgs::Int32MultiArray>("ST1_to_mission", 1);
-  ros::Subscriber sub = n.subscribe("for_ST1", 1, chatterCallback);
+  ros::Publisher ST1tomission = n.advertise<std_msgs::Int32MultiArray>("ST1ToMission", 1);
+  ros::Subscriber sub = n.subscribe("MissionToST1", 1, chatterCallback);
   ros::Rate loop_rate(10);
 
   int count = 0;

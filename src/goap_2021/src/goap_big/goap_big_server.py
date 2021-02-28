@@ -7,7 +7,8 @@ from precondition import *
 from setting_big_goap import *
 
 print("start goap")
-
+# global penalty_mission
+penalty_mission = None
 def emergency(current):
     location = current.location
     #back away distance
@@ -23,6 +24,7 @@ def emergency(current):
         y -= math.sin(rad) * d
         #check if ( x, y ) will hit the border
         if x < 50:
+            print("debug1",math.cos(rad) * d,  math.sin(rad) * d)
             x = 50
             rad += math.pi / 4
         elif x > 1950:
@@ -38,6 +40,7 @@ def emergency(current):
         else:
             for c in current.cup_state:
                 if (x, y) == c['location']:
+                    print("debug")
                     rad += math.pi / 4
                     break
                 else:
@@ -83,15 +86,18 @@ def evaluate(current, robot):
 
 def GOAP(req):
     print("-------------------------------------------------")
+    global penalty_mission
     # print("previous current emergency", cur.emergency)
     if (cur.mission)!= None:
         print("previous action ", cur.mission.name)
     if cur.emergency == True: # document the action right before entering emergency state
         for mission in cur.mission_list:
             if cur.mission.name == mission.name:
+                # global penalty_mission
                 penalty_mission = mission
                 # print("penalty", mission.name)
     else:
+        # global penalty_mission
         penalty_mission = None
     (current, robot1) = mission_precondition(req)
     # print("cur.time", current.time)

@@ -17,8 +17,8 @@ int main(int argc, char **argv)
 
   ros::NodeHandle n;
 
-  ros::Publisher ST2tomission = n.advertise<std_msgs::Int32MultiArray>("ST2_to_mission", 1);
-  ros::Subscriber sub = n.subscribe("for_ST2", 1, chatterCallback);
+  ros::Publisher ST2tomission = n.advertise<std_msgs::Int32MultiArray>("ST2ToMission", 1);
+  ros::Subscriber sub = n.subscribe("MissionToST2", 1, chatterCallback);
   ros::Rate loop_rate(10);
 
   int count = 0;
