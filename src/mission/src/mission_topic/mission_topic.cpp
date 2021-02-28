@@ -2,8 +2,8 @@
 #include <ros/package.h> //not sure if needed
 // #include "std_msgs/String.h"
 #include <std_msgs/Int32MultiArray.h>
-#include "goap_2021/maintomission.h"
-#include "goap_2021/missiontomain.h"
+#include "mission/maintomission.h"
+#include "mission/missiontomain.h"
 #include <sstream>
 #include <stdio.h>
 #include <iostream>
@@ -13,13 +13,19 @@
 using namespace std;
 
 // #include "mission_setting.h"
-#include "mission_action.h"
 
+#include "mission/mission_action.h"
+// #include "mission/mission_action.h"
 int ST1_rx = 9;
 int ST2_rx = 8;
 int ST1_tx = 88;
 int ST2_tx = 99;
+int state_ST1 = 0;
+int state_ST2 = 0;
+int state_planer = 0;
+int state_mission;
 int tx = 101;
+int team;
 class mission_setting{
     public:
         int mission_no;
@@ -38,7 +44,7 @@ class mission_setting{
             // setting_( num, name, count );
         }
 }; mission_setting emergency(0, "emergency", 0, 0);//[0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 
-    mission_setting windsock( 1, "windsock", 0, 0);
+    mission_setting windsock( 1, "windsock", 0, 2);
     mission_setting lhouse(2, "lhouse", 0, 0);
     mission_setting flag( 3, "flag", 0, 0);
     mission_setting anchorN(4, "anchorN", 0, 0);
@@ -53,69 +59,95 @@ class mission_setting{
     mission_setting getcup_12( 13, "getcup_12", 0, 0);
     mission_setting getcup_34( 14, "getcup_34", 0, 0);
 
-int state;
-void chatterCallback(const goap_2021::maintomission::ConstPtr& msg)
+
+void chatterCallback_ST1(const std_msgs::Int32MultiArray::ConstPtr& msg)
 {
-  ROS_INFO("I heard action: [%d]", msg->action);
+    // ROS_INFO("I heard action: [%d]", msg->data[0]);
+    state_ST1 = msg -> data[0] ;
+}
+void chatterCallback_ST2(const std_msgs::Int32MultiArray::ConstPtr& msg)
+{
+    // ROS_INFO("I heard action: [%d]", msg.data[0]);
+    state_ST2 = msg -> data[0];
+}
+void chatterCallback(const mission::maintomission::ConstPtr& msg)
+{
+//   ROS_INFO("I heard action: [%d]", msg->action);
   tx++;
-  // ROS_INFO("222 %d", tx);
+  state_planer = msg->planer_state;
+  team = msg->team;
   int success = 1, fail = 0, ing = 2, stop = 3;
   switch (msg->action)
   {
   case 0: //emergency
-      state = stop;
-
+      state_mission = stop;
       break;
   case 1: //windsock
-    ROS_INFO("windsock action: [%d]", action_1[windsock.count]);
-    windsock.count ++;
+    if ( windsock.count < windsock.prepare){
+        ST1_tx = action_1[windsock.count];
+        ST2_tx = action_1[windsock.count];  
+        if( state_ST2 == 1 && state_ST1 == 1){
+            windsock.count ++; 
+        }
+    }
+    else if (windsock.count >= windsock.prepare && state_planer == 1)
+    {
+        ST1_tx = action_1[windsock.count];
+        ST2_tx = action_1[windsock.count];  
+        if( state_ST2 == 1 && state_ST1 == 1){
+            windsock.count ++; 
+        }
+    }
+    ROS_INFO("windsock action: [%d]", action_1[windsock.count - 1]);  
+    // ROS_INFO("debug windsock action: [%d]", action_1[4]);  
     if (windsock.count >= (sizeof(action_1)/sizeof(*action_1))){ //
         windsock.count = 0;
+        state_mission = success;
+        ROS_INFO("flag success");  
     }
-    // if (action_0[windsock.count] == NULL){ ///sizeof(*action_0)
-    //     windsock.count = 0;
-    // }
-    // printf("%d", action_0[ windsock.count]);
-    state = success;
+    else{
+        // ROS_INFO("debug windsock action: [%d], state = %d", windsock.count, state_mission);  
+        state_mission = ing;
+    }
     break;
   case 2: // lhouse
-      state = success;
+      state_mission = success;
       break;
   case 3: // flag
-      state = success;
+      state_mission = success;
       break;
   case 4: // anchorN
-      state = success;
+      state_mission = success;
       break;
   case 5: // anchorS
-      state = success;
+      state_mission = success;
       break;
   case 6: // reef_l
-      state = success;
+      state_mission = success;
       break;
   case 7: // reef_r
-      state = success;
+      state_mission = success;
       break;
   case 8: // reef_p
-      state = success;
+      state_mission = success;
       break;
   case 9: // placecup_h
-      state = success;
+      state_mission = success;
       break;
   case 10: // placecup_p 
-      state = success;
+      state_mission = success;
       break;
   case 11: // placecup_r
-      state = success;
+      state_mission = success;
       break;
   case 12: // getcup
-      state = success;
+      state_mission = success;
       break;
   case 13: // getcup12
-      state = success;
+      state_mission = success;
       break;
   case 14: // getcup34
-      state = success;
+      state_mission = success;
       break;
   default:
       break;
@@ -133,17 +165,20 @@ int main(int argc, char **argv)
   ros::Publisher forST2 = n.advertise<std_msgs::Int32MultiArray>("for_ST2", 1);
   // ros::Publisher forST1 = n.advertise<std_msgs::String>("forST1", 1);
   // ros::Publisher forST2 = n.advertise<std_msgs::String>("forST2", 1);
-  ros::Publisher tomain = n.advertise<goap_2021::missiontomain>("mission", 1);
+  ros::Publisher tomain = n.advertise<mission::missiontomain>("mission", 1);
 
   ros::Subscriber sub = n.subscribe("main", 1000, chatterCallback);
+  ros::Subscriber subST1 = n.subscribe("ST1_to_mission", 1, chatterCallback_ST1);
+  ros::Subscriber subST2 = n.subscribe("ST2_to_mission", 1, chatterCallback_ST2);
 //   ros::Publisher chatter_pub = n.advertise<std_msgs::String>("chatter", 1000);
   ros::Rate loop_rate(10);
 
     int count = 0;
   while (ros::ok())
   {
-    goap_2021::missiontomain to_main;
-    to_main.state = state;
+    mission::missiontomain to_main;
+    // to_main.state = state_mission;
+    to_main.state = state_mission;
     tomain.publish(to_main);
 
     std_msgs::Int32MultiArray for_st1;
