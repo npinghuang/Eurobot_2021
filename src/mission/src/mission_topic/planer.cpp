@@ -4,8 +4,8 @@
 #include <std_msgs/Float32MultiArray.h>
 #include <sstream>
 
-int ST1_rx = 9;
-int ST1_tx = 88;
+int planer_rx = 9;
+int planer_tx = 88;
 int state = 0;
 void chatterCallback(const std_msgs::Float32MultiArray::ConstPtr& msg)
 {
@@ -14,12 +14,12 @@ void chatterCallback(const std_msgs::Float32MultiArray::ConstPtr& msg)
 }
 int main(int argc, char **argv)
 {
-  ros::init(argc, argv, "ST1");
+  ros::init(argc, argv, "planer");
 
   ros::NodeHandle n;
 
-  ros::Publisher ST1tomission = n.advertise<std_msgs::Int32MultiArray>("ST1ToMission", 1);
-  ros::Subscriber sub = n.subscribe("MissionToST1", 1, chatterCallback);
+  ros::Publisher planertomission = n.advertise<std_msgs::Int32MultiArray>("planerToMission", 1);
+  ros::Subscriber sub = n.subscribe("MissionToplaner", 1, chatterCallback);
   ros::Rate loop_rate(10);
 
   int count = 0;
@@ -29,7 +29,7 @@ int main(int argc, char **argv)
     for_mission.data.push_back(state);
     // for_mission.data.push_back(state + 1);
 
-    ST1tomission.publish(for_mission);
+    planertomission.publish(for_mission);
 
     ros::spinOnce();
 

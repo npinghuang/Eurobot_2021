@@ -138,9 +138,9 @@ include_directories(
 # add_executable(${PROJECT_NAME}_node src/mission_node.cpp)
 add_executable(mission_topic src/mission_topic/mission_topic.cpp src/mission_topic/mission_action.cpp)#
 add_executable(main_talker src/mission_topic/main_talker.cpp)
-add_executable(ST1 src/mission_topic/ST1.cpp)
+add_executable(planer src/mission_topic/planer.cpp)
 add_executable(ST2 src/mission_topic/ST2.cpp)
-add_executable(mission_simple src/mission_topic/mission_simple.cpp)
+#add_executable(mission_simple src/mission_topic/mission_simple.cpp)
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
 ## target back to the shorter version for ease of user use
@@ -161,15 +161,15 @@ ${catkin_LIBRARIES}
 target_link_libraries(main_talker
 ${catkin_LIBRARIES}
 )
-target_link_libraries(ST1
+target_link_libraries(planer
 ${catkin_LIBRARIES}
 )
 target_link_libraries(ST2
 ${catkin_LIBRARIES}
 )
-target_link_libraries(mission_simple
-${catkin_LIBRARIES}
-)
+#target_link_libraries(mission_simple
+#${catkin_LIBRARIES}
+#)
 #############
 ## Install ##
 #############

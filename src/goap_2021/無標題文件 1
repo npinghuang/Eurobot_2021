@@ -46,10 +46,10 @@ enemy1_pos: [0,0]
 enemy2_pos: [0,0]
 strategy: 0" 
 
-"my_pos: [800,200,0]
+"my_pos: [10,10,0]
 friend_pos: [0,0,0]
 ns: false
-emergency: false
+emergency: true
 team: false
 time: 0.0
 friend_action: [0,0]
@@ -61,10 +61,10 @@ enemy1_pos: [0,0]
 enemy2_pos: [0,0]
 strategy: 0" 
 
-"my_pos: [0]
+"my_pos: [10, 10, 0]
 friend_pos: [0]
 ns: false
-emergency: false
+emergency: true
 team: false
 time: 0.0
 friend_action: [0]
