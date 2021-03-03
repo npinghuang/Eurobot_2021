@@ -29,18 +29,18 @@ int main(int argc, char **argv)
     mission::maintomission to_mission;
     // to_mission.action = 0 + count / 2;
     // to_mission.action = mission_var;
-    to_mission.action = 14;
+    to_mission.action =  2;
     to_mission.action_pos = { 0, 0, 0 };
     to_mission.cup = {1,2};
-    to_mission.hand = {1,2};
+    to_mission.hand = {3,4};
     to_mission.planer_state = 1;
     to_mission.team = 0;
 
     chatter_pub.publish(to_mission);
     if ( state_mission == 1){
       mission_var++;
-      if ( mission_var == 2){
-        mission_var = 1;
+      if ( mission_var == 15){
+        mission_var = 12;
       }
     }
     ros::spinOnce();

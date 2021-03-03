@@ -20,10 +20,11 @@ using namespace std;
 // #include "mission/mission_action.h"
 float planer_rx = 9;
 int ST2_rx = 8;
+int initialize = 1;
 // int planer_tx = 88;
-std::vector<int> hand{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+std::vector<int> hand{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 std::vector<float> planer_tx{0,0,0};
-int ST2_tx = 99;
+std::vector<int> ST2_tx{0,0,0};
 int state_planer = 0;
 int state_ST2 = 0;
 int state_mission;
@@ -50,7 +51,7 @@ class mission_setting{
             // setting_( num, name, count );
         }
 }; mission_setting emergency(0, "emergency", 0, 0);//[0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 
-    mission_setting windsock( 1, "windsock", 0, 2);
+    mission_setting windsock( 1, "windsock", 0, 1);
     mission_setting lhouse(2, "lhouse", 0, 2);
     mission_setting flag( 3, "flag", 0, 0);
     mission_setting anchorN(4, "anchorN", 0, 0);
@@ -64,18 +65,77 @@ class mission_setting{
     mission_setting getcup(12, "getcup", 0, 0);
     mission_setting getcup_12( 13, "getcup_12", 0, 0);
     mission_setting getcup_34( 14, "getcup_34", 0, 0);
+
+int hand_ST2( int num){ // due to different numbering between ST2 and GOAP
+    int hand; 
+    switch (num)
+    {
+    case 1:
+        hand = 0;
+        break;
+    case 2:
+        hand = 1;
+        break;
+    case 3:
+        hand = 6;
+        break;
+    case 4:
+        hand = 7;
+        break;
+    case 5:
+        hand = 2;
+        break;
+    case 6:
+        hand = 3;
+        break;
+    case 7:
+        hand = 4;
+        break;
+    case 8:
+        hand = 5;
+        break;
+    case 9:
+        hand = 8;
+        break;
+    case 10:
+        hand = 9;
+        break;
+    case 11:
+        hand = 10;
+        break;
+    case 12:
+        hand = 11;
+        break;
+    default:
+        hand = -1;
+        break;
+    }
+    return hand;
+}
 void planer_tx_transform( float x, float y, float theta){
     planer_tx[0] = x;
     planer_tx[1] = y;
     planer_tx[2] = theta;
 }
-void ST2_tx_transform_outterhand( int hand, bool suck, float degree){
-    ST2_tx = hand;
-    ROS_INFO("outterhand: hand = [%d], suck = [%d], degree = [%f]", hand, suck, degree);
+void ST2_tx_transform_outterhand( int hand, bool suck, int degree){
+    ST2_tx[0] = hand;
+    ST2_tx[1] = suck;
+    ST2_tx[2] = degree;
+    ROS_INFO("outterhand: hand = [%d], suck = [%d], degree = [%d]", hand, suck, degree);
 }
 void ST2_tx_transform_innerhand( int hand1, int hand2, bool suck){
-    ST2_tx = hand1;
-    ROS_INFO("innerhand: hand = [%d, %d], suck = [%d]", hand1, hand2, suck);
+    if ( hand2 == -1){
+        ST2_tx[0] = hand1;   
+    }
+    else if ( hand2 == 0 || hand2 == 1){
+        ST2_tx[0] = 12;
+    }
+    else if ( hand2 == 6 || hand2 == 7){
+        ST2_tx[0] = 13;
+    }
+    ST2_tx[1] = suck;
+    ST2_tx[2] = 0;
+    ROS_INFO("innerhand: hand = [%d, %d], suck = [%d], hand ST2 [%d]", hand1, hand2, suck, ST2_tx[0]);
 }
 
 int cup_color(int num){
@@ -86,6 +146,14 @@ int cup_color(int num){
         return 2;
     }
 }
+int degree_transform( int d ){
+    int theta;
+    theta = d;
+    return theta;
+}
+void init(){
+    ROS_INFO("initialize");
+}
 void chatterCallback_planer(const std_msgs::Int32MultiArray::ConstPtr& msg)
 {
     // ROS_INFO("I heard action: [%d]", msg->data[0]);
@@ -93,7 +161,7 @@ void chatterCallback_planer(const std_msgs::Int32MultiArray::ConstPtr& msg)
 }
 void chatterCallback_ST2(const std_msgs::Int32MultiArray::ConstPtr& msg)
 {
-    // ROS_INFO("I heard action: [%d]", msg.data[0]);
+    // ROS_INFO("I heard ST2: [%d]", msg->data[0]);
     state_ST2 = msg -> data[0];
 }
 void chatterCallback(const mission::maintomission::ConstPtr& msg)
@@ -103,6 +171,10 @@ void chatterCallback(const mission::maintomission::ConstPtr& msg)
   state_planer = msg->planer_state;
   team = msg->team;
   int success = 1, fail = 0, ing = 2, stop = 3;
+  if ( initialize == 1){
+      init();
+      initialize = 0;
+  }
   switch (msg->action)
   {
   case 0: //emergency
@@ -110,97 +182,49 @@ void chatterCallback(const mission::maintomission::ConstPtr& msg)
       break;
   case 1: //windsock
     if ( windsock.count < windsock.prepare){
-        // planer_tx = action_1[windsock.count];
-        // ST2_tx = action_1[windsock.count];  
-        for (int i = 0; i < 3; i++) {
-            if ( team == 0 ){
-                planer_tx[i] = action1_planer_blue[windsock.count_planer][i];
-            }
-            else if ( team == 1 ){
-                planer_tx[i] = action1_planer_yellow[windsock.count_planer][i];
-            }
-        }
-        // ROS_INFO("debug h[ %2f ]", action1_planer_blue[0][0]);
-        // ROS_INFO("debug main[ %2f]", planer_tx[0]);
-        ST2_tx = action1_ST2_blue[windsock.count_ST2];  
-        if( state_ST2 == 1 && state_planer == 1){
-            windsock.count ++; 
-        }
-    }
-    else if (windsock.count >= windsock.prepare && state_planer == 1)
-    {
-        for (int i = 0; i < 3; i++) {
-            if ( team == 0 ){
-                planer_tx[i] = action1_planer_blue[windsock.count_planer][i];
-            }
-            else if ( team == 1 ){
-                planer_tx[i] = action1_planer_yellow[windsock.count_planer][i];
-            }
-        }
-        ST2_tx = action1_ST2_blue[windsock.count_ST2];  
-        if( state_ST2 == 1 && state_planer == 1){
-            windsock.count ++; 
-        }
-    }
-    ROS_INFO("windsock action: [%f]", planer_tx[0]);  
-    // ROS_INFO("debug windsock action: [%d]", action_1[4]);  
-    if (windsock.count >= action1.size()){ //
-        windsock.count = 0;
-        windsock.count_planer = 0;
-        windsock.count_ST2 = 0;
-        state_mission = success;
-        // ROS_INFO("flag success");  
-    }
-    else{
-        // ROS_INFO("debug windsock action: [%d], state = %d", windsock.count, state_mission);  
-        state_mission = ing;
-    }
-    break;
-  case 2: // lhouse
-    if ( lhouse.count < lhouse.prepare){
-        ROS_INFO("before at pos count [%d]", lhouse.count);
-        if (action2[lhouse.count] == 2){
-            ST2_tx = action1_ST2_blue[lhouse.count_ST2];  
+        ROS_INFO("before at pos count [%d]", windsock.count);
+        if (action1[windsock.count] == 2){
+            ST2_tx[0] = action1_ST2_blue[windsock.count_ST2];  
         }
         if ( state_ST2 == 1){
-            lhouse.count++;
-            lhouse.count_ST2++;
+            windsock.count++;
+            windsock.count_ST2++;
         }
     }
     
-    else if ( lhouse.count >= lhouse.prepare && state_planer == 1){
-        ROS_INFO("at pos count [%d]", lhouse.count);
-        switch (action2[lhouse.count]){
+    else if ( windsock.count >= windsock.prepare && state_planer == 1){
+        ROS_INFO("at pos count [%d]", windsock.count);
+        switch (action1[windsock.count]){
         case 1:
             for (int i = 0; i < 3; i++) {
                 if ( team == 0 ){
-                    planer_tx[i] = action2_planer_blue[lhouse.count_planer][i];
+                    planer_tx[i] = action1_planer_blue[windsock.count_planer][i];
                 }
                 else if ( team == 1 ){
-                    planer_tx[i] = action2_planer_yellow[lhouse.count_planer][i];
+                    planer_tx[i] = action1_planer_yellow[windsock.count_planer][i];
                 }
             }
             if ( state_planer == 1){
-                lhouse.count++;
-                lhouse.count_planer++;
+                windsock.count++;
+                windsock.count_planer++;
             }
             break;
         case 2:
-            ST2_tx = action1_ST2_blue[lhouse.count_ST2];  
+            ST2_tx[0] = action1_ST2_blue[windsock.count_ST2];  
             if ( state_ST2 == 1){
-                lhouse.count++;
-                lhouse.count_ST2++;
+                windsock.count++;
+                windsock.count_ST2++;
             }
             break;
         default:
             break;
         }
-        ROS_INFO("lhouse action: [%f]", planer_tx[0]);  
-    // ROS_INFO("debug lhouse action: [%d]", action_1[4]);  
-        if (lhouse.count >= action2.size()){ //
-            lhouse.count = 0;
-            lhouse.count_planer = 0;
-            lhouse.count_ST2 = 0;
+        ROS_INFO("windsock action: [%f]", planer_tx[0]);  
+    // ROS_INFO("debug windsock action: [%d]", action_1[4]);  
+        if (windsock.count >= action1.size()){ //
+            windsock.count = 0;
+            windsock.count_planer = 0;
+            windsock.count_ST2 = 0;
             state_mission = success;
             // ROS_INFO("flag success");  
         }
@@ -209,7 +233,27 @@ void chatterCallback(const mission::maintomission::ConstPtr& msg)
             state_mission = ing;
         }
     }
-      break;
+    break;
+  case 2: // lhouse
+    if ( state_planer == 1){
+        if ( msg->team == 0){
+            planer_tx_transform( action2_planer_blue[lhouse.count][0], action2_planer_blue[lhouse.count][1], action2_planer_blue[lhouse.count][2]);
+        }
+        else if ( msg->team == 1){
+            planer_tx_transform( action2_planer_yellow[lhouse.count][0], action2_planer_yellow[lhouse.count][1], action2_planer_yellow[lhouse.count][2]);
+        }
+        lhouse.count++;
+        
+    }
+    if ( lhouse.count >= action2_planer_blue.size()){
+            lhouse.count = 0;
+            state_mission = success;
+        }
+    else{
+    // ROS_INFO("debug windsock action: [%d], state = %d", windsock.count, state_mission);  
+        state_mission = ing;
+    }    
+    break;
   case 3: // flag
       state_mission = success;
       break;
@@ -240,17 +284,22 @@ void chatterCallback(const mission::maintomission::ConstPtr& msg)
   case 12: // getcup
     int degree;
     degree = 0;
+    degree = degree_transform(degree);
+    int handd[2];
     if ( state_planer == 1){
         if ( msg->hand[0] < 4 ){
-            ST2_tx_transform_innerhand( msg->hand[0], -1, true); 
+            handd[0] = hand_ST2( msg -> hand[0]);
+            ST2_tx_transform_innerhand( handd[0], -1, true); 
         }
         else if ( msg->hand[0] >= 4){
-            ST2_tx_transform_outterhand( msg->hand[0], true, degree);     
+            handd[0] = hand_ST2( msg -> hand[0]);
+            ST2_tx_transform_outterhand( handd[0], true, degree);     
         }
     }   
     if (state_ST2 == 1){
         state_mission = success;    
         hand[msg->hand[0]] = cup_color( msg->cup[0]);
+        // ROS_INFO("debug %d, %d, %d",msg->hand[0], msg->cup[0],  hand[msg->hand[0]]);
     }
     else if ( state_ST2 == 0 or state_planer == 0){
         state_mission = ing;
@@ -258,7 +307,9 @@ void chatterCallback(const mission::maintomission::ConstPtr& msg)
     break;
   case 13: // getcup12
     if ( state_planer == 1){
-            ST2_tx_transform_innerhand( msg->hand[0], msg->hand[1], true); 
+        handd[0] = hand_ST2( msg -> hand[0]);
+        handd[1] = hand_ST2 ( msg-> hand[1]);
+        ST2_tx_transform_innerhand( handd[0], handd[1], true); 
         } 
     if (state_ST2 == 1){
         state_mission = success;    
@@ -276,11 +327,39 @@ void chatterCallback(const mission::maintomission::ConstPtr& msg)
     else if ( state_ST2 == 0 or state_planer == 0 ){
         state_mission = ing;
     }
+      break;
+    case 14: // getcup34
+        if ( state_planer == 1){
+            handd[0] = hand_ST2( msg -> hand[0]);
+            handd[1] = hand_ST2 ( msg-> hand[1]);
+            ST2_tx_transform_innerhand( handd[0], handd[1], true); 
+        } 
+        if (state_ST2 == 1){
+            state_mission = success;    
+            hand[msg->hand[0]] = cup_color( msg->cup[0]);
+            hand[msg->hand[1]] = cup_color( msg->cup[1]);
+        }
+        else if ( state_ST2 == 0 or state_planer == 0 ){
+            state_mission = ing;
+            } 
+        if (state_ST2 == 1){
+            state_mission = success;    
+            hand[msg->hand[0]] = cup_color( msg->cup[0]);
+            hand[msg->hand[1]] = cup_color( msg->cup[1]);
+            // ROS_INFO("debug %d, %d, %d",msg->hand[0], msg->cup[0],  hand[msg->hand[0]]);
+        }
+        else if ( state_ST2 == 0 or state_planer == 0 ){
+            state_mission = ing;
+        }
       break;
   default:
       break;
   }
-
+//   ROS_INFO("hand vector: ");
+//     for( int i = 0; i < 13; i ++){
+//         ROS_INFO("%d, ", hand[i]);
+//     }
+//     ROS_INFO("\n");
 }
 
 int main(int argc, char **argv)
@@ -311,12 +390,16 @@ ros::Rate loop_rate(10);
     tomain.publish(to_main);
 
     std_msgs::Float32MultiArray for_planer;
-    // ROS_INFO("debug windsock action: [%f]", planer_tx[0]);  
+    ROS_INFO("debug windsock action: [%f]", planer_tx[0]);  
     for_planer.data.push_back(planer_tx[0]);
     for_planer.data.push_back(planer_tx[1]);
     for_planer.data.push_back(planer_tx[2]);
+    ROS_INFO("debug windsock action: [%f]", planer_tx[0]);  
     std_msgs::Int32MultiArray for_st2;
-    for_st2.data.push_back(ST2_tx);
+    for ( int i = 0; i < ST2_tx.size(); i++){
+        for_st2.data.push_back(ST2_tx[i]);
+    }
+    
     // for_st2.data.push_back(ST2_rx);
 
     // std_msgs::String msg;
