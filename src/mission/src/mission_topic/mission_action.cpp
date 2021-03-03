@@ -42,3 +42,20 @@ extern const std::vector<vector<float>> action2_planer_yellow{
     };
 extern const std::vector<int> action2_ST2_blue{1, 2, 3, 4};
 extern const std::vector<int> action2{ 2, 2, 1, 2, 1, 2, 1, 1} ;
+
+extern const std::vector<vector<float>> action9_planer_blue{
+        {1.85, 1.8, 0},
+        {1.8, 1.8, 0},
+        {1.65, 1.8, 180}
+    };
+extern const std::vector<vector<float>> action9_planer_yellow{
+        {.100, 2.750, 0},
+        {.150, 2.750, 0}
+    };
+extern const std::vector<vector<int>> placecup_hand = {
+        {0, 1, 3, 5},
+        { 2, 4, -1, -1},
+        {6, 7, 9, 11},
+        { 8, 10, -1, -1},
+    };
+extern const std::vector<int> placecup_theta = {45, 60, 45, 60};

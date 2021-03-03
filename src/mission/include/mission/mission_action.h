@@ -29,4 +29,9 @@ extern const std::vector<vector<float>> action2_planer_blue;
 extern const std::vector<vector<float>> action2_planer_yellow;
 extern const std::vector<int> action2_ST2_blue;
 extern const std::vector<int> action2 ;
+
+extern const std::vector<vector<float>> action9_planer_blue;
+extern const std::vector<vector<float>> action9_planer_yellow;
+extern const std::vector<vector<int>> placecup_hand;
+extern const std::vector<int> placecup_theta ;
 #endif 

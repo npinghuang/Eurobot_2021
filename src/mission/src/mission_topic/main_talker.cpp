@@ -29,7 +29,7 @@ int main(int argc, char **argv)
     mission::maintomission to_mission;
     // to_mission.action = 0 + count / 2;
     // to_mission.action = mission_var;
-    to_mission.action =  2;
+    to_mission.action =  9;
     to_mission.action_pos = { 0, 0, 0 };
     to_mission.cup = {1,2};
     to_mission.hand = {3,4};

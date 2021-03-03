@@ -5,7 +5,7 @@
 
 int ST2_rx = 9;
 int ST2_tx = 88;
-int state = 0;
+int state = 1;
 void chatterCallback(const std_msgs::Int32MultiArray::ConstPtr& msg)
 {
     state = 1;
