@@ -35,6 +35,7 @@ def checkpreconditions( req, current, mis, robot):
         #             # if abs(cupp['location'][0] - current.enemy_1[0] ) > margin and abs(cupp['location'][1] - current.enemy_1[1] ) > margin and abs(cupp['location'][0] - current.enemy_2[0] ) > margin and abs(cupp['location'][1] - current.enemy_2[1] ) > margin:
         #                 current.candidate.append(m)
         # elif m.name == 'getcup_12' or m.name == 'getcup_34':
+        #     # print("why!!", m.name)
         #     if m.name == 'getcup_12': #cup number
         #         a = 0
         #         b = 1
@@ -65,7 +66,9 @@ def checkpreconditions( req, current, mis, robot):
         #                 m.cup.append( current.cup_state[a] )
         #                 m.cup.append( current.cup_state[b] )
         #                 m.cost = distance( current.location, m.location ) - m.reward + m.time
+        #                 # print("debug", m.name)
         #                 current.candidate.append(m)
+        #                 # print("debug", m.name, current.cup_state[a]['hand'])
         # elif m.name == 'placecupP' or m.name == 'placecupH':
         #     if robot.freestorage < robot.cupstorage and boom1 ==  1 and boom2 == 1 and boomf == 1:
         #         if current.time < 70:
@@ -94,18 +97,19 @@ def checkpreconditions( req, current, mis, robot):
                 current.candidate.append(m)
         elif m.name == 'reef_private':
             if robot.reef == 1 and current.reef_p == 1 and boom1 ==  1 and boom2 == 1 and boomf == 1:
+                print("debug reef p")
                 m.cost = distance( current.location, m.location ) - m.reward + m.time
                 current.candidate.append(m)
         elif m.name == 'reef_left':
-            if robot.reef == 1 and current.reef_l == 1 and robot.claw == 0 and boom1 ==  1 and boom2 == 1 and boomf == 1:
+            if robot.reef == 1 and current.reef_l == 1 and boom1 ==  1 and boom2 == 1 and boomf == 1:
                 m.cost = distance( current.location, m.location ) - m.reward + m.time
                 current.candidate.append(m)
         elif m.name == 'reef_right':
-            if robot.reef == 1 and current.reef_r == 1 and robot.claw == 0 and boom1 ==  1 and boom2 == 1 and boomf == 1:
+            if robot.reef == 1 and current.reef_r == 1 and boom1 ==  1 and boom2 == 1 and boomf == 1:
                 m.cost = distance( current.location, m.location ) - m.reward + m.time
                 current.candidate.append(m)
         elif m.name == 'placecup_reef':
-            if current.placecup_reef == 1 and robot.claw == 1 and boom1 ==  1 and boom2 == 1 and boomf == 1:
+            if current.placecup_reef == 1 and boom1 ==  1 and boom2 == 1 and boomf == 1:
                 m.cost = distance( current.location, m.location ) - m.reward + m.time
                 current.candidate.append(m)
         # print("cand", len(current.candidate))
@@ -135,13 +139,14 @@ def refreshstate(current, mission, robot, state):
     #         current.cup_order.append(mission.cup[1])
     #         robot.claw[mission.cup[0]['hand']]['state'] = 1
     #         robot.claw[mission.cup[1]['hand']]['state'] = 1
+    #     # else:
     #         # print("ah", mission.cup[0]['no'], mission.cup[1]['no'])
-    #     if mission.name == 'getcup_12':
-    #         current.cup_state[ 0]['state'] = 0
-    #         current.cup_state[ 1]['state'] = 0
-    #     else:
-    #         current.cup_state[ 2]['state'] = 0
-    #         current.cup_state[ 3]['state'] = 0
+    #         if mission.name == 'getcup_12':
+    #             current.cup_state[ 0]['state'] = 0
+    #             current.cup_state[ 1]['state'] = 0
+    #         else:
+    #             current.cup_state[ 2]['state'] = 0
+    #             current.cup_state[ 3]['state'] = 0
     #     # print("dddddd", current.cup_state[ mission.cup[0]['no'] - 1], current.cup_state[ mission.cup[1]['no'] - 1])
     #     # print("check refresh", mission.cup[1]['no']  ,current.cup_state[ mission.cup[1]['no'] - 1 ]['no'])
         
@@ -169,16 +174,28 @@ def refreshstate(current, mission, robot, state):
     if mission.effect[5] != None:
         current.lhouse = mission.effect[5]
     if mission.name == 'placecup_reef':
-        robot.claw = 0
         current.placecup_reef = 0        
-    elif mission.name == 'reef_private' or mission.name == 'reef_left' or mission.name == 'reef_right':
-        robot.claw = 1
 
     if state == 1:
-        if mission.name == 'flag':
-            if mission.effect[5] != None:
-                current.time += mission.effect[5]
-        else:
+        if mission.name != 'flag':
+            # if mission.effect[5] == None:
+                # current.time += mission.effecif mission.name == "getcup":
+    #     robot.cup(1)
+    #     current.cup_order.append(mission.cup)
+    #     # print("lalal", mission.cup)
+    #     if mission.cup['hand'] < 4:#claw
+    #         robot.claw[mission.cup['hand']]['state'] = 1
+    #     elif mission.cup['hand'] >= 4:#suction
+    #         robot.suction[mission.cup['hand'] - 4]['state'] = 1
+    #         i = 2 * (mission.cup['hand'] - 4)
+    #         # if robot.suction[ i ]['state'] == 0:
+    #         #     robot.suction[ i ]['state'] = 1
+    #         # elif robot.suction[ i ]['state'] == 1 and robot.suction[ i + 1 ]['state'] == 0:
+    #         #     robot.suction[ i + 1 ]['state'] = 1
+    #     for c in current.cup_state:
+    #         if mission.location == c['location']:
+    #             c['state'] = 0t[5]
+        # else:
             d = distance( current.location, mission.location )
             rotate = rotate_time( current.location, mission.location )
             current.time += mission.time + d / velocity  + rotate

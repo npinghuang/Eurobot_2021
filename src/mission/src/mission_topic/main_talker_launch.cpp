@@ -29,32 +29,14 @@ int main(int argc, char **argv)
   while (ros::ok())
   {
     mission::maintomission to_mission;
-    // to_mission.action = 0 + count / 2;
-    // mission_var = 6;
-    // to_mission.action = mission_var;
     int input;
-    
-    
-    // if ( mode == 1){
-    //   ROS_INFO( "action = ");
-    //   scanf (" %d", &input);  
-    //   to_mission.action =  input;
-    //   if ( input == 12 || input == 13 || input == 14){
-    //   int a ,b;
-    //   ROS_INFO( "hand a b = ");
-    //   scanf (" %d %d", &a, &b);  
-    //   to_mission.hand = {a,b};
-    //   }
-    //   else{
-    //     to_mission.hand = {1,2};
-    //   }
-    // }  
-    // else if ( mode == 2 ){
-    //   to_mission.action =  11;
-    //   to_mission.hand = {3,4};
-    // }
-    to_mission.action =  12;
-    to_mission.hand = {3,4};
+    int param, hand1_param, hand2_param;
+    n.getParam("/mission_param", param);  
+    n.getParam("/hand1", hand1_param);
+    n.getParam("/hand2", hand2_param);    
+    to_mission.action =  param;
+
+    to_mission.hand = {hand1_param,hand2_param};
     to_mission.action_pos = { 0, 0, 0 };
     to_mission.cup = {1,2};
     
@@ -62,12 +44,6 @@ int main(int argc, char **argv)
     to_mission.team = 0;
 
     chatter_pub.publish(to_mission);
-    if ( state_mission == 1){
-      mission_var = 11;
-      // if ( mission_var == 15){
-      //   mission_var = 12;
-      // }
-    }
     ros::spinOnce();
 
     loop_rate.sleep();

@@ -189,9 +189,16 @@ def GOAP(req):
             del current.candidate[:]
         if current.time <  100 :
             #cur.leaf = [ windsock, lhouse, getcup, getcup_12, getcup_34, reef_private, reef_right, reef_left, placecup_reef, placecupP, placecupH, anchorN, anchorS, flag]
-            flag = current.leaf[13]
-            anchorN = current.leaf[11]
-            anchorS = current.leaf[12]
+            # flag = current.leaf[13]
+            # anchorN = current.leaf[11]
+            # anchorS = current.leaf[12]
+            for m in current.leaf:
+                if m.name == "flag":
+                    flag = m
+                elif m.name == "anchorN":
+                    anchorN = m
+                elif m.name == "anchorS":
+                    anchorS = m
             if current.NS == anchorN.NS and req.action_list[4] == 0:
                 current.achieved.append(anchorN)
             elif current.NS == anchorS.NS and req.action_list[5] == 0:

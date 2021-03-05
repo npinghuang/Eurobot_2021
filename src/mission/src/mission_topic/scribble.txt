@@ -1,0 +1,1 @@
+<node name="ST2" pkg="mission" type="ST2.cpp" />

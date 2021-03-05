@@ -53,9 +53,9 @@ extern const std::vector<vector<float>> action9_planer_yellow{
         {.150, 2.750, 0}
     };
 extern const std::vector<vector<int>> placecup_hand = {
-        {0, 1, 3, 5},
-        { 2, 4, -1, -1},
-        {6, 7, 9, 11},
-        { 8, 10, -1, -1},
+        {0, 1, 4, 5},
+        { 2, 3, -1, -1},
+        {6, 7, 10, 11},
+        { 8, 9, -1, -1},
     };
 extern const std::vector<int> placecup_theta = {45, 60, 45, 60};

@@ -49,9 +49,8 @@ class robotsetting:
 		self.cupstorage = a #max cup storage
 		self.freestorage = a #current free cup storage
 		self.reef = b
-		self.claw = 0
-		# self.claw = [ 0, 0, 0, 0] # 0 for red~ 1 for green 2for green  ~ 3 for red
-		# self.suction = [ 0, 0, 0, 0, 0, 0, 0, 0  ] # 0 ~ 3 for red, 4 ~ 7 for green
+		self.claw = [ 0, 0, 0, 0] # 0 for red~ 1 for green 2for green  ~ 3 for red
+		self.suction = [ 0, 0, 0, 0, 0, 0, 0, 0  ] # 0 ~ 3 for red, 4 ~ 7 for green
         # print("debug", self.cupstorage , self.freestorage)
     def cup(self, num):
         # print("debug", self.cupstorage , num)
@@ -83,7 +82,7 @@ class Mission_precondition:
 def mission_precondition(req):
 	#setting of robot1 cup capacity and if can pick cup from reef
 	# current_cup = 0
-	robot2 = robotsetting(12, 1)
+	robot1 = robotsetting(5,1)
 	# robot1.cup(current_cup)
 	
 	#robot1 geometric setting 
@@ -93,23 +92,23 @@ def mission_precondition(req):
 	d = 70.0
 	theta_claw = ( math.pi ) / 6
 	theta_suction = ( math.pi ) / 4
-	# #state : 0 for no cup, 1 for have cup, color : 2  for green 3 for red, 
-	# robot2.claw = [ {'no' : 0, 'name' : 'frontleft', 'location' : ( a, b, theta_claw), 'state' : 0, 'color' : 2}, {'no' : 1, 'name' : 'frontright', 'location' : ( a, -b, -theta_claw), 'state' : 0, 'color' : 3},
-	# 							{'no' : 2, 'name' : 'backleft', 'location' :  ( -a, b, ( math.pi - theta_claw)), 'state' : 0, 'color' : 3}, {'no' : 3, 'name' : 'backright', 'location' : ( -a, -b, ( math.pi + theta_claw)), 'state' : 0, 'color' : 2}]
-	# robot2.suction = [ {'no' : 0, 'name' : 'frontleftup', 'location' : ( c, d, theta_suction), 'state' : 0, 'color' : 2}, {'no' : 1, 'name' : 'frontleftdown', 'location' : ( c, d, theta_suction), 'state' : 0, 'color' : 2},
-	# 									{'no' : 2, 'name' : 'frontrightup', 'location' : ( c, -d, -theta_suction), 'state' : 0, 'color' : 3}, {'no' : 3, 'name' : 'frontrightdown', 'location' : ( c, -d, -theta_suction), 'state' : 0, 'color' : 3},
-	# 									{'no' : 4, 'name' : 'backleftup', 'location' :  ( -c, d,( math.pi - theta_suction)), 'state' : 0, 'color' : 3}, {'no' : 5, 'name' : 'backleftdown', 'location' : ( -c, d,( math.pi - theta_suction)), 'state' : 0, 'color' : 3},
-	# 									{'no' : 6, 'name' : 'backrightup', 'location' : ( -c, -d,( math.pi + theta_suction)), 'state' : 0, 'color' : 2}, {'no' : 7, 'name' : 'backrightdown ', 'location' : ( -c, -d,( math.pi + theta_suction)), 'state' : 0, 'color' : 2}]
+	#state : 0 for no cup, 1 for have cup, color : 2  for green 3 for red, 
+	robot1.claw = [ {'no' : 0, 'name' : 'frontleft', 'location' : ( a, b, theta_claw), 'state' : 0, 'color' : 2}, {'no' : 1, 'name' : 'frontright', 'location' : ( a, -b, -theta_claw), 'state' : 0, 'color' : 3},
+								{'no' : 2, 'name' : 'backleft', 'location' :  ( -a, b, ( math.pi - theta_claw)), 'state' : 0, 'color' : 3}, {'no' : 3, 'name' : 'backright', 'location' : ( -a, -b, ( math.pi + theta_claw)), 'state' : 0, 'color' : 2}]
+	robot1.suction = [ {'no' : 0, 'name' : 'frontleftup', 'location' : ( c, d, theta_suction), 'state' : 0, 'color' : 2}, {'no' : 1, 'name' : 'frontleftdown', 'location' : ( c, d, theta_suction), 'state' : 0, 'color' : 2},
+										{'no' : 2, 'name' : 'frontrightup', 'location' : ( c, -d, -theta_suction), 'state' : 0, 'color' : 3}, {'no' : 3, 'name' : 'frontrightdown', 'location' : ( c, -d, -theta_suction), 'state' : 0, 'color' : 3},
+										{'no' : 4, 'name' : 'backleftup', 'location' :  ( -c, d,( math.pi - theta_suction)), 'state' : 0, 'color' : 3}, {'no' : 5, 'name' : 'backleftdown', 'location' : ( -c, d,( math.pi - theta_suction)), 'state' : 0, 'color' : 3},
+										{'no' : 6, 'name' : 'backrightup', 'location' : ( -c, -d,( math.pi + theta_suction)), 'state' : 0, 'color' : 2}, {'no' : 7, 'name' : 'backrightdown ', 'location' : ( -c, -d,( math.pi + theta_suction)), 'state' : 0, 'color' : 2}]
 	# update hand status and robot freestorage
-	# current_cup = 0
-	# for i in range (0, len(req.hand)):
-	# 	if req.hand[i] == 1:
-	# 		current_cup += 1
-	# 	if i < 4:
-	# 		robot1.claw[i]['state'] = req.hand[i]
-	# 	else:
-	# 		robot1.suction[i - 4]['state'] = req.hand[i]
-	# robot1.cup( current_cup )
+	current_cup = 0
+	for i in range (0, len(req.hand)):
+		if req.hand[i] == 1:
+			current_cup += 1
+		if i < 4:
+			robot1.claw[i]['state'] = req.hand[i]
+		else:
+			robot1.suction[i - 4]['state'] = req.hand[i]
+	robot1.cup( current_cup )
 	#setting of current state
 	( x, y , theta ) = ( req.my_pos[0], req.my_pos[1], req.my_pos[2])
 	e1 = (req.enemy1_pos[0], req.enemy1_pos[1])
@@ -149,17 +148,17 @@ def mission_precondition(req):
 	    #no, name, location, NS, reefp, reefr, reefl, windsock, flag, lhouse, time, reward, effect[reefp, reefr, reefl, windsock, flag, lhouse]
 	    windsock = Mission_precondition( 1, "windsock", ( 2000, 430, 0), None, None, None, None, 0, None, None, 8, 80, [None, None, None, 1, None, None,])
 	    lhouse = Mission_precondition( 2, "lhouse", ( 0, 300, 0 ), None, None, None, None, None, None, 0, 2, 50,[None, None, None, None, None, 1])
-	    # getcup = Mission_precondition( 12, "getcup", ( 0, 0, 0), None, None, None, None, None, None, None, 5, 20,[None, None, None, None, None, None])
+	    getcup = Mission_precondition( 12, "getcup", ( 0, 0, 0), None, None, None, None, None, None, None, 5, 20,[None, None, None, None, None, None])
 		#special case for cup 12 34
-	    # getcup_12 = Mission_precondition( 13, "getcup_12", ( 1085, 400, 0), None, None, None, None, None, None, None, 5, 100,[None, None, None, None, None, None])
-	    # getcup_34 = Mission_precondition( 14, "getcup_34", ( 500, 400, 0), None, None, None, None, None, None, None, 5, 100,[None, None, None, None, None, None])
+	    getcup_12 = Mission_precondition( 13, "getcup_12", ( 1085, 400, 0), None, None, None, None, None, None, None, 5, 1300,[None, None, None, None, None, None])
+	    getcup_34 = Mission_precondition( 14, "getcup_34", ( 500, 400, 0), None, None, None, None, None, None, None, 5, 1300,[None, None, None, None, None, None])
 		#reef cup counts separately
 	    reef_private = Mission_precondition( 8, "reef_private", ( 1600, 0, 0 ), None, None, 1, None, None, None, None, 9, 100,[0, None, None, None, None, None])
 	    reef_left = Mission_precondition( 6, "reef_left", ( 0, 850, 0 ), None, None, None, 1, None, None, None, 9, 200,[None, None, 0, None, None, None])
 	    reef_right = Mission_precondition(7, "reef_right", ( 0, 2150, 0 ), None, None, None, 1, None, None, None, 9, 200,[None, 0, None, None, None, None])
 	    placecup_reef = Mission_precondition( 11, "placecup_reef", ( 800, 200, 0 ), None, None, None, None, None, None, None, 10, 10000,[None, None, None, None, None, None])
-	    # placecupP = Mission_precondition( 10, "placecupP", ( 515, 200, 0 ), None, None, None, None, None, None, None, 10, 40,[None, None, None, None, None, None])
-	    # placecupH = Mission_precondition( 9, "placecupH", ( 1850, 1800, 0 ), None, None, None, None, None, None, None, 10, 40,[None, None, None, None, None, None])
+	    placecupP = Mission_precondition( 10, "placecupP", ( 515, 200, 0 ), None, None, None, None, None, None, None, 10, 40,[None, None, None, None, None, None])
+	    placecupH = Mission_precondition( 9, "placecupH", ( 1850, 1800, 0 ), None, None, None, None, None, None, None, 10, 40,[None, None, None, None, None, None])
 	    #temporay set that it has to be done last
 	    anchorN = Mission_precondition( 4, "anchorN", (300, 200, 0 ), 0, None, None, None, None, None, None, 2, 10000,[None, None, None, None, None, None])
 	    anchorS = Mission_precondition( 5, "anchorS", ( 1300, 200, 0 ), 1, None, None, None, None, None, None, 2, 10000,[None, None, None, None, None, None])
@@ -183,22 +182,22 @@ def mission_precondition(req):
 	    #name, location, NS, reefp, reefr, reefl, windsock, flag, lhouse, time, reward, effect[reefp, reefr, reefl, windsock, flag, lhouse]
 	    windsock = Mission_precondition( 1, "windsock", ( 2000, 2330, 0), None, None, None, None, 0, None, None, 8, 80, [None, None, None, 1, None, None])
 	    lhouse = Mission_precondition( 2, "lhouse", ( 0, 2775, 0 ), None, None, None, None, None, None, 0, 2, 50,[None, None, None, None, None, 1])
-	    # getcup = Mission_precondition( 12, "getcup", ( 0, 0, 0), None, None, None, None, None, None, None, 5, 20,[None, None, None, None, None, None])
+	    getcup = Mission_precondition( 12, "getcup", ( 0, 0, 0), None, None, None, None, None, None, None, 5, 20,[None, None, None, None, None, None])
 	    #special case for cup 12 34
-	    # getcup_12 = Mission_precondition( 13, "getcup_12", ( 1085, 2600, 0), None, None, None, None, None, None, None, 10, 100,[None, None, None, None, None, None])
-	    # getcup_34 = Mission_precondition( 14, "getcup_34", ( 500, 2600, 0), None, None, None, None, None, None, None, 10, 100,[None, None, None, None, None, None])
+	    getcup_12 = Mission_precondition( 13, "getcup_12", ( 1085, 2600, 0), None, None, None, None, None, None, None, 10, 1300,[None, None, None, None, None, None])
+	    getcup_34 = Mission_precondition( 14, "getcup_34", ( 500, 2600, 0), None, None, None, None, None, None, None, 10, 1300,[None, None, None, None, None, None])
 		#reef cup counts separately
 	    reef_private = Mission_precondition( 8, "reef_private", ( 1600, 3000, 0 ), None, None, 1, None, None, None, None, 9, 100,[0, None, None, None, None, None])
 	    reef_left = Mission_precondition( 6, "reef_left", ( 0, 850, 0 ), None, None, None, 1, None, None, None, 9, 200,[None, None, 0, None, None, None])
 	    reef_right = Mission_precondition(7, "reef_right", ( 0, 2150, 0 ), None, None, None, 1, None, None, None, 9, 200,[None, 0, None, None, None, None])
 	    placecup_reef = Mission_precondition( 11, "placecup_reef", ( 800, 2775, 0 ), None, None, None, None, None, None, None, 10, 10000,[None, None, None, None, None, None])
-	    # placecupP = Mission_precondition( 10, "placecupP", ( 515, 2775, 0 ), None, None, None, None, None, None, None, 10, 40,[None, None, None, None, None, None])
-	    # placecupH = Mission_precondition( 9, "placecupH", ( 1850, 1200, 0 ), None, None, None, None, None, None, None, 10, 40,[None, None, None, None, None, None])
+	    placecupP = Mission_precondition( 10, "placecupP", ( 515, 2775, 0 ), None, None, None, None, None, None, None, 10, 40,[None, None, None, None, None, None])
+	    placecupH = Mission_precondition( 9, "placecupH", ( 1850, 1200, 0 ), None, None, None, None, None, None, None, 10, 40,[None, None, None, None, None, None])
 	    #temporay set that it has to be done last
 	    anchorN = Mission_precondition( 4, "anchorN", (300, 2775, 0 ), 0, None, None, None, None, None, None, 2, 10000,[None, None, None, None, None, None])
 	    anchorS = Mission_precondition( 5, "anchorS", ( 1300, 2775, 0 ), 1, None, None, None, None, None, None, 2, 10000,[None, None, None, None, None, None])
 	    flag = Mission_precondition( 3, "flag", None, None, None, None, 1, 1, 0, 1, 0, 20000,[None, None, None,None, 1,  None])	
-	cur.leaf = [ windsock, lhouse, reef_private, reef_right, reef_left, placecup_reef, anchorN, anchorS, flag]
+	cur.leaf = [ windsock, lhouse, reef_private, reef_right, reef_left, placecup_reef,  anchorN, anchorS, flag] # change item in this array to set what action is to be considered in goap
 	# cur.myfunc("current")
 	#refresh cup state
 	c = 0
@@ -209,7 +208,7 @@ def mission_precondition(req):
 			cur.cup_state[i]['state'] = c
 		# print("c", c, i, cup)
 		ccup = int(ccup / 2)	
-	return cur, robot2
+	return cur, robot1
 	
 def cup_location_transfrom(cup_state):
 	#clean previous robot pos

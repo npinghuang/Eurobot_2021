@@ -79,41 +79,43 @@ int hand_ST2( int num){ // due to different numbering between ST2 and GOAP
     int hand; 
     switch (num)
     {
-    case 1:
-        hand = 0;
-        break;
-    case 2:
+        // claw
+    case 1://frontleft
         hand = 1;
         break;
-    case 3:
-        hand = 6;
+    case 2://front right
+        hand = 0;
         break;
-    case 4:
+    case 3: // back left
         hand = 7;
         break;
-    case 5:
-        hand = 2;
+    case 4:// back right
+        hand = 6;
         break;
-    case 6:
-        hand = 3;
-        break;
-    case 7:
-        hand = 4;
-        break;
-    case 8:
+    // suction servo hand
+    case 5:// front left up 
         hand = 5;
         break;
-    case 9:
-        hand = 8;
+    case 6:// front left down
+        hand = 3;
         break;
-    case 10:
+    case 7:// front right up 
+        hand = 4;
+        break;
+    case 8:// front right down
+        hand = 2;
+        break;
+    case 9:// back left up
+        hand = 11;
+        break;
+    case 10: //back left down
         hand = 9;
         break;
-    case 11:
+    case 11:// back right up
         hand = 10;
         break;
-    case 12:
-        hand = 11;
+    case 12:// back right down
+        hand = 8;
         break;
     default:
         hand = -1;
@@ -216,6 +218,7 @@ void chatterCallback(const mission::maintomission::ConstPtr& msg)
       init();
       initialize = 0;
   }
+
   switch (msg->action)
   {
   case 0: //emergency
@@ -316,7 +319,8 @@ void chatterCallback(const mission::maintomission::ConstPtr& msg)
   // uses numbering of chiao min's
     int count_p = 0;
     int hd = 0;
-    // ROS_INFO("wtf");
+    ROS_INFO("wtf state st2 %d", state_ST2);
+    state_ST2 = 1;
     while (count_p <= 3)
     {
         // ROS_INFO("wtf %d", count_p);
@@ -333,7 +337,7 @@ void chatterCallback(const mission::maintomission::ConstPtr& msg)
             // ROS_INFO("debug %d, at: %d", placecup_theta[count_p], placecup_theta.at(count_p));
             // placecup( hd, tmp);
             placecup( hd, placecup_theta[count_p]);
-            // ROS_INFO("in case %d %d %d", ST2_tx[0], ST2_tx[1], ST2_tx[2]);
+            ROS_INFO("in case %d %d %d", ST2_tx[0], ST2_tx[1], ST2_tx[2]);
             count_p ++;
         }
     }

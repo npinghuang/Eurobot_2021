@@ -136,8 +136,10 @@ include_directories(
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
 # add_executable(${PROJECT_NAME}_node src/mission_node.cpp)
-add_executable(mission_topic src/mission_topic/mission_topic.cpp src/mission_topic/mission_action.cpp)#
+add_executable(mission_topic_big src/mission_topic/mission_topic_big.cpp src/mission_topic/mission_action.cpp)#
+add_executable(mission_topic_little src/mission_topic/mission_topic_little.cpp src/mission_topic/mission_action.cpp)
 add_executable(main_talker src/mission_topic/main_talker.cpp)
+add_executable(main_talker_launch src/mission_topic/main_talker_launch.cpp)
 add_executable(planer src/mission_topic/planer.cpp)
 add_executable(ST2 src/mission_topic/ST2.cpp)
 #add_executable(mission_simple src/mission_topic/mission_simple.cpp)
@@ -155,10 +157,16 @@ add_executable(ST2 src/mission_topic/ST2.cpp)
 # target_link_libraries(${PROJECT_NAME}_node
 #   ${catkin_LIBRARIES}
 # )
-target_link_libraries(mission_topic
+target_link_libraries(mission_topic_big
+${catkin_LIBRARIES} 
+)
+target_link_libraries(mission_topic_little
 ${catkin_LIBRARIES} 
 )
 target_link_libraries(main_talker
+${catkin_LIBRARIES}
+)
+target_link_libraries(main_talker_launch
 ${catkin_LIBRARIES}
 )
 target_link_libraries(planer
