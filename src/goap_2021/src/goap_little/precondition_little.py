@@ -5,11 +5,12 @@ check mission precondition and refresh current state
 #!/usr/bin/env python
 #coding=utf-8
 import math
-from setting_big_goap import *
+from setting_little_goap import *
 from cup_cost import*
 
 def checkpreconditions( req, current, mis, robot):
     for m in mis:
+        # print("debug mis name ", m.name)
         boom1 = 1
         boom2 = 1
         boomf = 1
@@ -77,7 +78,7 @@ def checkpreconditions( req, current, mis, robot):
         #             m.cost = distance( current.location, m.location ) - m.reward * (100 * ( robot.cupstorage - robot.freestorage ))**5 + m.time
         #         # print("preee place cup", robot.freestorage)
         #         current.candidate.append(m)
-        elif m.name == 'windsock':
+        if m.name == 'windsock':
             if current.windsock != 1 and boom1 ==  1 and boom2 == 1 and boomf == 1:
                 m.cost = distance( current.location, m.location ) - m.reward + m.time
                 current.candidate.append(m)
@@ -96,8 +97,9 @@ def checkpreconditions( req, current, mis, robot):
                 m.cost = distance( current.location, m.location ) - m.reward + m.time
                 current.candidate.append(m)
         elif m.name == 'reef_private':
+            # print(" current ", current.reef_p, "boom *  3", boom1, boom2, boomf)
             if robot.reef == 1 and current.reef_p == 1 and boom1 ==  1 and boom2 == 1 and boomf == 1:
-                print("debug reef p")
+                # print("debug reef p")
                 m.cost = distance( current.location, m.location ) - m.reward + m.time
                 current.candidate.append(m)
         elif m.name == 'reef_left':
@@ -137,7 +139,7 @@ def refreshstate(current, mission, robot, state):
     #         robot.cup(2) #update robot cup storage status
     #         current.cup_order.append(mission.cup[0])
     #         current.cup_order.append(mission.cup[1])
-    #         robot.claw[mission.cup[0]['hand']]['state'] = 1
+    #         robot.claw[miss ion.cup[0]['hand']]['state'] = 1
     #         robot.claw[mission.cup[1]['hand']]['state'] = 1
     #     # else:
     #         # print("ah", mission.cup[0]['no'], mission.cup[1]['no'])
@@ -159,6 +161,7 @@ def refreshstate(current, mission, robot, state):
     #     for suc in robot.suction:
     #         suc['state'] = 0
     if mission.effect[0] != None:
+        # print("debug refresh state")
         current.reef_p = mission.effect[0]
         current.placecup_reef = 1
     if mission.effect[1] != None:

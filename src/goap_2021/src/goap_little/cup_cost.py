@@ -5,8 +5,8 @@ determine which cup to get
 #!/usr/bin/env python
 #coding=utf-8
 import math
-from setting_big_goap import *
-from precondition import*
+from setting_little_goap import *
+from precondition_little import*
 
 def cup_cost(req, current, mission, robot):
     cup_location_transfrom(current.cup_state)

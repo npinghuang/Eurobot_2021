@@ -167,6 +167,7 @@ def GOAP(req):
             if tmp  == 0:
             #check if current states meet preconditions
                 checkpreconditions(req, current, current.mission_list, robot1)
+                # print("candidate reef p", current.reef_p)
                 if len(current.candidate) != 0:
                     compare_cost(current.candidate)
                     current.achieved.append(current.candidate[0])
@@ -175,12 +176,12 @@ def GOAP(req):
                     tmp = tmp + 1
                 else:
                     current.time += 1
-                    # print("no mission")
+                    print("no mission")
             else:
                 checkpreconditions(req, current, current.mission_list, robot1)           
                 if len(current.candidate) != 0:
                     compare_cost(current.candidate)
-                    # print("aa", current.candidate[0].name)
+                    print("aa", current.candidate[0].name)
                     current.achieved.append(current.candidate[0])
                     refreshstate(current, current.candidate[0], robot1, 1)
                 else:

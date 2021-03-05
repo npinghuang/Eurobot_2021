@@ -41,7 +41,8 @@ class current_state:
 
     def myfunc(self, name):
         print(name, self.NS, self.windsock, self.flag, self.lhouse, self.time, self.candidate)
-cur = current_state( "cur", ( None, None, None ), None, None, None,  None, None, None, None, None, None, None, None, None)
+# self, name, location, NS, reef_p, reef_l, reef_r, windsock, flag, lhouse, time, emergency, e1_location, e2_location, friend_pos 
+cur = current_state( "cur", ( None, None, None ), None, 1, 1, 1, None, None, None, None, None, None, None, None)
 cur.candidate = []
 
 class robotsetting:
@@ -119,9 +120,15 @@ def mission_precondition(req):
 	# cur.name = "cur"
 	cur.location = [x, y , theta]
 	cur.NS = req.ns
-	cur.reef_p = req.action_list[8]
-	cur.reef_l = req.action_list[6]
-	cur.reef_r = req.action_list[7]
+	if req.action_list[8] == 1:
+		cur.reef_p = 0
+	if req.action_list[7] == 1:
+		cur.reef_r = 0
+	if req.action_list[6] == 1:
+		cur.reef_l = 0
+	# cur.reef_p = req.action_list[8]
+	# cur.reef_l = req.action_list[6]
+	# cur.reef_r = req.action_list[7]
 	cur.windsock = req.action_list[1]
 	cur.flag = req.action_list[3]
 	cur.lhouse = req.action_list[2]
@@ -153,9 +160,9 @@ def mission_precondition(req):
 	    getcup_12 = Mission_precondition( 13, "getcup_12", ( 1085, 400, 0), None, None, None, None, None, None, None, 5, 1300,[None, None, None, None, None, None])
 	    getcup_34 = Mission_precondition( 14, "getcup_34", ( 500, 400, 0), None, None, None, None, None, None, None, 5, 1300,[None, None, None, None, None, None])
 		#reef cup counts separately
-	    reef_private = Mission_precondition( 8, "reef_private", ( 1600, 0, 0 ), None, None, 1, None, None, None, None, 9, 100,[0, None, None, None, None, None])
+	    reef_private = Mission_precondition( 8, "reef_private", ( 1600, 0, 0 ), None, 1, None,  None, None, None, None, 9, 500,[0, None, None, None, None, None])
 	    reef_left = Mission_precondition( 6, "reef_left", ( 0, 850, 0 ), None, None, None, 1, None, None, None, 9, 200,[None, None, 0, None, None, None])
-	    reef_right = Mission_precondition(7, "reef_right", ( 0, 2150, 0 ), None, None, None, 1, None, None, None, 9, 200,[None, 0, None, None, None, None])
+	    reef_right = Mission_precondition(7, "reef_right", ( 0, 2150, 0 ), None, None,1, None,  None, None, None, 9, 200,[None, 0, None, None, None, None])
 	    placecup_reef = Mission_precondition( 11, "placecup_reef", ( 800, 200, 0 ), None, None, None, None, None, None, None, 10, 10000,[None, None, None, None, None, None])
 	    placecupP = Mission_precondition( 10, "placecupP", ( 515, 200, 0 ), None, None, None, None, None, None, None, 10, 40,[None, None, None, None, None, None])
 	    placecupH = Mission_precondition( 9, "placecupH", ( 1850, 1800, 0 ), None, None, None, None, None, None, None, 10, 40,[None, None, None, None, None, None])
@@ -208,6 +215,9 @@ def mission_precondition(req):
 			cur.cup_state[i]['state'] = c
 		# print("c", c, i, cup)
 		ccup = int(ccup / 2)	
+	# cur.reef_l = 1
+	# cur.reef_p = 1
+	# cur.reef_r = 1
 	return cur, robot1
 	
 def cup_location_transfrom(cup_state):

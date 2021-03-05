@@ -6,5 +6,5 @@
 	<node name="planer" pkg="mission" type="planer" />
 	<node name="main_talker_launch" pkg="mission" type="main_talker_launch" />
 	<!-- <node name="mission_topic_big" pkg="mission" type="mission_action"/>  -->
-	<node name="mission_topic_big" pkg="mission" type="mission_topic_big" />
+	<node name="mission_topic_big" pkg="mission" output = "screen" type="mission_topic_big" />
 </launch>

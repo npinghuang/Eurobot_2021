@@ -2,10 +2,11 @@
 #include <ros/package.h> //not sure if needed
 // #include "std_msgs/String.h"
 #include <std_msgs/Int32MultiArray.h>
+#include <std_msgs/Int32.h>
 #include <std_msgs/Float32MultiArray.h>
 #include<geometry_msgs/PoseStamped.h>
 #include "mission/maintomission.h"
-#include "mission/missiontomain.h"
+// #include "mission/missiontomain.h"
 #include <sstream>
 #include <stdio.h>
 #include <iostream>
@@ -24,7 +25,8 @@ ros::Publisher forST2com;
 ros::Subscriber sub;
 ros::Subscriber subplaner;
 ros::Subscriber subST2;
-mission::missiontomain to_main;
+// mission::missiontomain to_main;
+std_msgs::Int32 to_main;
 std_msgs::Float32MultiArray for_planer;
 float planer_rx = 9;
 int ST2_rx = 8;
@@ -449,7 +451,7 @@ forST2com = n.advertise<std_msgs::Int32MultiArray>("txST1", 1);
 // ros::Publisher forNavigation = n.advertise<geometry_msgs::PoseStamped>("move_base_simple/goal", 1);
 // ros::Publisher forplaner = n.advertise<std_msgs::String>("forplaner", 1);
 // ros::Publisher forST2 = n.advertise<std_msgs::String>("forST2", 1);
-tomain = n.advertise<mission::missiontomain>("MissionToMain", 1);
+tomain = n.advertise<std_msgs::Int32>("MissionToMain", 100);
 sub = n.subscribe("MainToMission", 1000, chatterCallback);
 subplaner = n.subscribe("planerToMission", 1000, chatterCallback_planer);
 subST2 = n.subscribe("ST2ToMission", 1000, chatterCallback_ST2);
@@ -461,7 +463,7 @@ ros::Rate loop_rate(10);
   {
     
     // to_main.state = state_mission;
-    to_main.state = state_mission;
+    to_main.data=state_mission;
     tomain.publish(to_main);
     ros::spinOnce();
 

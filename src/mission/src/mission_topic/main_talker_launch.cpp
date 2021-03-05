@@ -1,15 +1,16 @@
 #include "ros/ros.h"
 #include "std_msgs/String.h"
+#include <std_msgs/Int32.h>
 #include "mission/maintomission.h"
-#include "mission/missiontomain.h"
+// #include "mission/missiontomain.h"
 #include <sstream>
 
 int state_mission;
 int mission_var = 1;
-void chatterCallback(const mission::missiontomain::ConstPtr& msg)
+void chatterCallback(const std_msgs::Int32::ConstPtr& msg)
 {
-  ROS_INFO("I heard mission state: [%d]", msg->state);
-  state_mission = msg -> state;
+  ROS_INFO("I heard mission state: [%d]", msg->data);
+  state_mission = msg -> data;
 }
 
 int main(int argc, char **argv)
