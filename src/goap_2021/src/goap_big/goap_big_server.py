@@ -83,13 +83,25 @@ def evaluate(current, robot):
     else:
         score += 2 * red
     return score
-
+# service .res
+action = []
+position = []
+cup = []
+counter = 0 # for little mission
 def GOAP(req):
     print("-------------------------------------------------")
     global penalty_mission
+    global counter
+    global action
+    global position
+    global cup
+    time_main = req.time
+    tmp = 0
+    
     # print("previous current emergency", cur.emergency)
     if (cur.mission)!= None:
         print("previous action ", cur.mission.name)
+        cur.previous_mission = cur.mission
     if cur.emergency == True: # document the action right before entering emergency state
         for mission in cur.mission_list:
             if cur.mission.name == mission.name:
@@ -99,12 +111,22 @@ def GOAP(req):
     else:
         # global penalty_mission
         penalty_mission = None
+    # if cur.mission != None and (cur.mission.no == 1 or cur.mission.no == 2 or  cur.mission.no == 9 or  cur.mission.no == 10): 
+    #     counter += 1
+    #     # if cur.mission.no == 1:
+    #     if counter < cur.mission.little_mission_count:
+    #         action.append(cur.mission.no)
+    #         position.append(cur.mission.little_mission_pos[counter][0])
+    #         position.append(cur.mission.little_mission_pos[counter][1])
+    #         position.append(cur.mission.little_mission_pos[counter][2])
+    #         cup.append( 0)
+    #         cup.append(0)
+    #         return action, position, cup
+    #     else:
+    #         counter = 0
     (current, robot1) = mission_precondition(req)
     # print("cur.time", current.time)
-    tmp = 0
-    action = []
-    position = []
-    cup = []
+
     #current.mission_list => a list of action available
     mission = len(current.mission_list)
     state = 1
@@ -112,13 +134,22 @@ def GOAP(req):
     del current.cup_order[:]
 
     if req.emergency == 1:
-        #return location (x, y, theta), try to get out
+        #return location (x, y, theta), try to get out andont delete previous goap res data
         # print("current", current)
         location = emergency(current)
-        action.append(0)
-        position.append(location[0])
-        position.append(location[1])
-        position.append(location[2] )
+        # action = list(action)
+        # position = list(position)
+        # cup = list(cup)
+        action.insert(0,0)
+        # action.append(0)
+        position.insert(0, location[2])
+        position.insert(0, location[1])
+        position.insert(0, location[0])
+        cup.insert( 0, 0 )
+        cup.insert( 0, 0 )
+        # position.append(location[0])
+        # position.append(location[1])
+        # position.append(location[2] )
         print("emergency", location)    
     elif req.time >= 100:
         action.append(0)
@@ -127,6 +158,39 @@ def GOAP(req):
         position.append(current.location[2] )
         print("emergency", current.location)    
     elif req.emergency == 0:
+        if cur.previous_mission != None and len(cur.previous_mission.little_mission_no) != 0 and action[0] != cur.previous_mission.little_mission_no[-1]:
+            # if little mission are done we will have to generate new goap data
+            # if action[0] != cur.previous_mission.little_mission_no[-1]: 
+                if action [0] != 0:#if previous action is not emergency
+                    #remove previous action data
+                    action.pop(0)
+                    position.pop(0)
+                    position.pop(0)
+                    position.pop(0)
+                    cup.pop(0)
+                    cup.pop(0)
+                else:
+                    # c = 0
+                    while action[0] == 0:#therer may be more than one emergency action data in previous data
+                        action.pop(0)
+                        position.pop(0)
+                        position.pop(0)
+                        position.pop(0)
+                        cup.pop(0)
+                        cup.pop(0)
+
+                    action.pop(0)
+                    position.pop(0)
+                    position.pop(0)
+                    position.pop(0)
+                    cup.pop(0)
+                    cup.pop(0)
+                print("action", action[0], position[0], position[1], position[2], 0)
+                return action, position, cup
+        else:
+            del action[:]
+            del position[:]
+            del cup[:]
         (current, robot1) = mission_precondition(req)
         tt = 0
         while current.time < 90:
@@ -203,13 +267,16 @@ def GOAP(req):
                 current.achieved.append(anchorN)
             elif current.NS == anchorS.NS and req.action_list[5] == 0:
                 current.achieved.append(anchorS)
-            current.achieved.append(flag)
+            if len(current.achieved) > 1:
+                current.achieved.append(flag)
+            elif req.time >= 95:
+                current.achieved.append(flag)
         
         # print("debug len", len(current.mission_list))
         # for p in current.mission_list:
         #     print("name", p.name)
         temp = 0
-        i = 0
+        i = 0 #little bug i forgot what this is for
 
 	ff = 0
     # if current.time >= 90:
@@ -245,6 +312,25 @@ def GOAP(req):
                 cup.append( 0)
                 cup.append(0)
                 # position.append(0)
+                i += 1
+            elif len( a.little_mission_no ) != 0:#add little mission pos
+                for i in range( 0, len(a.little_mission_no)): # if a.no == 1 or a.no == 2 or  a.no == 9 or  a.no == 10: 
+                    if i == 0:
+                        print("action", a.no, a.name, a.location[0], a.location[1], a.location[2], 0)
+                        action.append(a.no)
+                        position.append(a.location[0])
+                        position.append( a.location[1])
+                        position.append(a.location[2] )
+                        cup.append(0)
+                        cup.append(0)
+                    else:
+                        print("action", a.little_mission_no[i], a.little_mission_pos[i][0], a.little_mission_pos[i][1], a.little_mission_pos[i][2], 0)
+                        action.append(a.little_mission_no[i])
+                        position.append(a.little_mission_pos[i][0])
+                        position.append(a.little_mission_pos[i][1])
+                        position.append(a.little_mission_pos[i][2] )
+                        cup.append(0)
+                        cup.append(0)
                 i += 1
             else:
                 if a.location != None:

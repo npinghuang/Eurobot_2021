@@ -215,7 +215,7 @@ void chatterCallback(const mission::maintomission::ConstPtr& msg)
   tx++;
   state_planer = msg->planer_state;
   team = msg->team;
-  int success = 1, fail = 0, ing = 2, stop = 3;
+  int success = 1, fail = 0, ing = 2, stop = 3, little_mission = 4;
   if ( initialize == 1){
       init();
       initialize = 0;
@@ -228,74 +228,101 @@ void chatterCallback(const mission::maintomission::ConstPtr& msg)
       break;
   case 1: {//windsock
     if ( windsock.count < windsock.prepare){
-        ROS_INFO("before at pos count [%d]", windsock.count);
-        if (action1[windsock.count] == 2){
-            ST2_tx[0] = action1_ST2_blue[windsock.count_ST2];  
-            publish_ST2();
+    // ROS_INFO("before at pos count [%d]", windsock.count);
+        ST2_tx[0] = action1_ST2_blue[windsock.count_ST2];  
+        publish_ST2();
+        state_mission = ing;
+        if ( state_ST2 == 1 ){
+            if (windsock.count_ST2< action1_ST2_blue.size()){
+                windsock.count++;
+                windsock.count_ST2++;
+                state_mission = little_mission + windsock.count_ST2 - 1;
+            }
+            else{
+                windsock.count = 0;
+                windsock.count_ST2 = 0;
+                state_mission = success;
+            }
         }
-        if ( state_ST2 == 1){
-            windsock.count++;
-            windsock.count_ST2++;
+    }
+    else if (state_planer == 1)
+    {
+        ST2_tx[0] = action1_ST2_blue[windsock.count_ST2];  
+        publish_ST2();
+        state_mission = ing;
+        if ( state_ST2 == 1 ){
+            if (windsock.count_ST2< action1_ST2_blue.size()){
+                windsock.count++;
+                windsock.count_ST2++;
+                state_mission = state_mission = little_mission + windsock.count_ST2 - 1;
+            }
+            else{
+                windsock.count = 0;
+                windsock.count_ST2 = 0;
+                state_mission = success;
+            }
         }
     }
     
-    else if ( windsock.count >= windsock.prepare && state_planer == 1){
-        ROS_INFO("at pos count [%d]", windsock.count);
-        switch (action1[windsock.count]){
-        case 1:{
-            for (int i = 0; i < 3;  i++) {
-                if ( team == 0 ){
-                    planer_tx[i] = action1_planer_blue[windsock.count_planer][i];
-                }
-            }
-            windsock.count++;
-            windsock.count_planer++;
-           publish_planner(); 
-            break;
-        }
-        case 2:{
-            windsock.count++;
-            windsock.count_ST2++;
-            break;
-        }
-        default:
-            break;
-        }
-        // ROS_INFO("windsock action: [%f]", planer_tx[0]);  
-    // ROS_INFO("debug windsock action: [%d]", action_1[4]);  
-        if (windsock.count >= action1.size()){ //
-            windsock.count = 0;
-            windsock.count_planer = 0;
-            windsock.count_ST2 = 0;
-            state_mission = success;
-            // ROS_INFO("flag success");  
-        }
-        else{
-        // ROS_INFO("debug windsock action: [%d], state = %d", windsock.count, state_mission);  
-            state_mission = ing;
-        }
-    }
+    // else if ( windsock.count >= windsock.prepare && state_planer == 1){
+    //     ROS_INFO("at pos count [%d]", windsock.count);
+    //     switch (action1[windsock.count]){
+    //     case 1:{
+    //         for (int i = 0; i < 3;  i++) {
+    //             if ( team == 0 ){
+    //                 planer_tx[i] = action1_planer_blue[windsock.count_planer][i];
+    //             }
+    //         }
+    //         windsock.count++;
+    //         windsock.count_planer++;
+    //        publish_planner(); 
+    //         break;
+    //     }
+    //     case 2:{
+    //         windsock.count++;
+    //         windsock.count_ST2++;
+    //         break;
+    //     }
+    //     default:
+    //         break;
+    //     }
+    //     // ROS_INFO("windsock action: [%f]", planer_tx[0]);  
+    // // ROS_INFO("debug windsock action: [%d]", action_1[4]);  
+    //     if (windsock.count >= action1.size()){ //
+    //         windsock.count = 0;
+    //         windsock.count_planer = 0;
+    //         windsock.count_ST2 = 0;
+    //         state_mission = success;
+    //         // ROS_INFO("flag success");  
+    //     }
+    //     else{
+    //     // ROS_INFO("debug windsock action: [%d], state = %d", windsock.count, state_mission);  
+    //         state_mission = ing;
+    //     }
+    // }
     break;
     }
-  case 2:{ // lhouse
-    if ( state_planer == 1){
-        if ( msg->team == 0){
-            planer_tx_transform( action2_planer_blue[lhouse.count][0], action2_planer_blue[lhouse.count][1], action2_planer_blue[lhouse.count][2]);
-        }
-        else if ( msg->team == 1){
-            planer_tx_transform( action2_planer_yellow[lhouse.count][0], action2_planer_yellow[lhouse.count][1], action2_planer_yellow[lhouse.count][2]);
-        }
-        lhouse.count++;
+  case 2:{ // lhouse 
+    state_ST2 = 1;
+    state_mission = 1; //no action need to be done by ST2 so always return success
+    // if ( state_planer == 1){
+    //     if ( msg->team == 0){
+    //         planer_tx_transform( action2_planer_blue[lhouse.count][0], action2_planer_blue[lhouse.count][1], action2_planer_blue[lhouse.count][2]);
+    //     }
+    //     else if ( msg->team == 1){
+    //         planer_tx_transform( action2_planer_yellow[lhouse.count][0], action2_planer_yellow[lhouse.count][1], action2_planer_yellow[lhouse.count][2]);
+    //     }
+    //     lhouse.count++;
         
-    }
-    if ( lhouse.count >= action2_planer_blue.size()){
-            lhouse.count = 0;
-            state_mission = success;
-        }
-    else{
-    // ROS_INFO("debug windsock action: [%d], state = %d", windsock.count, state_mission);  
-        state_mission = ing;
-    }    
+    // }
+    // if ( lhouse.count >= action2_planer_blue.size()){
+    //         lhouse.count = 0;
+    //         state_mission = success;
+    //     }
+    // else{
+    // // ROS_INFO("debug windsock action: [%d], state = %d", windsock.count, state_mission);  
+    //     state_mission = ing;
+    // }    
     break;
     }
   case 3: // flag
@@ -318,33 +345,58 @@ void chatterCallback(const mission::maintomission::ConstPtr& msg)
       break;
   case 9: {// placecup_h
   // place 4 or 2 cup at the same time and need to cordinate with planer
-  // uses numbering of chiao min's
     int count_p = 0;
     int hd = 0;
-    ROS_INFO("wtf state st2 %d", state_ST2);
-    state_ST2 = 1;
-    while (count_p <= 3)
-    {
-        // ROS_INFO("wtf %d", count_p);
-        state_mission = ing;
-        if ( state_ST2 == 1){ // need to add planer state later on
+    // if (state_planer == 1){
+    //     ST2_tx[0] = action1_ST2_blue[windsock.count_ST2];  
+    //     publish_ST2();
+    //     if ( state_ST2 == 1 ){
+    //         if (windsock.count_ST2< action1_ST2_blue.size()){
+    //         windsock.count++;
+    //             windsock.count_ST2++;
+    //             state_mission = success;
+    //         }
+    //         else{
+    //             windsock.count = 0;
+    //             windsock.count_ST2 = 0;
+    //             state_mission = success;
+    //         }
+    //     }
+    // }
+
+    ROS_INFO("wtf count placecup %d size %lu", placecup_h.count, placecup_hand.size());
+    // state_ST2 = 1;
+    if (placecup_h.count < placecup_hand.size()){ 
+        ROS_INFO("wtf debug");
+        if ( state_ST2 == 1 && state_planer == 1){ // need to add planer state later on
+            placecup_h.count ++;
+            state_mission = success; // not sure if this will cause bug
             for ( int i = 0; i < 4; i++){
-                if ( placecup_hand[count_p][i] != -1){
-                    hd += pow(2, placecup_hand[count_p][i]);
+                if ( placecup_hand[placecup_h.count][i] != -1){
+                    hd += pow(2, hand_ST2(placecup_hand[placecup_h.count][i]));
                     // ROS_INFO("wtf %d %d", count_p, hd);
                 }
             }
-            // int *tmp = &(placecup_theta[count_p]);
-            int tmp = placecup_theta.at(count_p);
-            // ROS_INFO("debug %d, at: %d", placecup_theta[count_p], placecup_theta.at(count_p));
-            // placecup( hd, tmp);
-            placecup( hd, placecup_theta[count_p]);
-            ROS_INFO("in case %d %d %d", ST2_tx[0], ST2_tx[1], ST2_tx[2]);
-            count_p ++;
+            // int tmp = placecup_theta.at(count_p);
+            ROS_INFO("wtf hd %d theta %d", hd, placecup_theta[placecup_h.count]);
+            placecup( hd, placecup_theta[placecup_h.count]);
+            ROS_INFO("wtf debug ahahahahahaahahaha");
+            // ROS_INFO("in case %d %d %d", ST2_tx[0], ST2_tx[1], ST2_tx[2]);
+            // if ( state_ST2 == 1){
+            //     placecup_h.count ++;
+            //     state_mission = success;
+            // }
+        }
+        else if (state_ST2 != 1 && state_planer == 1){
+            state_mission = ing;
         }
     }
-    count_p = 0;
-    state_mission = success;
+    else if (placecup_h.count == placecup_hand.size() -1 ){
+        placecup_h.count = 0;
+        state_mission = success;
+    }
+    // count_p = 0;
+    // state_mission = success;
     break;
     }
   case 10: // placecup_p 
