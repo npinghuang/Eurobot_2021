@@ -34,4 +34,5 @@ extern const std::vector<vector<float>> action9_planer_blue;
 extern const std::vector<vector<float>> action9_planer_yellow;
 extern const std::vector<vector<int>> placecup_hand;
 extern const std::vector<int> placecup_theta ;
+extern const std::vector<int> getcup_theta ;
 #endif 

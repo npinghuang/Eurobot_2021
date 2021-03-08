@@ -17,7 +17,7 @@ void chatterCallback(const std_msgs::Int32MultiArray::ConstPtr& msg)
       //   
       // }
       for_mission.data.push_back (msg->data[i]);
-      ROS_INFO("ST2 tx %d", msg->data[i]);
+      // ROS_INFO("ST2 tx %d", msg->data[i]);
     }
     ST2tomission.publish(for_mission);
     // ROS_INFO("I heard action: [%d]", msg.data[0]);
