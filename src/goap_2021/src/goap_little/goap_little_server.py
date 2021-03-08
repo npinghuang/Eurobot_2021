@@ -129,42 +129,51 @@ def GOAP(req):
     elif req.emergency == 0:
         (current, robot1) = mission_precondition(req)
         tt = 0
+        # while current.time < 90:
+        #     # print("time", current.time)
+        del current.mission_list[:] 
+        friend = 0
+        #refresh reef state 
+        robot1.hand_little = req.hand_little
+        current.placecup_reef = robot1.hand_little
+        current.reef_l = 1
+        current.reef_r = 1
+        current.reef_p = 1
+        # print('debug', current.placecup_reef)
+        for a in range(0, len(req.action_list) ):
+            if req.action_list[a] == 0:
+                for m in current.leaf:
+                    if m.no == a:
+                        if m.no == req.friend_action[0] and (req.friend_action[0] == 1 or req.friend_action[0] == 2 or req.friend_action[0] == 6 or req.friend_action[0] == 7 or req.friend_action == 8 or req.friend_action[0] == 9 or req.friend_action == 10 or req.friend_action[0] == 11):
+                            friend = 1
+                        else:
+                            friend = 0
+                            current.mission_list.append(m)
+            elif req.action_list[a] == 1: # acoording to knowledge of how many mission have been done we can update current state
+                for m in current.leaf:
+                    if m.no == a:
+                        # print("debug", m.name)
+                        if m.name == 'getcup':
+                            current.mission_list.append(m)
+                        else:
+                            refreshstate(current, m, robot1, 0)
+                        # print("current windsock", current.windsock, current.lhouse)
+            elif req.action_list[a] == 3: #if mission failed 
+                for m in current.leaf:
+                    if m.no == a and a < 13: # some mission we don't won't to retry  bugg!!!! cup no and m.name != 'getcup'
+                        current.mission_list.append(m)
+        if penalty_mission != None and tt == 0: #penalty on mission which had led to emergency
+            tt = 1 #parameter to let penalty only be done once
+            for m in current.mission_list:
+                if m.name == penalty_mission.name:
+                    m.reward -= 50
+                    print("penalty ", m.name, m.reward)
+            # here
+            # print("time", current.time)
         while current.time < 90:
             # print("time", current.time)
-            del current.mission_list[:] 
-            friend = 0
-            # print('debug', len(req.action_list), len(current.leaf))
-            for a in range(0, len(req.action_list) ):
-                if req.action_list[a] == 0:
-                    for m in current.leaf:
-                        if m.no == a:
-                            if m.no == req.friend_action[0] and (req.friend_action[0] == 1 or req.friend_action[0] == 2 or req.friend_action[0] == 6 or req.friend_action[0] == 7 or req.friend_action == 8 or req.friend_action[0] == 9 or req.friend_action == 10 or req.friend_action[0] == 11):
-                                friend = 1
-                            else:
-                                friend = 0
-                                current.mission_list.append(m)
-                elif req.action_list[a] == 1: # acoording to knowledge of how many mission have been done we can update current state
-                    for m in current.leaf:
-                        if m.no == a:
-                            # print("debug", m.name)
-                            if m.name == 'getcup':
-                                current.mission_list.append(m)
-                            else:
-                                refreshstate(current, m, robot1, 0)
-                            # print("current windsock", current.windsock, current.lhouse)
-                elif req.action_list[a] == 3: #if mission failed 
-                    for m in current.leaf:
-                        if m.no == a and a < 13: # some mission we don't won't to retry  bugg!!!! cup no and m.name != 'getcup'
-                            current.mission_list.append(m)
-            if penalty_mission != None and tt == 0: #penalty on mission which had led to emergency
-                tt = 1 #parameter to let penalty only be done once
-                for m in current.mission_list:
-                    if m.name == penalty_mission.name:
-                        m.reward -= 50
-                        print("penalty ", m.name, m.reward)
-
-            # print("time", current.time)
-            if tmp  == 0:
+            # del current.mission_list[:] 
+            if tmp  == 0: #first action
             #check if current states meet preconditions
                 checkpreconditions(req, current, current.mission_list, robot1)
                 # print("candidate reef p", current.reef_p)
@@ -181,13 +190,14 @@ def GOAP(req):
                 checkpreconditions(req, current, current.mission_list, robot1)           
                 if len(current.candidate) != 0:
                     compare_cost(current.candidate)
-                    print("aa", current.candidate[0].name)
+                    # print("aa", current.candidate[0].name)
                     current.achieved.append(current.candidate[0])
                     refreshstate(current, current.candidate[0], robot1, 1)
                 else:
                     current.time += 1
                     # print("no mission")
             del current.candidate[:]
+        # to here
         if current.time <  100 :
             #cur.leaf = [ windsock, lhouse, getcup, getcup_12, getcup_34, reef_private, reef_right, reef_left, placecup_reef, placecupP, placecupH, anchorN, anchorS, flag]
             # flag = current.leaf[13]

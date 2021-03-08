@@ -1,8 +1,8 @@
 <launch>
- 	<param name="/mission_param" type="int" value="9" />
+ 	<param name="/mission_param" type="int" value="14" />
 	<param name="/hand1" type="int" value="3" />
 	<param name="/hand2" type="int" value="4" />
-	<node name="ST2" pkg="mission" type="ST2" />
+	<node name="ST2" pkg="mission" output = "screen" type="ST2" />
 	<node name="planer" pkg="mission" type="planer" />
 	<node name="main_talker_launch" pkg="mission" type="main_talker_launch" />
 	<!-- <node name="mission_topic_big" pkg="mission" type="mission_action"/>  -->

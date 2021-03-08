@@ -41,7 +41,8 @@ friend_action: [0,0]
 action_list: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
 cup_color: [0,1,0,1,0]
 cup: 65535
-hand: [0,0,0,0,0,0,0,0,0,0,0,0]
+hand_big: [0,0,0,0,0,0,0,0,0,0,0,0]
+hand_little: 0
 enemy1_pos: [0,0]
 enemy2_pos: [0,0]
 strategy: 0" 
@@ -76,4 +77,11 @@ enemy1_pos: [0]
 enemy2_pos: [0]
 strategy: 0" 
 
-
+                                  
+                                                                                                                                    
+ 
+ ffgghhlll;;pppppp1111111111112222223333333344444 566666666677888888888889999999955555555555555555555500---====qqqqqqqqqqaazzzzzz bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbtggggggyyyyool.54852963.+
+3
+00
+63.20+
+1p]][;/''''''''''''''''''+-*/-*/1                                                                            

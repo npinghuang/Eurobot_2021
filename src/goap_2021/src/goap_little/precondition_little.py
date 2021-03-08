@@ -18,66 +18,6 @@ def checkpreconditions( req, current, mis, robot):
             boom1 = check_boom( m.location, current.enemy_1)
             boom2 = check_boom( m.location, current.enemy_2)
             boomf = check_boom( m.location, current.friend_pos )
-        # if m.name == 'getcup':
-        #     if robot.freestorage > 0 and current.time < 90:
-        #         cupp = cup_cost( req, current, m, robot )
-                
-        #         if cupp != None:
-        #             # print("debug cup no", cupp['no'])
-        #             m.cost = distance( current.location, cupp[ 'location' ] )- m.reward + m.time
-        #             m.location = cupp[ 'location' ]
-        #             m.cup = cupp
-        #             # print("cup no  check pre", cupp['no'])
-        #             if cupp['location'] != None and current.enemy_1  != None and current.enemy_2 != None  and current.friend_pos != None:
-        #                 boom1 = check_boom( cupp['location'], current.enemy_1)
-        #                 boom2 = check_boom( cupp['location'], current.enemy_2)
-        #                 boomf = check_boom( cupp['location'], current.friend_pos)
-        #             if boom1 ==  1 and boom2 == 1 and boomf == 1:
-        #             # if abs(cupp['location'][0] - current.enemy_1[0] ) > margin and abs(cupp['location'][1] - current.enemy_1[1] ) > margin and abs(cupp['location'][0] - current.enemy_2[0] ) > margin and abs(cupp['location'][1] - current.enemy_2[1] ) > margin:
-        #                 current.candidate.append(m)
-        # elif m.name == 'getcup_12' or m.name == 'getcup_34':
-        #     # print("why!!", m.name)
-        #     if m.name == 'getcup_12': #cup number
-        #         a = 0
-        #         b = 1
-        #     elif m.name == 'getcup_34':
-        #         a = 2
-        #         b = 3
-        #     if boom1 ==  1 and boom2 == 1 and boomf == 1:
-        #         def myFunc(e):
-        #             return e['no']
-        #         current.cup_state.sort(key=myFunc)
-        #         if robot.freestorage > 1 and current.cup_state[a]['state'] == 1 and current.cup_state[b]['state'] == 1:#check if there is room for two cup
-        #             state = 1
-        #             if (robot.claw[0]['state'] == 0 and robot.claw[1]['state'] == 0 ) and (robot.claw[2]['state'] ==0 and robot.claw[3]['state'] == 0):#check if hand 0 and 1 or 2 or 3 are free
-        #                 face = front_back_determination( current.location, m.location)
-        #             elif robot.claw[0]['state'] == 0 and robot.claw[1]['state'] == 0:
-        #                 face = 'front'
-        #             elif robot.claw[2]['state'] ==0 and robot.claw[3]['state'] == 0:
-        #                 face = 'back'
-        #             else: #no free hand
-        #                 state = 0
-        #             if state == 1:
-        #                 if face == 'front':
-        #                     current.cup_state[a]['hand'] = 1
-        #                     current.cup_state[b]['hand'] = 0
-        #                 elif face == 'back':
-        #                     current.cup_state[a]['hand'] = 2
-        #                     current.cup_state[b]['hand'] = 3
-        #                 m.cup.append( current.cup_state[a] )
-        #                 m.cup.append( current.cup_state[b] )
-        #                 m.cost = distance( current.location, m.location ) - m.reward + m.time
-        #                 # print("debug", m.name)
-        #                 current.candidate.append(m)
-        #                 # print("debug", m.name, current.cup_state[a]['hand'])
-        # elif m.name == 'placecupP' or m.name == 'placecupH':
-        #     if robot.freestorage < robot.cupstorage and boom1 ==  1 and boom2 == 1 and boomf == 1:
-        #         if current.time < 70:
-        #             m.cost = distance( current.location, m.location ) - m.reward * ( robot.cupstorage - robot.freestorage - 12 )*1000 + m.time
-        #         else:
-        #             m.cost = distance( current.location, m.location ) - m.reward * (100 * ( robot.cupstorage - robot.freestorage ))**5 + m.time
-        #         # print("preee place cup", robot.freestorage)
-        #         current.candidate.append(m)
         if m.name == 'windsock':
             if current.windsock != 1 and boom1 ==  1 and boom2 == 1 and boomf == 1:
                 m.cost = distance( current.location, m.location ) - m.reward + m.time
@@ -97,69 +37,20 @@ def checkpreconditions( req, current, mis, robot):
                 m.cost = distance( current.location, m.location ) - m.reward + m.time
                 current.candidate.append(m)
         elif m.name == 'reef_private':
-            # print(" current ", current.reef_p, "boom *  3", boom1, boom2, boomf)
-            if robot.reef == 1 and current.reef_p == 1 and boom1 ==  1 and boom2 == 1 and boomf == 1:
+            # print(" current ", current.reef_p, "placecup", current.placecup_reef,  "boom *  3", boom1, boom2, boomf)
+            if robot.reef == 1 and current.placecup_reef == 0 and current.reef_p == 1 and boom1 ==  1 and boom2 == 1 and boomf == 1:
                 # print("debug reef p")
                 m.cost = distance( current.location, m.location ) - m.reward + m.time
                 current.candidate.append(m)
         elif m.name == 'reef_left':
-            if robot.reef == 1 and current.reef_l == 1 and boom1 ==  1 and boom2 == 1 and boomf == 1:
-                m.cost = distance( current.location, m.location ) - m.reward + m.time
-                current.candidate.append(m)
-        elif m.name == 'reef_right':
-            if robot.reef == 1 and current.reef_r == 1 and boom1 ==  1 and boom2 == 1 and boomf == 1:
-                m.cost = distance( current.location, m.location ) - m.reward + m.time
-                current.candidate.append(m)
-        elif m.name == 'placecup_reef':
-            if current.placecup_reef == 1 and boom1 ==  1 and boom2 == 1 and boomf == 1:
+            if robot.reef == 1 and current.placecup_reef == 0 and current.reef_l == 1 and boom1 ==  1 and boom2 == 1 and boomf == 1:
+                m.cost = distance( current.location, m.location https://www.ptt.cc/bbs/Key_Mou_Pad/M.1426863244.A.16A.html boom2 == 1 and boomf == 1:
                 m.cost = distance( current.location, m.location ) - m.reward + m.time
                 current.candidate.append(m)
         # print("cand", len(current.candidate))
 
 def refreshstate(current, mission, robot, state):
     #state =  1 -> this mission is done by self robotl; state = 0 -> this mission is done by other 
-    # if mission.name == "getcup":
-    #     robot.cup(1)
-    #     current.cup_order.append(mission.cup)
-    #     # print("lalal", mission.cup)
-    #     if mission.cup['hand'] < 4:#claw
-    #         robot.claw[mission.cup['hand']]['state'] = 1
-    #     elif mission.cup['hand'] >= 4:#suction
-    #         robot.suction[mission.cup['hand'] - 4]['state'] = 1
-    #         i = 2 * (mission.cup['hand'] - 4)
-    #         # if robot.suction[ i ]['state'] == 0:
-    #         #     robot.suction[ i ]['state'] = 1
-    #         # elif robot.suction[ i ]['state'] == 1 and robot.suction[ i + 1 ]['state'] == 0:
-    #         #     robot.suction[ i + 1 ]['state'] = 1
-    #     for c in current.cup_state:
-    #         if mission.location == c['location']:
-    #             c['state'] = 0
-    # elif mission.name == 'getcup_12' or mission.name == 'getcup_34' :
-    #     if state == 1:
-    #         robot.cup(2) #update robot cup storage status
-    #         current.cup_order.append(mission.cup[0])
-    #         current.cup_order.append(mission.cup[1])
-    #         robot.claw[miss ion.cup[0]['hand']]['state'] = 1
-    #         robot.claw[mission.cup[1]['hand']]['state'] = 1
-    #     # else:
-    #         # print("ah", mission.cup[0]['no'], mission.cup[1]['no'])
-    #         if mission.name == 'getcup_12':
-    #             current.cup_state[ 0]['state'] = 0
-    #             current.cup_state[ 1]['state'] = 0
-    #         else:
-    #             current.cup_state[ 2]['state'] = 0
-    #             current.cup_state[ 3]['state'] = 0
-    #     # print("dddddd", current.cup_state[ mission.cup[0]['no'] - 1], current.cup_state[ mission.cup[1]['no'] - 1])
-    #     # print("check refresh", mission.cup[1]['no']  ,current.cup_state[ mission.cup[1]['no'] - 1 ]['no'])
-        
-    # elif mission.name == 'placecupH' or mission.name == 'placecupP':
-    #     n = robot.cupstorage - robot.freestorage
-    #     robot.cup(-n)
-    #     # print("place cup", robot.freestorage)
-    #     for claw in robot.claw:
-    #         claw['state'] = 0
-    #     for suc in robot.suction:
-    #         suc['state'] = 0
     if mission.effect[0] != None:
         # print("debug refresh state")
         current.reef_p = mission.effect[0]
@@ -176,9 +67,14 @@ def refreshstate(current, mission, robot, state):
         current.flag = mission.effect[4]
     if mission.effect[5] != None:
         current.lhouse = mission.effect[5]
-    if mission.name == 'placecup_reef':
-        current.placecup_reef = 0        
-
+    if state == 1 and mission.name == 'placecup_reef':
+        current.placecup_reef = 0    
+    elif state == 1 and( mission.name == 'reef_private' or mission.name == 'reef_right' or mission.name == 'reef_left'):
+        current.placecup_reef = 1 
+    
+    if state == 0:
+        print("debug")
+        current.placecup_reef = robot.hand_little 
     if state == 1:
         if mission.name != 'flag':
             # if mission.effect[5] == None:
