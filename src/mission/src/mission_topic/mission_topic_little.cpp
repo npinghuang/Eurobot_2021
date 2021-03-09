@@ -296,7 +296,7 @@ void chatterCallback(const mission::maintomission::ConstPtr& msg)
 
 int main(int argc, char **argv)
 {
- 
+
 ros::init(argc, argv, "mission");
 ros::NodeHandle n;
 

@@ -26,6 +26,7 @@ ros::Publisher forST2com;
 ros::Subscriber sub;
 ros::Subscriber subplaner;
 ros::Subscriber subST2;
+// ros::Subscriber subST2com;
 // mission::missiontomain to_main;
 std_msgs::Int32 to_main;
 std_msgs::Float32MultiArray for_planer;
@@ -234,6 +235,11 @@ void chatterCallback_ST2(const std_msgs::Int32MultiArray::ConstPtr& msg)
     for ( int i = 0; i < 6; i++){
         ST2_rx[i] = msg -> data[i];
     }
+// void chatterCallback_ST2com(const std_msgs::Int32MultiArray::ConstPtr& msg){
+//     // ROS_INFO("I heard ST2: [%d]", msg->data[0]);
+//     for ( int i = 0; i < 6; i++){
+//         ST2_rx[i] = msg -> data[i];
+// }
     // state_ST2 = msg -> data[0];
 }
 void chatterCallback(const mission::maintomission::ConstPtr& msg)
@@ -277,21 +283,21 @@ void chatterCallback(const mission::maintomission::ConstPtr& msg)
         }
         break;
     }
-        case 2:{ // lhouse 
+    case 2:{ // lhouse 
         state_ST2 = 1;
         state_mission = 1; //no action need to be done by ST2 so always return success
         break;
-        }
-        case 16: {//lhouse 2{
+    }
+    case 16: {//lhouse 2{
         state_ST2 = 1;
         state_mission = 1; //no action need to be done by ST2 so always return success
         break;
-        }
-        case 17: {//lhouse 3{
+    }
+    case 17: {//lhouse 3{
         state_ST2 = 1;
         state_mission = 1; //no action need to be done by ST2 so always return success
         break;
-        }
+    }
     case 3: // flag
         state_mission = success;
         break;
@@ -352,7 +358,7 @@ void chatterCallback(const mission::maintomission::ConstPtr& msg)
                 state_mission = success;
             }
         }
-    break;
+        break;
     }
     case 18:{ //placecup h 2 = 2 hand
         ROS_INFO("count [%d]", placecup_h.count);
@@ -641,6 +647,7 @@ int main(int argc, char **argv)
     sub = n.subscribe("MainToMission", 1000, chatterCallback);
     subplaner = n.subscribe("planerToMission", 1000, chatterCallback_planer);
     subST2 = n.subscribe("ST2ToMission", 1000, chatterCallback_ST2);
+    // subST2com = n.subscribe("rxST1", 1000, chatterCallback_ST2com);
     //   ros::Publisher chatter_pub = n.advertise<std_msgs::String>("chatter", 1000);
     ros::Rate loop_rate(10);
 

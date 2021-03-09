@@ -142,6 +142,9 @@ add_executable(main_talker src/mission_topic/main_talker.cpp)
 add_executable(main_talker_launch src/mission_topic/main_talker_launch.cpp)
 add_executable(planer src/mission_topic/planer.cpp)
 add_executable(ST2 src/mission_topic/ST2.cpp)
+# add_dependencies(target catkin_EXPORTED_TARGETS)
+add_dependencies(mission_topic_big ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(mission_topic_little ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 #add_executable(mission_simple src/mission_topic/mission_simple.cpp)
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
