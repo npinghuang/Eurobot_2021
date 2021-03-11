@@ -106,13 +106,13 @@ def mission_precondition(req):
 										{'no' : 6, 'name' : 'backrightup', 'location' : ( -c, -d,( math.pi + theta_suction)), 'state' : 0, 'color' : 2}, {'no' : 7, 'name' : 'backrightdown ', 'location' : ( -c, -d,( math.pi + theta_suction)), 'state' : 0, 'color' : 2}]
 	# update hand status and robot freestorage
 	current_cup = 0
-	for i in range (0, len(req.hand_big)):
-		if req.hand_big[i] == 1:
+	for i in range (0, len(req.hand)):
+		if req.hand[i] == 1:
 			current_cup += 1
 		if i < 4:
-			robot1.claw[i]['state'] = req.hand_big[i]
+			robot1.claw[i]['state'] = req.hand[i]
 		else:
-			robot1.suction[i - 4]['state'] = req.hand_big[i]
+			robot1.suction[i - 4]['state'] = req.hand[i]
 	robot1.cup( current_cup )
 	#setting of current state
 	( x, y , theta ) = ( req.my_pos[0], req.my_pos[1], req.my_pos[2])
@@ -163,7 +163,7 @@ def mission_precondition(req):
 	    reef_right = Mission_precondition(7, "reef_right", ( 0, 2150, 0 ), None, None, None, 1, None, None, None, 9, 200,[None, 0, None, None, None, None])
 	    placecup_reef = Mission_precondition( 11, "placecup_reef", ( 800, 200, 0 ), None, None, None, None, None, None, None, 10, 10000,[None, None, None, None, None, None])
 	    placecupP = Mission_precondition( 10, "placecupP", ( 515, 200, 0 ), None, None, None, None, None, None, None, 10, 40,[None, None, None, None, None, None])
-	    placecupH = Mission_precondition( 9, "placecupH", ( 1850, 1800, 0 ), None, None, None, None, None, None, None, 10, 40,[None, None, None, None, None, None])
+	    placecupH = Mission_precondition( 9, "placecupH", ( 1900, 1800, 0 ), None, None, None, None, None, None, None, 10, 40,[None, None, None, None, None, None])
 	    #temporay set that it has to be done last
 	    anchorN = Mission_precondition( 4, "anchorN", (300, 200, 0 ), 0, None, None, None, None, None, None, 2, 10000,[None, None, None, None, None, None])
 	    anchorS = Mission_precondition( 5, "anchorS", ( 1300, 200, 0 ), 1, None, None, None, None, None, None, 2, 10000,[None, None, None, None, None, None])
@@ -178,8 +178,8 @@ def mission_precondition(req):
 	    lhouse.little_mission_pos = [ [100, 275, 180 ], [ 50, 275, 180], [100, 275, 180 ]]
 	    lhouse.little_mission_no = [ 2, 16, 17]
 	    placecupH.little_mission_count = 7
-	    placecupH.little_mission_pos =[]
-	    placecupH.little_mission_no = [ 9 ]
+	    placecupH.little_mission_pos =[ [1900, 1800, 0],  [1870, 1800, 0],  [1650, 1800, 0],  [1900, 1800, math.pi],  [1800, 1800, math.pi], [1770, 1800, math.pi], [1650, 1800, math.pi]]
+	    placecupH.little_mission_no = [ 9, 18, 19, 20, 21, 22, 23 ]
 
 	elif req.team == 1: 
 		# yellow : ( no, ( x, y ), 1 for cup still there 0 for cup gone,  2  for green 3 for red, type : private 0 or public 1 )

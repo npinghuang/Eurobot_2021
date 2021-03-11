@@ -19,12 +19,12 @@ using namespace std;
 #include "mission/mission_action.h"
 ros::Publisher tomain;
 ros::Publisher forST2;
-ros::Publisher forplaner;
+// ros::Publisher forplaner;
 std_msgs::Int32MultiArray for_st2;
 ros::Publisher forST2com;
 // R0 hand R1 suction R2 hand degree R3 right paltform R4 left platform R5 upper or lower hand
 ros::Subscriber sub;
-ros::Subscriber subplaner;
+// ros::Subscriber subplaner;
 ros::Subscriber subST2;
 // ros::Subscriber subST2com;
 // mission::missiontomain to_main;
@@ -130,13 +130,13 @@ int hand_ST2( int num){ // due to different numbering between ST2 and GOAP
     return hand;
 }
 void publish_ST2(){
-    for ( int i = 0; i < 6; i++){
-        for_st2.data.push_back(ST2_tx[i]);
-        ROS_INFO("publish in for %d ", ST2_tx[i]);
-    }
-    forST2.publish(for_st2);
-    ST2_tx.clear(); 
-    for_st2.data.clear(); 
+//     for ( int i = 0; i < 6; i++){
+//         for_st2.data.push_back(ST2_tx[i]);
+//         ROS_INFO("publish in for %d ", ST2_tx[i]);
+//     }
+//     // forST2.publish(for_st2);
+//     // ST2_tx.clear(); 
+//     for_st2.data.clear(); 
 }
 bool checkST2_state(std::vector<int> &tx){
     // if st2 tx == rx
@@ -149,19 +149,19 @@ bool checkST2_state(std::vector<int> &tx){
     }
     return state;
 }
-void publish_planner(){
-    for_planer.data.push_back(planer_tx[0]);
-    for_planer.data.push_back(planer_tx[1]);
-    for_planer.data.push_back(planer_tx[2]);
-    forplaner.publish(for_planer);
-    for_planer.data.clear();
-}
-void planer_tx_transform( float x, float y, float theta){
-    planer_tx[0] = x;
-    planer_tx[1] = y;
-    planer_tx[2] = theta;
-    publish_planner();
-}
+// void publish_planner(){
+//     for_planer.data.push_back(planer_tx[0]);
+//     for_planer.data.push_back(planer_tx[1]);
+//     for_planer.data.push_back(planer_tx[2]);
+//     forplaner.publish(for_planer);
+//     for_planer.data.clear();
+// }
+// void planer_tx_transform( float x, float y, float theta){
+//     planer_tx[0] = x;
+//     planer_tx[1] = y;
+//     planer_tx[2] = theta;
+//     publish_planner();
+// }
 void ST2_tx_transform_outterhand_1( int hand, int suck, int degree, int platform, int up_down){
     int hand_st = hand_ST2(hand);
     if ( hand < 12){
@@ -224,24 +224,24 @@ void init(){
     ROS_INFO("initialize");
 }
 
-void chatterCallback_planer(const std_msgs::Int32MultiArray::ConstPtr& msg)
-{
-    // ROS_INFO("I heard action: [%d]", msg->data[0]);
-    state_planer = msg -> data[0] ;
-}
+// void chatterCallback_planer(const std_msgs::Int32MultiArray::ConstPtr& msg)
+// {
+//     // ROS_INFO("I heard action: [%d]", msg->data[0]);
+//     state_planer = msg -> data[0] ;
+// }
 void chatterCallback_ST2(const std_msgs::Int32MultiArray::ConstPtr& msg)
 {
     // ROS_INFO("I heard ST2: [%d]", msg->data[0]);
     for ( int i = 0; i < 6; i++){
         ST2_rx[i] = msg -> data[i];
     }
+}
 // void chatterCallback_ST2com(const std_msgs::Int32MultiArray::ConstPtr& msg){
 //     // ROS_INFO("I heard ST2: [%d]", msg->data[0]);
 //     for ( int i = 0; i < 6; i++){
 //         ST2_rx[i] = msg -> data[i];
 // }
-    // state_ST2 = msg -> data[0];
-}
+// }
 void chatterCallback(const mission::maintomission::ConstPtr& msg)
 {
   ROS_INFO("I heard action: [%d]", msg->action);
@@ -257,6 +257,12 @@ void chatterCallback(const mission::maintomission::ConstPtr& msg)
   switch (msg->action)
   {
     case 0: //emergency
+        ST2_tx[0] = 0;
+        ST2_tx[1] = 2;
+        ST2_tx[2] = 404;
+        ST2_tx[3] = 2;
+        ST2_tx[4] = 2;
+        ST2_tx[5] = 2;
         state_mission = stop;
         break; 
     case 1: {//windsock
@@ -637,7 +643,7 @@ int main(int argc, char **argv)
     ros::init(argc, argv, "mission");
     ros::NodeHandle n;
 
-    forplaner = n.advertise<std_msgs::Float32MultiArray>("MissionToplaner", 1);
+    // forplaner = n.advertise<std_msgs::Float32MultiArray>("MissionToplaner", 1);
     forST2 = n.advertise<std_msgs::Int32MultiArray>("MissionToST2", 1);
     forST2com = n.advertise<std_msgs::Int32MultiArray>("txST1", 1);
     // ros::Publisher forNavigation = n.advertise<geometry_msgs::PoseStamped>("move_base_simple/goal", 1);
@@ -645,7 +651,7 @@ int main(int argc, char **argv)
     // ros::Publisher forST2 = n.advertise<std_msgs::String>("forST2", 1);
     tomain = n.advertise<std_msgs::Int32>("MissionToMain", 100);
     sub = n.subscribe("MainToMission", 1000, chatterCallback);
-    subplaner = n.subscribe("planerToMission", 1000, chatterCallback_planer);
+    // subplaner = n.subscribe("planerToMission", 1000, chatterCallback_planer);
     subST2 = n.subscribe("ST2ToMission", 1000, chatterCallback_ST2);
     // subST2com = n.subscribe("rxST1", 1000, chatterCallback_ST2com);
     //   ros::Publisher chatter_pub = n.advertise<std_msgs::String>("chatter", 1000);
@@ -654,13 +660,19 @@ int main(int argc, char **argv)
     int count = 0;
     while (ros::ok())
     {
-    // to_main.state = state_mission;
-    to_main.data=state_mission;
-    tomain.publish(to_main);
-    ros::spinOnce();
+        for ( int i = 0; i < 6; i++){
+            for_st2.data.push_back(ST2_tx[i]);
+            ROS_INFO("publish in for %d %d", ST2_tx[i], for_st2.data[i]);
+        }
+        forST2.publish(for_st2);
+        for_st2.data.clear(); 
+        // to_main.state = state_mission;
+        to_main.data=state_mission;
+        tomain.publish(to_main);
+        ros::spinOnce();
 
-    loop_rate.sleep();
-    ++count;
+        loop_rate.sleep();
+        ++count;
     }
     return 0;
 }

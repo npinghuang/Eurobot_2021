@@ -142,6 +142,7 @@ add_executable(main_talker src/mission_topic/main_talker.cpp)
 add_executable(main_talker_launch src/mission_topic/main_talker_launch.cpp)
 add_executable(planer src/mission_topic/planer.cpp)
 add_executable(ST2 src/mission_topic/ST2.cpp)
+add_executable(ST2_little src/mission_topic/ST2_little.cpp)
 # add_dependencies(target catkin_EXPORTED_TARGETS)
 add_dependencies(mission_topic_big ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(mission_topic_little ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
@@ -176,6 +177,9 @@ target_link_libraries(planer
 ${catkin_LIBRARIES}
 )
 target_link_libraries(ST2
+${catkin_LIBRARIES}
+)
+target_link_libraries(ST2_little
 ${catkin_LIBRARIES}
 )
 #target_link_libraries(mission_simple

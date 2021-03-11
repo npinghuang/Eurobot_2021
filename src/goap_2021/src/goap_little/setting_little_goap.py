@@ -111,7 +111,7 @@ def mission_precondition(req):
 	# 		robot1.claw[i]['state'] = req.hand[i]
 	# 	else:
 	# 		robot1.suction[i - 4]['state'] = req.hand[i]
-	robot1.hand_little = req.hand_little
+	robot1.hand_little = req.hand[0]
 	robot1.cup( current_cup )
 	#setting of current state
 	( x, y , theta ) = ( req.my_pos[0], req.my_pos[1], req.my_pos[2])

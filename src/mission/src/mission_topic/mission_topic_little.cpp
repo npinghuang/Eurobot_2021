@@ -17,22 +17,23 @@ using namespace std;
 
 #include "mission/mission_action.h"
 ros::Publisher tomain;
-ros::Publisher forST2;
+ros::Publisher forST2_little;
 ros::Publisher forplaner;
-std_msgs::Int32MultiArray for_st2;
-ros::Publisher forST2com;
+std_msgs::Int32MultiArray for_ST2_little;
+
+ros::Publisher forST2_littlecom;
 ros::Subscriber sub;
 ros::Subscriber subplaner;
-ros::Subscriber subST2;
+ros::Subscriber subST2_little;
 std_msgs::Int32 to_main;
 std_msgs::Float32MultiArray for_planer;
 float planer_rx = 9;
-int ST2_rx = 8;
+std::vector<int> ST2_little_rx{0,0,0,0,0,0,0,0,0};
 int initialize = 1;
 // int planer_tx = 88;
 std::vector<int> hand{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 std::vector<float> planer_tx{0,0,0};
-std::vector<int> ST2_tx{0,0,0};
+std::vector<int> ST2_little_tx{0,0,0};
 std::vector<int> claw{0,0,0,0,0};
 std::vector<int> claw_color{0,0,0,0,0};
 std::vector<int> reefl_color{2, 3, 2, 3, 2};
@@ -40,11 +41,12 @@ std::vector<int> reefr_color{3, 2, 3, 2, 3};
 std::vector<int> reefp_color{2, 3, 2, 3, 2};
 std::vector<int> reef_null{0, 0, 0, 0, 0};
 int state_planer = 0;
-int state_ST2 = 0;
+int state_ST2_little = 0;
 int state_mission;
 int success = 1, fail = 0, ing = 2, stop = 3;
 int tx = 101;
 int team;
+int data_len = 9;
 
 bool publish_planer;
 class mission_setting{
@@ -53,7 +55,7 @@ class mission_setting{
         string mission_name;
         int count;
         int count_planer = 0;
-        int count_ST2 = 0;
+        int count_ST2_little = 0;
         int action[10];
         int prepare;
         mission_setting(int num, string name, int no,  int pre){//int array[],
@@ -82,18 +84,29 @@ class mission_setting{
     mission_setting getcup_12( 13, "getcup_12", 0, 0);
     mission_setting getcup_34( 14, "getcup_34", 0, 0);
 
-void publish_ST2( int platform, int servo, int claw){
-    ST2_tx[0] = platform;// up down of platform
-    ST2_tx[1] = servo;//windsock servo and tightness servo
-    ST2_tx[2] = claw;// determine servos open or close
-    for ( int i = 0; i < 3; i++){
-        for_st2.data.push_back(ST2_tx[i]);
-        // ROS_INFO("publish in for %d ", ST2_tx[i]);
+void publish_ST2_little(int platform, int servo, int claw ){//
+    ST2_little_tx[0] = platform;// up down of platform
+    ST2_little_tx[1] = servo;//windsock servo and tightness servo
+    ST2_little_tx[2] = claw;// determine servos open or close
+    // for ( int i = 0; i < 9; i++){
+    //     for_ST2_little.data.push_back(ST2_little_tx[i]);
+    //     // ROS_INFO("publish in for %d ", ST2_little_tx[i]);
+    // }
+    // ROS_INFO("publish ST2_little %d %d %d", ST2_little_tx[0],  ST2_little_tx[1], ST2_little_tx[2]);
+    // forST2_little.publish(for_ST2_little);
+    // // ST2_little_tx.clear(); 
+    // for_ST2_little.data.clear(); 
+}
+bool checkST2_state(std::vector<int> &tx){
+    // if st2 tx == rx
+    int state = 1;
+    for ( int i = 0; i < data_len; i++){
+        if ( tx[i] != ST2_little_rx[i]){
+            state = 0;
+            break;
+        }
     }
-    ROS_INFO("publish ST2 %d %d %d", ST2_tx[0],  ST2_tx[1], ST2_tx[2]);
-    forST2.publish(for_st2);
-    ST2_tx.clear(); 
-    for_st2.data.clear(); 
+    return state;
 }
 void publish_planner(){
     for_planer.data.push_back(planer_tx[0]);
@@ -140,9 +153,9 @@ void claw_action(int color, int state, std::vector<int> &reef_color){
     
     if ( state_planer == 1){
         int hd = claw_trans(claw);
-        publish_ST2( 3, 2, hd);
+        publish_ST2_little( 3, 2, hd);
     }
-    if ( state_ST2 == 1){
+    if ( state_ST2_little == 1){
         state_mission = success;
         // for ( int i = 0; i < reef_color.size(); i++){
         //     claw_color[i] = reef_color[i];
@@ -168,10 +181,12 @@ void chatterCallback_planer(const std_msgs::Int32MultiArray::ConstPtr& msg)
     // ROS_INFO("I heard action: [%d]", msg->data[0]);
     state_planer = msg -> data[0] ;
 }
-void chatterCallback_ST2(const std_msgs::Int32MultiArray::ConstPtr& msg)
+void chatterCallback_ST2_little(const std_msgs::Int32MultiArray::ConstPtr& msg)
 {
-    // ROS_INFO("I heard ST2: [%d]", msg->data[0]);
-    state_ST2 = msg -> data[0];
+    // ROS_INFO("I heard ST2_little: [%d]", msg->data[0]);
+    for ( int i = 0; i < data_len; i++){
+        ST2_little_rx[i] = msg -> data[i];
+    }
 }
 void chatterCallback(const mission::maintomission::ConstPtr& msg)
 {
@@ -180,85 +195,17 @@ void chatterCallback(const mission::maintomission::ConstPtr& msg)
   state_planer = msg->planer_state;
   team = msg->team;
   
-  if ( initialize == 1){
-      init();
-      initialize = 0;
-  }
+    // initialize here st2 will give number 5 initially
+//   if ( initialize == 1 && ST2_little_rx[0] == 5){
+//       init();
+//       initialize = 0;
+//   }
   switch (msg->action)
   {
   case 0: //emergency
       state_mission = stop;
       break;
-//   case 1: {//windsock
-//     if ( windsock.count < windsock.prepare){
-//         ROS_INFO("before at pos count [%d]", windsock.count);
-//         if (action1[windsock.count] == 2){
-//             ST2_tx[0] = action1_ST2_blue[windsock.count_ST2];  
-//             publish_ST2();
-//         }
-//         if ( state_ST2 == 1){
-//             windsock.count++;
-//             windsock.count_ST2++;
-//         }
-//     }
-    
-//     else if ( windsock.count >= windsock.prepare && state_planer == 1){
-//         ROS_INFO("at pos count [%d]", windsock.count);
-//         switch (action1[windsock.count]){
-//         case 1:{
-//             for (int i = 0; i < 3;  i++) {
-//                 if ( team == 0 ){
-//                     planer_tx[i] = action1_planer_blue[windsock.count_planer][i];
-//                 }
-//             }
-//             windsock.count++;
-//             windsock.count_planer++;
-//            publish_planner(); 
-//             break;
-//         }
-//         case 2:{
-//             windsock.count++;
-//             windsock.count_ST2++;
-//             break;
-//         }
-//         default:
-//             break;
-//         }
-//         // ROS_INFO("windsock action: [%f]", planer_tx[0]);  
-//     // ROS_INFO("debug windsock action: [%d]", action_1[4]);  
-//         if (windsock.count >= action1.size()){ //
-//             windsock.count = 0;
-//             windsock.count_planer = 0;
-//             windsock.count_ST2 = 0;
-//             state_mission = success;
-//             // ROS_INFO("flag success");  
-//         }
-//         else{claw_action(0,1, reefp_color);
-//         }
-//     }
-//     break;
-//     }
-//   case 2:{ // lhouse
-//     if ( state_planer == 1){
-//         if ( msg->team == 0){
-//             // planer_tx_transform( action2_planer_blue[lhouse.count][0], action2_planer_blue[lhouse.count][1], action2_planer_blue[lhouse.count][2]);
-//         }
-//         else if ( msg->team == 1){
-//             // planer_tx_transform( action2_planer_yellow[lhouse.count][0], action2_planer_yellow[lhouse.count][1], action2_planer_yellow[lhouse.count][2]);
-//         }
-//         lhouse.count++;
-        
-//     }
-//     if ( lhouse.count >= action2_planer_blue.size()){
-//             lhouse.count = 0;
-//             state_mission = success;
-//         }
-//     else{
-//     // ROS_INFO("debug windsock action: [%d], state = %d", windsock.count, state_mission);  
-//         state_mission = ing;
-//     }    
-//     break;
-//     }
+
   case 3: // flag
       state_mission = success;
       break;
@@ -268,7 +215,35 @@ void chatterCallback(const mission::maintomission::ConstPtr& msg)
   case 5: // anchorS
       state_mission = success;
       break;
-  case 6: // reef_l
+    case 6: // reef_l
+        if ( state_planer == 1){
+            if ( reef_l.count == 0){ // open claw
+                state_mission = ing;
+                ST2_little_tx[0] = 0;
+                for ( int i = 1; i < 9; i++){
+                    ST2_little_tx[i] = 1;
+                }
+            }
+            else if ( checkST2_state(ST2_little_tx) == 1 && reef_l.count == 1){ // lower platform
+                ST2_little_tx[0] = 0;
+                for ( int i = 1; i < 8; i++){
+                    ST2_little_tx[i] = 1;
+                }
+                ST2_little_tx[8] = 2;
+            }
+            else if ( checkST2_state(ST2_little_tx) == 1 && reef_l.count == 2){ // raise platform
+                ST2_little_tx[0] = 0;
+                for ( int i = 1; i < 8; i++){
+                    ST2_little_tx[i] = 1;
+                }
+                ST2_little_tx[8] = 1;
+            }
+            else if ( checkST2_state(ST2_little_tx) == 1 && reef_l.count == 3){
+                state_mission = success;
+                reef_l.count = 0;
+            }
+            
+        }
     claw_action(0,1, reefl_color);
     break;
   case 7: // reef_r
@@ -284,6 +259,12 @@ void chatterCallback(const mission::maintomission::ConstPtr& msg)
     
     //   state_mission = success;
       break;
+    // case 12:{
+    //     ST2_little_tx[0] = 8787;
+    //     for_ST2_little.data[0] = ST2_little_tx[0];
+    //     forST2_little.publish(for_ST2_little);
+    //     break;
+    // }
   default:
       break;
   }
@@ -301,22 +282,27 @@ ros::init(argc, argv, "mission");
 ros::NodeHandle n;
 
 forplaner = n.advertise<std_msgs::Float32MultiArray>("MissionToplaner", 1);
-forST2 = n.advertise<std_msgs::Int32MultiArray>("MissionToST2", 1);
-forST2com = n.advertise<std_msgs::Int32MultiArray>("txST1", 1);
+forST2_little = n.advertise<std_msgs::Int32MultiArray>("MissionToST2_little", 1);
+forST2_littlecom = n.advertise<std_msgs::Int32MultiArray>("txST1", 1);
 // ros::Publisher forNavigation = n.advertise<geometry_msgs::PoseStamped>("move_base_simple/goal", 1);
 // ros::Publisher forplaner = n.advertise<std_msgs::String>("forplaner", 1);
-// ros::Publisher forST2 = n.advertise<std_msgs::String>("forST2", 1);
+// ros::Publisher forST2_little = n.advertise<std_msgs::String>("forST2_little", 1);
 tomain = n.advertise<std_msgs::Int32>("MissionToMain", 100);
 sub = n.subscribe("MainToMission", 1000, chatterCallback);
 subplaner = n.subscribe("planerToMission", 1000, chatterCallback_planer);
-subST2 = n.subscribe("ST2ToMission", 1000, chatterCallback_ST2);
+subST2_little = n.subscribe("ST2_littleToMission", 1000, chatterCallback_ST2_little);
 //   ros::Publisher chatter_pub = n.advertise<std_msgs::String>("chatter", 1000);
 ros::Rate loop_rate(10);
 
     int count = 0;
   while (ros::ok())
   {
-    
+    for ( int i = 0; i < data_len; i++){
+        for_ST2_little.data.push_back(ST2_little_tx[i]);
+        // ROS_INFO("publish in for %d ", ST2_little_tx[i]);
+    }
+    forST2_little.publish(for_ST2_little);
+    for_ST2_little.data.clear(); 
     // to_main.state = state_mission;
     to_main.data = state_mission;
     tomain.publish(to_main);
