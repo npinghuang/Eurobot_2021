@@ -44,37 +44,33 @@ def checkpreconditions( req, current, mis, robot):
                 current.candidate.append(m)
         elif m.name == 'reef_left':
             if robot.reef == 1 and current.placecup_reef == 0 and current.reef_l == 1 and boom1 ==  1 and boom2 == 1 and boomf == 1:
-                m.cost = distance( current.location, m.location https://www.ptt.cc/bbs/Key_Mou_Pad/M.1426863244.A.16A.html boom2 == 1 and boomf == 1:
+                m.cost = distance( current.location, m.location ) - m.reward + m.time
+                current.candidate.append(m)
+        elif m.name == 'reef_right':
+            if robot.reef == 1 and current.placecup_reef == 0 and current.reef_l == 1 and boom1 ==  1 and boom2 == 1 and boomf == 1:
+                m.cost = distance( current.location, m.location ) - m.reward + m.time
+                current.candidate.append(m)
+        elif m.name == 'placecup_reef':
+            # print(" current ", robot.reef, "placecup", current.placecup_reef,  "boom *  3", boom1, boom2, boomf)
+            if robot.reef == 1 and current.placecup_reef == 1 and boom1 ==  1 and boom2 == 1 and boomf == 1:
                 m.cost = distance( current.location, m.location ) - m.reward + m.time
                 current.candidate.append(m)
         # print("cand", len(current.candidate))
 
 def refreshstate(current, mission, robot, state):
-    #state =  1 -> this mission is done by self robotl; state = 0 -> this mission is done by other 
-    if mission.effect[0] != None:
-        # print("debug refresh state")
-        current.reef_p = mission.effect[0]
-        current.placecup_reef = 1
-    if mission.effect[1] != None:
-        current.reef_r = mission.effect[1]
-        current.placecup_reef = 1
-    if mission.effect[2] != None:
-        current.reef_l = mission.effect[2]
-        current.placecup_reef = 1
-    if mission.effect[3] != None:
-        current.windsock = mission.effect[3]
-    if mission.effect[4] != None:
-        current.flag = mission.effect[4]
-    if mission.effect[5] != None:
-        current.lhouse = mission.effect[5]
-    if state == 1 and mission.name == 'placecup_reef':
-        current.placecup_reef = 0    
-    elif state == 1 and( mission.name == 'reef_private' or mission.name == 'reef_right' or mission.name == 'reef_left'):
-        current.placecup_reef = 1 
+    
     
     if state == 0:
         print("debug")
-        current.placecup_reef = robot.hand_little 
+        current.placecup_reef = robot.hand_little
+    if state == 2:
+        if m.no == 6:
+            current.reef_l = 0
+        elif m.no == 7:
+            current.reef_r = 0
+        elif m.no == 8:
+            current.reef_p = 0
+        
     if state == 1:
         if mission.name != 'flag':
             # if mission.effect[5] == None:
@@ -100,6 +96,27 @@ def refreshstate(current, mission, robot, state):
             current.time += mission.time + d / velocity  + rotate
         if mission.location != None:
             current.location = mission.location
+        #state =  1 -> this mission is done by self robotl; state = 0 -> this mission is done by other 
+        if mission.effect[0] != None:
+            # print("debug refresh state")
+            current.reef_p = mission.effect[0]
+            current.placecup_reef = 1
+        if mission.effect[1] != None:
+            current.reef_r = mission.effect[1]
+            current.placecup_reef = 1
+        if mission.effect[2] != None:
+            current.reef_l = mission.effect[2]
+            current.placecup_reef = 1
+        if mission.effect[3] != None:
+            current.windsock = mission.effect[3]
+        if mission.effect[4] != None:
+            current.flag = mission.effect[4]
+        if mission.effect[5] != None:
+            current.lhouse = mission.effect[5]
+        if state == 1 and mission.name == 'placecup_reef':
+            current.placecup_reef = 0    
+        elif state == 1 and( mission.name == 'reef_private' or mission.name == 'reef_right' or mission.name == 'reef_left'):
+            current.placecup_reef = 1 
     def myFunc(e):
         return e['no']
     current.cup_state.sort(key=myFunc)
