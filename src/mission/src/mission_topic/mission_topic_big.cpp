@@ -253,7 +253,16 @@ void chatterCallback(const mission::maintomission::ConstPtr& msg)
       init();
       initialize = 0;
   }
-
+    if (msg->emerg == 1){
+        ST2_tx[0] = 0;
+        ST2_tx[1] = 2;
+        ST2_tx[2] = 404;
+        ST2_tx[3] = 2;
+        ST2_tx[4] = 2;
+        ST2_tx[5] = 2;
+        state_mission = stop;
+    }
+    else{
   switch (msg->action)
   {
     case 0: //emergency
@@ -635,6 +644,7 @@ void chatterCallback(const mission::maintomission::ConstPtr& msg)
     default:
         break;
   }
+    }
 }
 
 int main(int argc, char **argv)

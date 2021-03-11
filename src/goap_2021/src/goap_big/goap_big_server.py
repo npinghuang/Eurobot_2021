@@ -156,7 +156,10 @@ def GOAP(req):
         position.append(current.location[0])
         position.append(current.location[1])
         position.append(current.location[2] )
-        print("emergency", current.location)    
+        cup.append( 0)
+        cup.append(0)
+        print("over 100 second", current.location)    
+        return action, position, cup
     elif req.emergency == 0:
         if cur.previous_mission != None and len(cur.previous_mission.little_mission_no) != 0 and action[0] != cur.previous_mission.little_mission_no[-1]:
             # if little mission are done we will have to generate new goap data
@@ -374,6 +377,14 @@ def GOAP(req):
         #     print("mission_list", p)
         state = 0
 
+    #if no action
+    if len( position ) == 0:
+        action.append(0)
+        position.append(current.location[0])
+        position.append( current.location[1])
+        position.append(current.location[2] )
+        cup.append( 0)
+        cup.append(0)
     return action, position, cup
 
 def goap_server():
