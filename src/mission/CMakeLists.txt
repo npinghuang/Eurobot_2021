@@ -125,6 +125,7 @@ include_directories(
 ## Declare a C++ library
  add_library(${PROJECT_NAME}
    src/mission_topic/mission_action.cpp
+   src/mission_topic/mission_function.cpp
  )
 
 ## Add cmake target dependencies of the library

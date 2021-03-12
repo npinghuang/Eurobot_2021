@@ -111,19 +111,6 @@ def GOAP(req):
     else:
         # global penalty_mission
         penalty_mission = None
-    # if cur.mission != None and (cur.mission.no == 1 or cur.mission.no == 2 or  cur.mission.no == 9 or  cur.mission.no == 10): 
-    #     counter += 1
-    #     # if cur.mission.no == 1:
-    #     if counter < cur.mission.little_mission_count:
-    #         action.append(cur.mission.no)
-    #         position.append(cur.mission.little_mission_pos[counter][0])
-    #         position.append(cur.mission.little_mission_pos[counter][1])
-    #         position.append(cur.mission.little_mission_pos[counter][2])
-    #         cup.append( 0)
-    #         cup.append(0)
-    #         return action, position, cup
-    #     else:
-    #         counter = 0
     (current, robot1) = mission_precondition(req)
     # print("cur.time", current.time)
 
@@ -141,15 +128,11 @@ def GOAP(req):
         # position = list(position)
         # cup = list(cup)
         action.insert(0,0)
-        # action.append(0)
         position.insert(0, location[2])
         position.insert(0, location[1])
         position.insert(0, location[0])
         cup.insert( 0, 0 )
         cup.insert( 0, 0 )
-        # position.append(location[0])
-        # position.append(location[1])
-        # position.append(location[2] )
         print("emergency", location)    
     elif req.time >= 100:
         action.append(0)
@@ -274,10 +257,6 @@ def GOAP(req):
                 current.achieved.append(flag)
             elif req.time >= 95:
                 current.achieved.append(flag)
-        
-        # print("debug len", len(current.mission_list))
-        # for p in current.mission_list:
-        #     print("name", p.name)
         temp = 0
         i = 0 #little bug i forgot what this is for
 
@@ -296,13 +275,13 @@ def GOAP(req):
                 temp = temp + 1
                 i += 1
             elif a.name == 'getcup_12' or a.name == 'getcup_34':
-                print("action", a.no, a.name, a.location[0], a.location[1], a.location[2], 0,"hand", a.cup[0]['hand'] + 1, a.cup[1]['hand'] + 1)
+                print("action", a.no, a.name, a.location[0], a.location[1], a.location[2], a.cup[0]['no'], a.cup[1]['no'],"hand", current.cup_state[a.cup[0]['no']-1]['hand']  + 1, current.cup_state[a.cup[1]['no']-1]['hand'] + 1)
                 action.append(a.no)
                 position.append(a.location[0])
                 position.append( a.location[1])
                 position.append(a.location[2] )
-                # position.append(0)
-                handd = (a.cup[0]['hand'] + 1) * 10 + a.cup[1]['hand'] + 1#change hand number to start from 1
+                # position.append(0)current.cup_state[a]['hand'] 
+                handd = (current.cup_state[a.cup[0]['no']-1]['hand']  + 1) * 10 + current.cup_state[a.cup[1]['no']-1]['hand'] + 1#change hand number to start from 1
                 cup.append( 0)
                 cup.append(handd)
                 temp += 2
@@ -344,21 +323,11 @@ def GOAP(req):
                     position.append(a.location[2] )
                     cup.append( 0)
                     cup.append(0)
-                    # position.append(0)
-                    # position.append(None)
-
                     i += 1
-                # else:#flag has no location so i need to give last mission's location
-                #     print("action", a.no, a.name,position[-1])
-                #     action.append(a.no)
-                #     position.append(position[-4])
-                #     position.append( position[-4])
-                #     position.append(position[-4] )
-                #     cup.append( 0)
-                #     cup.append(0)
-                #     # position.append(0)
-                #     i += 1
-        current.mission = current.achieved[0]
+        if len ( current.achieved) != 0:
+            current.mission = current.achieved[0]
+        else:
+            current.mission = None
         mission_list = []
         temp = 0
         for a in current.achieved:

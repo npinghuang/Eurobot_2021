@@ -108,13 +108,6 @@ def mission_precondition(req):
 										{'no' : 6, 'name' : 'backrightup', 'location' : ( -c, -d,( math.pi + theta_suction)), 'state' : 0, 'color' : 2}, {'no' : 7, 'name' : 'backrightdown ', 'location' : ( -c, -d,( math.pi + theta_suction)), 'state' : 0, 'color' : 2}]
 	# update hand status and robot freestorage
 	current_cup = 0
-	# for i in range (0, len(req.hand_big)):
-	# 	if req.hand[i] == 1:
-	# 		current_cup += 1
-	# 	if i < 4:
-	# 		robot1.claw[i]['state'] = req.hand[i]
-	# 	else:
-	# 		robot1.suction[i - 4]['state'] = req.hand[i]
 	robot1.hand_little = req.hand[0]
 	robot1.cup( current_cup )
 	#setting of current state

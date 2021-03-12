@@ -6,7 +6,7 @@ check mission precondition and refresh current state
 #coding=utf-8
 import math
 from setting_little_goap import *
-from cup_cost import*
+# from cup_cost import*
 
 def checkpreconditions( req, current, mis, robot):
     for m in mis:
@@ -73,24 +73,6 @@ def refreshstate(current, mission, robot, state):
         
     if state == 1:
         if mission.name != 'flag':
-            # if mission.effect[5] == None:
-                # current.time += mission.effecif mission.name == "getcup":
-    #     robot.cup(1)
-    #     current.cup_order.append(mission.cup)
-    #     # print("lalal", mission.cup)
-    #     if mission.cup['hand'] < 4:#claw
-    #         robot.claw[mission.cup['hand']]['state'] = 1
-    #     elif mission.cup['hand'] >= 4:#suction
-    #         robot.suction[mission.cup['hand'] - 4]['state'] = 1
-    #         i = 2 * (mission.cup['hand'] - 4)
-    #         # if robot.suction[ i ]['state'] == 0:
-    #         #     robot.suction[ i ]['state'] = 1
-    #         # elif robot.suction[ i ]['state'] == 1 and robot.suction[ i + 1 ]['state'] == 0:
-    #         #     robot.suction[ i + 1 ]['state'] = 1
-    #     for c in current.cup_state:
-    #         if mission.location == c['location']:
-    #             c['state'] = 0t[5]
-        # else:
             d = distance( current.location, mission.location )
             rotate = rotate_time( current.location, mission.location )
             current.time += mission.time + d / velocity  + rotate

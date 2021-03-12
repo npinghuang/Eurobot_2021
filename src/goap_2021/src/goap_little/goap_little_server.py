@@ -84,227 +84,6 @@ def evaluate(current, robot):
         score += 2 * red
     return score
 
-# def GOAP(req):
-#     print("-------------------------------------------------")
-#     global penalty_mission
-#     # print("previous current emergency", cur.emergency)
-#     if (cur.mission)!= None:
-#         print("previous action ", cur.mission.name)
-#     if cur.emergency == True: # document the action right before entering emergency state
-#         for mission in cur.mission_list:
-#             if cur.mission.name == mission.name:
-#                 # global penalty_mission
-#                 penalty_mission = mission
-#                 # print("penalty", mission.name)
-#     else:
-#         # global penalty_mission
-#         penalty_mission = None
-#     (current, robot1) = mission_precondition(req)
-#     # print("cur.time", current.time)
-#     tmp = 0
-#     action = []
-#     position = []
-#     cup = []
-#     #current.mission_list => a list of action available
-#     mission = len(current.mission_list)
-#     state = 1
-#     del current.achieved[:]
-#     del current.cup_order[:]
-
-#     if req.emergency == 1:
-#         #return location (x, y, theta), try to get out
-#         # print("current", current)
-#         location = emergency(current)
-#         action.append(0)
-#         position.append(location[0])
-#         position.append(location[1])
-#         position.append(location[2] )
-#         print("emergency", location)    
-#     elif req.time >= 100:
-#         action.append(0)
-#         position.append(current.location[0])
-#         position.append(current.location[1])
-#         position.append(current.location[2] )
-#         print("emergency", current.location)    
-#     elif req.emergency == 0:
-#         (current, robot1) = mission_precondition(req)
-#         tt = 0
-#         # while current.time < 90:
-#         #     # print("time", current.time)
-#         del current.mission_list[:] 
-#         friend = 0
-#         #refresh reef state 
-#         robot1.hand_little = req.hand[0]
-#         current.placecup_reef = robot1.hand_little
-#         print("refresh reef status")
-#         current.reef_l = 1
-#         current.reef_r = 1
-#         current.reef_p = 1
-#         # print('debug', current.placecup_reef)
-#         for a in range(0, len(req.action_list) ):
-#             #refresh reef state 
-#             # current.reef_l = req.action_list[7]
-#             # current.reef_r = req.action_list[8]
-#             # current.reef_p = req.action_list[9]
-#             if req.action_list[a] == 0:
-#                 for m in current.leaf:
-#                     if m.no == a:
-#                         # refreshstate(current, m, robot1, 2)
-#                         if m.no == req.friend_action[0] and (req.friend_action[0] == 1 or req.friend_action[0] == 2 or req.friend_action[0] == 6 or req.friend_action[0] == 7 or req.friend_action == 8 or req.friend_action[0] == 9 or req.friend_action == 10 or req.friend_action[0] == 11):
-#                             friend = 1
-#                         else:
-#                             friend = 0
-#                             current.mission_list.append(m)
-#             elif req.action_list[a] == 1: # according to knowledge of how many mission have been done we can update current state
-#                 for m in current.leaf:
-#                     if m.no == a:
-#                         # print("debug", m.name)
-#                         if m.name == 'getcup':
-#                             current.mission_list.append(m)
-#                         else:
-#                             refreshstate(current, m, robot1, 0)
-#                         # print("current windsock", current.windsock, current.lhouse)
-#             elif req.action_list[a] == 3: #if mission failed 
-#                 for m in current.leaf:
-#                     if m.no == a and a < 13: # some mission we don't won't to retry  bugg!!!! cup no and m.name != 'getcup'
-#                         current.mission_list.append(m)
-#         if penalty_mission != None and tt == 0: #penalty on mission which had led to emergency
-#             tt = 1 #parameter to let penalty only be done once
-#             for m in current.mission_list:
-#                 if m.name == penalty_mission.name:
-#                     m.reward -= 50
-#                     print("penalty ", m.name, m.reward)
-#             # here
-#             # print("time", current.time)
-#         while current.time < 90:
-#             # print("time", current.time)
-#             # del current.mission_list[:] 
-#             if tmp  == 0: #first action
-#             #check if current states meet preconditions
-#                 checkpreconditions(req, current, current.mission_list, robot1)
-#                 # print("candidate reef p", current.reef_p)
-#                 if len(current.candidate) != 0:
-#                     compare_cost(current.candidate)
-#                     current.achieved.append(current.candidate[0])
-#                     print("aa", current.candidate[0].name)
-#                     refreshstate(current, current.candidate[0], robot1, 1)
-#                     tmp = tmp + 1
-#                 else:
-#                     current.time += 1
-#                     print("no mission")
-#             else:
-#                 checkpreconditions(req, current, current.mission_list, robot1)           
-#                 if len(current.candidate) != 0:
-#                     compare_cost(current.candidate)
-#                     # print("aa", current.candidate[0].name)
-#                     current.achieved.append(current.candidate[0])
-#                     refreshstate(current, current.candidate[0], robot1, 1)
-#                 else:
-#                     current.time += 1
-#                     # print("no mission")
-#             del current.candidate[:]
-#         # to here
-#         if current.time <  100 :
-#             #cur.leaf = [ windsock, lhouse, getcup, getcup_12, getcup_34, reef_private, reef_right, reef_left, placecup_reef, placecupP, placecupH, anchorN, anchorS, flag]
-#             # flag = current.leaf[13]
-#             for m in current.leaf:
-#                 if m.name == "flag":
-#                     flag = m
-#                 elif m.name == "anchorN":
-#                     anchorN = m
-#                 elif m.name == "anchorS":
-#                     anchorS = m
-#             # anchorN = current.leaf[11]
-#             # anchorS = current.leaf[12]
-#             if current.NS == anchorN.NS and req.action_list[4] == 0:
-#                 current.achieved.append(anchorN)
-#             elif current.NS == anchorS.NS and req.action_list[5] == 0:
-#                 current.achieved.append(anchorS)
-#             current.achieved.append(flag)
-        
-#         # print("debug len", len(current.mission_list))
-#         # for p in current.mission_list:
-#         #     print("name", p.name)
-#         temp = 0
-#         i = 0
-
-# 	ff = 0
-#     # if current.time >= 90:
-#         for a in current.achieved: 
-#             if a.name == 'getcup':
-#                 print("action",current.cup_order[temp]['no'] , a.name, current.cup_order[temp]['location'][0], current.cup_order[temp]['location'][1], current.cup_order[temp]['location'][2],"hand: ",current.cup_order[temp]['hand'] + 1)
-#                 position.append(current.cup_order[temp]['location'][0])
-#                 position.append( current.cup_order[temp]['location'][1])
-#                 position.append( current.cup_order[temp]['location'][2])
-#                 position.append( current.cup_order[temp]['no'])
-#                 action.append(a.no)
-#                 cup.append(current.cup_order[temp]['no'])
-#                 cup.append(current.cup_order[temp]['hand'] + 1) #change hand number to start from 1
-#                 temp = temp + 1
-#                 i += 1
-#             elif a.name == 'getcup_12' or a.name == 'getcup_34':
-#                 print("action", a.no, a.name, a.location[0], a.location[1], a.location[2], 0,"hand", a.cup[0]['hand'] + 1, a.cup[1]['hand'] + 1)
-#                 action.append(a.no)
-#                 position.append(a.location[0])
-#                 position.append( a.location[1])
-#                 position.append(a.location[2] )
-#                 # position.append(0)
-#                 handd = (a.cup[0]['hand'] + 1) * 10 + a.cup[1]['hand'] + 1#change hand number to start from 1
-#                 cup.append( 0)
-#                 cup.append(handd)
-#                 temp += 2
-#             elif a.name == 'flag':
-#                 print("action", a.no, a.name,current.location)
-#                 action.append(a.no)
-#                 position.append(current.location[0])
-#                 position.append( current.location[1])
-#                 position.append(current.location[2])
-#                 cup.append( 0)
-#                 cup.append(0)
-#                 # position.append(0)
-#                 i += 1
-#             else:
-#                 if a.location != None:
-#                     print("action", a.no, a.name, a.location[0], a.location[1], a.location[2], 0)
-#                     action.append(a.no)
-#                     position.append(a.location[0])
-#                     position.append( a.location[1])
-#                     position.append(a.location[2] )
-#                     cup.append( 0)
-#                     cup.append(0)
-#                     # position.append(0)
-#                     # position.append(None)
-
-#                     i += 1
-#                 # else:#flag has no location so i need to give last mission's location
-#                 #     print("action", a.no, a.name,position[-1])
-#                 #     action.append(a.no)
-#                 #     position.append(position[-4])
-#                 #     position.append( position[-4])
-#                 #     position.append(position[-4] )
-#                 #     cup.append( 0)
-#                 #     cup.append(0)
-#                 #     # position.append(0)
-#                 #     i += 1
-#         current.mission = current.achieved[0]
-#         mission_list = []
-#         temp = 0
-#         for a in current.achieved:
-#             if a.name == 'getcup':
-#                 c = (a.name, (current.cup_order[temp]['location']))
-#                 mission_list.append(c)
-#                 temp = temp + 1
-#             else:
-#                 # print("achieved", a.name, a.location)
-#                 c = (a.name, a.location)
-#                 mission_list.append(c)
-
-#         score = evaluate(current, robot1)
-#         print("score", score)
-#         # for p in mission_list:
-#         #     print("mission_list", p)
-#         state = 0
-
 #     return action, position, cup
 # service .res
 action = []
@@ -334,19 +113,6 @@ def GOAP_new(req):
     else:
         # global penalty_mission
         penalty_mission = None
-    # if cur.mission != None and (cur.mission.no == 1 or cur.mission.no == 2 or  cur.mission.no == 9 or  cur.mission.no == 10): 
-    #     counter += 1
-    #     # if cur.mission.no == 1:
-    #     if counter < cur.mission.little_mission_count:
-    #         action.append(cur.mission.no)
-    #         position.append(cur.mission.little_mission_pos[counter][0])
-    #         position.append(cur.mission.little_mission_pos[counter][1])
-    #         position.append(cur.mission.little_mission_pos[counter][2])
-    #         cup.append( 0)
-    #         cup.append(0)
-    #         return action, position, cup
-    #     else:
-    #         counter = 0
     (current, robot1) = mission_precondition(req)
     # print("cur.time", current.time)
     print("refresh reef status")
@@ -365,19 +131,12 @@ def GOAP_new(req):
         #return location (x, y, theta), try to get out andont delete previous goap res data
         # print("current", current)
         location = emergency(current)
-        # action = list(action)
-        # position = list(position)
-        # cup = list(cup)
         action.insert(0,0)
-        # action.append(0)
         position.insert(0, location[2])
         position.insert(0, location[1])
         position.insert(0, location[0])
         cup.insert( 0, 0 )
         cup.insert( 0, 0 )
-        # position.append(location[0])
-        # position.append(location[1])
-        # position.append(location[2] )
         print("emergency", location)    
     elif req.time >= 100:
         action.append(0)
@@ -482,11 +241,8 @@ def GOAP_new(req):
                     current.time += 1
                     # print("no mission")
             del current.candidate[:]
+        # add anchor and flag as last two mission
         if current.time <  100 :
-            #cur.leaf = [ windsock, lhouse, getcup, getcup_12, getcup_34, reef_private, reef_right, reef_left, placecup_reef, placecupP, placecupH, anchorN, anchorS, flag]
-            # flag = current.leaf[13]
-            # anchorN = current.leaf[11]
-            # anchorS = current.leaf[12]
             for m in current.leaf:
                 if m.name == "flag":
                     flag = m
@@ -503,9 +259,6 @@ def GOAP_new(req):
             elif req.time >= 95:
                 current.achieved.append(flag)
         
-        # print("debug len", len(current.mission_list))
-        # for p in current.mission_list:
-        #     print("name", p.name)
         temp = 0
         i = 0 #little bug i forgot what this is for
 
@@ -572,20 +325,7 @@ def GOAP_new(req):
                     position.append(a.location[2] )
                     cup.append( 0)
                     cup.append(0)
-                    # position.append(0)
-                    # position.append(None)
-
                     i += 1
-                # else:#flag has no location so i need to give last mission's location
-                #     print("action", a.no, a.name,position[-1])
-                #     action.append(a.no)
-                #     position.append(position[-4])
-                #     position.append( position[-4])
-                #     position.append(position[-4] )
-                #     cup.append( 0)
-                #     cup.append(0)
-                #     # position.append(0)
-                #     i += 1
         current.mission = current.achieved[0]
         mission_list = []
         temp = 0

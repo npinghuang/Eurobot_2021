@@ -42,7 +42,7 @@ std::vector<int> reefp_color{2, 3, 2, 3, 2};
 std::vector<int> reef_null{0, 0, 0, 0, 0};
 int state_planer = 0;
 int state_ST2_little = 0;
-int state_mission;
+int state_mission = 2;
 int success = 1, fail = 0, ing = 2, stop = 3;
 int tx = 101;
 int team;

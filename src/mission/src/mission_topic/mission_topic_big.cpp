@@ -17,6 +17,7 @@
 using namespace std;
 
 #include "mission/mission_action.h"
+#include "mission/misison_function.h"
 ros::Publisher tomain;
 ros::Publisher forST2;
 // ros::Publisher forplaner;
@@ -42,7 +43,7 @@ std::vector<int> ST2_previous_tx{0,0,0,0,0,0};
 
 int state_planer = 0;
 int state_ST2 = 0;
-int state_mission;
+int state_mission = 2;
 int tx = 101;
 int team;
 bool publish_planer;
@@ -149,19 +150,6 @@ bool checkST2_state(std::vector<int> &tx){
     }
     return state;
 }
-// void publish_planner(){
-//     for_planer.data.push_back(planer_tx[0]);
-//     for_planer.data.push_back(planer_tx[1]);
-//     for_planer.data.push_back(planer_tx[2]);
-//     forplaner.publish(for_planer);
-//     for_planer.data.clear();
-// }
-// void planer_tx_transform( float x, float y, float theta){
-//     planer_tx[0] = x;
-//     planer_tx[1] = y;
-//     planer_tx[2] = theta;
-//     publish_planner();
-// }
 void ST2_tx_transform_outterhand_1( int hand, int suck, int degree, int platform, int up_down){
     int hand_st = hand_ST2(hand);
     if ( hand < 12){
@@ -224,11 +212,6 @@ void init(){
     ROS_INFO("initialize");
 }
 
-// void chatterCallback_planer(const std_msgs::Int32MultiArray::ConstPtr& msg)
-// {
-//     // ROS_INFO("I heard action: [%d]", msg->data[0]);
-//     state_planer = msg -> data[0] ;
-// }
 void chatterCallback_ST2(const std_msgs::Int32MultiArray::ConstPtr& msg)
 {
     // ROS_INFO("I heard ST2: [%d]", msg->data[0]);
@@ -236,6 +219,7 @@ void chatterCallback_ST2(const std_msgs::Int32MultiArray::ConstPtr& msg)
         ST2_rx[i] = msg -> data[i];
     }
 }
+// for running on pi
 // void chatterCallback_ST2com(const std_msgs::Int32MultiArray::ConstPtr& msg){
 //     // ROS_INFO("I heard ST2: [%d]", msg->data[0]);
 //     for ( int i = 0; i < 6; i++){
@@ -272,13 +256,13 @@ void chatterCallback(const mission::maintomission::ConstPtr& msg)
         ST2_tx[3] = 2;
         ST2_tx[4] = 2;
         ST2_tx[5] = 2;
-        state_mission = stop;
+        state_mission = success;
         break; 
     case 1: {//windsock
         ST2_tx[0] = action1_ST2_blue[0];  
         publish_ST2();
         
-        if ( state_ST2 == 1){
+        if ( checkST2_state(ST2_tx)){
             state_mission = success;
         }
         else{
@@ -290,7 +274,7 @@ void chatterCallback(const mission::maintomission::ConstPtr& msg)
         ST2_tx[0] = action1_ST2_blue[1];  
         publish_ST2();
         
-        if ( state_ST2 == 1){
+        if ( checkST2_state(ST2_tx)){
             state_mission = success;
         }
         else{
@@ -437,9 +421,7 @@ void chatterCallback(const mission::maintomission::ConstPtr& msg)
             else if ( checkST2_state(ST2_tx) == 1 && placecup_h.count == 1){//{3, 1, 404, 2, 2, 2}
                 if ( msg->hand[0] % 2 == 0 ){
                     // ROS_INFO("debug hand [%d] [%d]", msg->hand[0], 9 % 2 );
-                    ST2_tx_transform_outterhand_1(960, 2, 404, 2, 0);// second action hand turn to down
-                }
-                placecup_h.count ++;  
+                    ST2_tx_transform_outterhand_state_mission;
             }
             
             else if ( checkST2_state( {ST2_tx})  && placecup_h.count == 2){
@@ -656,15 +638,11 @@ int main(int argc, char **argv)
     // forplaner = n.advertise<std_msgs::Float32MultiArray>("MissionToplaner", 1);
     forST2 = n.advertise<std_msgs::Int32MultiArray>("MissionToST2", 1);
     forST2com = n.advertise<std_msgs::Int32MultiArray>("txST1", 1);
-    // ros::Publisher forNavigation = n.advertise<geometry_msgs::PoseStamped>("move_base_simple/goal", 1);
-    // ros::Publisher forplaner = n.advertise<std_msgs::String>("forplaner", 1);
-    // ros::Publisher forST2 = n.advertise<std_msgs::String>("forST2", 1);
     tomain = n.advertise<std_msgs::Int32>("MissionToMain", 100);
     sub = n.subscribe("MainToMission", 1000, chatterCallback);
     // subplaner = n.subscribe("planerToMission", 1000, chatterCallback_planer);
     subST2 = n.subscribe("ST2ToMission", 1000, chatterCallback_ST2);
     // subST2com = n.subscribe("rxST1", 1000, chatterCallback_ST2com);
-    //   ros::Publisher chatter_pub = n.advertise<std_msgs::String>("chatter", 1000);
     ros::Rate loop_rate(10);
 
     int count = 0;
@@ -676,7 +654,6 @@ int main(int argc, char **argv)
         }
         forST2.publish(for_st2);
         for_st2.data.clear(); 
-        // to_main.state = state_mission;
         to_main.data=state_mission;
         tomain.publish(to_main);
         ros::spinOnce();

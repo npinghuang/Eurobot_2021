@@ -135,21 +135,24 @@ def mission_precondition(req):
 	cur.enemy_1= e1
 	cur.enemy_2 = e2
 	cur.friend_pos = req.friend_pos
-	if req.team == 0: 
-	    # blue : ( no, ( x, y ), 1 for cup still there 0 for cup gone,  2  for green 3 for red, type : private 0 or public 1 )
-	    cur.cup_state = [  { 'no' : 1, 'location' : [1200, 300, 0], 'state' : 1, 'color' : 2, 'type' : 0 , 'robot_pos' : []}, { 'no' : 2, 'location' : [ 1085, 445, 0 ], 'state' : 1, 'color' : 3, 'type' : 0 ,'robot_pos' : []},
-			{ 'no' : 3, 'location' :[ 515, 445, 0], 'state' : 1, 'color' : 2, 'type' : 0 , 'robot_pos' : []} , { 'no' : 4,'location' : [ 400, 300, 0 ], 'state' : 1, 'color' : 3, 'type' : 0 , 'robot_pos' : []},
+	# ( no, ( x, y ), 1 for cup still there 0 for cup gone,  2  for green 3 for red, type : private 0 or public 1 )
+	cur.cup_state = [  { 'no' : 2, 'location' : [1200, 300, 0], 'state' : 1, 'color' : 2, 'type' : 0 , 'robot_pos' : []}, { 'no' : 4, 'location' : [ 1085, 445, 0 ], 'state' : 1, 'color' : 3, 'type' : 0 ,'robot_pos' : []},
+			{ 'no' : 3, 'location' :[ 515, 445, 0], 'state' : 1, 'color' : 2, 'type' : 0 , 'robot_pos' : []} , { 'no' :1,'location' : [ 400, 300, 0 ], 'state' : 1, 'color' : 3, 'type' : 0 , 'robot_pos' : []},
 			{ 'no' : 5, 'location' : [ 100, 670, 0 ], 'state' : 1, 'color' : 2, 'type' : 1 , 'robot_pos' : []}, { 'no' : 6, 'location' : [ 400, 956, 0 ], 'state' : 1, 'color' : 3, 'type' : 1,  'robot_pos' : []}, 
-			{ 'no' : 7, 'location' : [ 800, 1100, 0 ], 'state' : 1, 'color' : 2, 'type' : 1 , 'robot_pos' : []},{ 'no' : 8, 'location' : [ 1200, 1270, 0 ], 'state' : 1, 'color' : 3, 'type' : 1 , 'robot_pos' : []},
-			{ 'no' : 9, 'location' : [ 1200, 1730, 0 ], 'state' : 1, 'color' : 2, 'type' : 1 , 'robot_pos' : []}, { 'no' : 10, 'location' : [ 800, 1900, 0 ], 'state' : 1, 'color' : 3, 'type' : 1 ,'robot_pos' : []},
-			{ 'no' : 11, 'location' : [ 400, 2044, 0 ], 'state' : 1, 'color' : 2, 'type' : 1 ,'robot_pos' : []},  { 'no' : 12, 'location' : [ 100, 2330, 0 ], 'state' : 1, 'color' : 3, 'type' : 1 ,'robot_pos' : []},
-			{ 'no' : 13, 'location' : [ 1655, 1665, 0 ], 'state' : 0, 'color' : 2, 'type' : 0 ,'robot_pos' : []}, { 'no' : 14, 'location' : [ 1655, 1935, 0 ], 'state' : 0, 'color' : 3, 'type' : 0 ,'robot_pos' : []},
-			{ 'no' : 15, 'location' : [ 1955, 1605, 0 ], 'state' : 0, 'color' : 3, 'type' : 0 ,'robot_pos' : []}, { 'no' : 16, 'location' : [ 1955, 1995, 0 ], 'state' : 0, 'color' : 2, 'type' : 0 ,'robot_pos' : []},
-			{ 'no' : 17, 'location' : [ 0, 0, 0 ], 'state' : 0, 'color' : 3, 'type' : 1 ,'robot_pos' : []}, { 'no' : 18, 'location' : [ 0, 0, 0 ], 'state' : 0, 'color' : 3, 'type' : 1 ,'robot_pos' : []},
-			{ 'no' : 19, 'location' : [ 0, 0, 0 ], 'state' : 0, 'color' : 3, 'type' : 1 ,'robot_pos' : []}, { 'no' : 20, 'location' : [ 0, 0, 0 ], 'state' : 0, 'color' : 3, 'type' : 1 ,'robot_pos' : []},
-			{ 'no' : 21, 'location' : [ 0, 0, 0 ], 'state' : 0, 'color' : 3, 'type' : 1 ,'robot_pos' : []}, { 'no' : 22, 'location' : [ 0, 0, 0 ], 'state' : 0, 'color' : 3, 'type' : 1 ,'robot_pos' : []},
-			{ 'no' : 23, 'location' : [ 0, 0, 0 ], 'state' : 0, 'color' : 3, 'type' : 1 ,'robot_pos' : []}, { 'no' : 24, 'location' : [ 0, 0, 0 ], 'state' : 0, 'color' : 3, 'type' : 1 ,'robot_pos' : []}]
-
+			{ 'no' : 9, 'location' : [ 800, 1100, 0 ], 'state' : 1, 'color' : 2, 'type' : 1 , 'robot_pos' : []},{ 'no' : 10, 'location' : [ 1200, 1270, 0 ], 'state' : 1, 'color' : 3, 'type' : 1 , 'robot_pos' : []},
+			{ 'no' : 8, 'location' : [ 1655, 1065, 0 ], 'state' : 0, 'color' : 2, 'type' : 0 ,'robot_pos' : []}, { 'no' : 11, 'location' : [ 1655, 1335, 0 ], 'state' : 0, 'color' : 3, 'type' : 0 ,'robot_pos' : []},
+			{ 'no' : 7, 'location' : [ 1955, 1005, 0 ], 'state' : 0, 'color' : 3, 'type' : 0 ,'robot_pos' : []}, { 'no' : 12, 'location' : [ 1955, 1395, 0 ], 'state' : 0, 'color' : 2, 'type' : 0 ,'robot_pos' : []},
+			{ 'no' : 15, 'location' : [ 1200, 1730, 0 ], 'state' : 1, 'color' : 2, 'type' : 1 , 'robot_pos' : []}, { 'no' : 16, 'location' : [ 800, 1900, 0 ], 'state' : 1, 'color' : 3, 'type' : 1 ,'robot_pos' : []},
+			{ 'no' : 19, 'location' : [ 400, 2044, 0 ], 'state' : 1, 'color' : 2, 'type' : 1 ,'robot_pos' : []},  { 'no' : 20, 'location' : [ 100, 2330, 0 ], 'state' : 1, 'color' : 3, 'type' : 1 ,'robot_pos' : []},
+			{ 'no' : 14, 'location' : [ 1655, 1665, 0 ], 'state' : 0, 'color' : 2, 'type' : 0 ,'robot_pos' : []}, { 'no' : 17, 'location' : [ 1655, 1935, 0 ], 'state' : 0, 'color' : 3, 'type' : 0 ,'robot_pos' : []},
+			{ 'no' : 13, 'location' : [ 1955, 1605, 0 ], 'state' : 0, 'color' : 3, 'type' : 0 ,'robot_pos' : []}, { 'no' : 18, 'location' : [ 1955, 1995, 0 ], 'state' : 0, 'color' : 2, 'type' : 0 ,'robot_pos' : []},
+			{ 'no' : 24, 'location' : [ 1200, 2700, 0 ], 'state' : 1, 'color' : 2, 'type' : 0 ,'robot_pos' : []}, { 'no' : 22, 'location' : [ 1085, 2555, 0 ], 'state' : 1, 'color' : 3, 'type' : 0 ,'robot_pos' : []},
+			{ 'no' : 21, 'location' : [ 515, 2555, 0 ], 'state' : 1, 'color' : 2, 'type' : 0 ,'robot_pos' : []} , { 'no' : 23,'location' : [ 400, 2700, 0 ], 'state' : 1, 'color' : 3, 'type' : 0 ,'robot_pos' : []},
+			{ 'no' : 25, 'location' : [ 0, 0, 0 ], 'state' : 0, 'color' : 3, 'type' : 1 ,'robot_pos' : []}, { 'no' : 26, 'location' : [ 0, 0, 0 ], 'state' : 0, 'color' : 3, 'type' : 1 ,'robot_pos' : []},
+			{ 'no' : 27, 'location' : [ 0, 0, 0 ], 'state' : 0, 'color' : 3, 'type' : 1 ,'robot_pos' : []}, { 'no' : 28, 'location' : [ 0, 0, 0 ], 'state' : 0, 'color' : 3, 'type' : 1 ,'robot_pos' : []},
+			{ 'no' : 29, 'location' : [ 0, 0, 0 ], 'state' : 0, 'color' : 3, 'type' : 1 ,'robot_pos' : []}, { 'no' : 30, 'location' : [ 0, 0, 0 ], 'state' : 0, 'color' : 3, 'type' : 1 ,'robot_pos' : []},
+			{ 'no' : 31, 'location' : [ 0, 0, 0 ], 'state' : 0, 'color' : 3, 'type' : 1 ,'robot_pos' : []}, { 'no' : 32, 'location' : [ 0, 0, 0 ], 'state' : 0, 'color' : 3, 'type' : 1 ,'robot_pos' : []}]
+	if req.team == 0: 
 	    #no, name, location, NS, reefp, reefr, reefl, windsock, flag, lhouse, time, reward, effect[reefp, reefr, reefl, windsock, flag, lhouse]
 	    windsock = Mission_precondition( 1, "windsock", ( 2000, 430, 0), None, None, None, None, 0, None, None, 8, 80, [None, None, None, 1, None, None,])
 	    lhouse = Mission_precondition( 2, "lhouse", ( 0, 300, 0 ), None, None, None, None, None, None, 0, 2, 50,[None, None, None, None, None, 1])
@@ -170,33 +173,19 @@ def mission_precondition(req):
 	    flag = Mission_precondition( 3, "flag", None, None, None, None, 1, 1, 0, 1, 0, 20000,[None, None, None, None, 1, None])
 		# little mission blue
 	    windsock.little_mission_count = 2
-	    windsock.location = [1850, 200, 90]
-	    windsock.little_mission_pos = [ [1850, 200, 90], [1850, 700, 90]]
+	    windsock.location = [1850, 200, math.pi/2]
+	    windsock.little_mission_pos = [ [1850, 200, math.pi/2], [1850, 700, math.pi/2]]
 	    windsock.little_mission_no = [ 1, 15]
 	    lhouse.little_mission_count = 3
 	    lhouse.location = [100, 275, 180 ]
-	    lhouse.little_mission_pos = [ [100, 275, 180 ], [ 50, 275, 180], [100, 275, 180 ]]
+	    lhouse.little_mission_pos = [ [100, 275, math.pi ], [ 50, 275, math.pi], [100, 275, math.pi]]
 	    lhouse.little_mission_no = [ 2, 16, 17]
 	    placecupH.little_mission_count = 7
 	    placecupH.little_mission_pos =[ [1900, 1800, 0],  [1870, 1800, 0],  [1650, 1800, 0],  [1900, 1800, math.pi],  [1800, 1800, math.pi], [1770, 1800, math.pi], [1650, 1800, math.pi]]
 	    placecupH.little_mission_no = [ 9, 18, 19, 20, 21, 22, 23 ]
 
 	elif req.team == 1: 
-		# yellow : ( no, ( x, y ), 1 for cup still there 0 for cup gone,  2  for green 3 for red, type : private 0 or public 1 )
-	    cur.cup_state = [  { 'no' : 1, 'location' : [ 1200, 2700, 0 ], 'state' : 1, 'color' : 2, 'type' : 0 ,'robot_pos' : []}, { 'no' : 2, 'location' : [ 1085, 2555, 0 ], 'state' : 1, 'color' : 3, 'type' : 0 ,'robot_pos' : []},
-			{ 'no' : 3, 'location' : [ 515, 2555, 0 ], 'state' : 1, 'color' : 2, 'type' : 0 ,'robot_pos' : []} , { 'no' : 4,'location' : [ 400, 2700, 0 ], 'state' : 1, 'color' : 3, 'type' : 0 ,'robot_pos' : []},
-			{ 'no' : 5, 'location' : [ 100, 670, 0 ], 'state' : 1, 'color' : 2, 'type' : 1 ,'robot_pos' : []}, { 'no' : 6, 'location' : [ 400, 956, 0 ], 'state' : 1, 'color' : 3, 'type' : 1 ,'robot_pos' : []}, 
-			{ 'no' : 7, 'location' : [ 800, 1100, 0 ], 'state' : 1, 'color' : 2, 'type' : 1 ,'robot_pos' : []}, { 'no' : 8, 'location' : [ 1200, 1270, 0 ], 'state' : 1, 'color' : 3, 'type' : 1 ,'robot_pos' : []},
-			{ 'no' : 9, 'location' : [ 1200, 1730, 0 ], 'state' : 1, 'color' : 2, 'type' : 1 ,'robot_pos' : []}, { 'no' : 10, 'location' : [ 800, 1900, 0 ], 'state' : 1, 'color' : 3, 'type' : 1 ,'robot_pos' : []},
-			{ 'no' : 11, 'location' : [ 400, 2044, 0 ], 'state' : 1, 'color' : 2, 'type' : 1 ,'robot_pos' : []},  { 'no' : 12, 'location' : [ 100, 2330, 0 ], 'state' : 1, 'color' : 3, 'type' : 1 ,'robot_pos' : []},
-			{ 'no' : 13, 'location' : [ 1655, 1065, 0 ], 'state' : 0, 'color' : 2, 'type' : 0 ,'robot_pos' : []}, { 'no' : 14, 'location' : [ 1655, 1335, 0 ], 'state' : 0, 'color' : 3, 'type' : 0 ,'robot_pos' : []},
-			{ 'no' : 15, 'location' : [ 1955, 1005, 0 ], 'state' : 0, 'color' : 3, 'type' : 0 ,'robot_pos' : []}, { 'no' : 16, 'location' : [ 1955, 1395, 0 ], 'state' : 0, 'color' : 2, 'type' : 0 ,'robot_pos' : []},
-			{ 'no' : 17, 'location' : [ 0, 0, 0 ], 'state' : 0, 'color' : 3, 'type' : 1 ,'robot_pos' : []}, { 'no' : 18, 'location' : [ 0, 0, 0 ], 'state' : 0, 'color' : 3, 'type' : 1 ,'robot_pos' : []},
-			{ 'no' : 19, 'location' : [ 0, 0, 0 ], 'state' : 0, 'color' : 3, 'type' : 1 ,'robot_pos' : []}, { 'no' : 20, 'location' : [ 0, 0, 0 ], 'state' : 0, 'color' : 3, 'type' : 1 ,'robot_pos' : []},
-			{ 'no' : 21, 'location' : [ 0, 0, 0 ], 'state' : 0, 'color' : 3, 'type' : 1 ,'robot_pos' : []}, { 'no' : 22, 'location' : [ 0, 0, 0 ], 'state' : 0, 'color' : 3, 'type' : 1 ,'robot_pos' : []},
-			{ 'no' : 23, 'location' : [ 0, 0, 0 ], 'state' : 0, 'color' : 3, 'type' : 1 ,'robot_pos' : []}, { 'no' : 24, 'location' : [ 0, 0, 0 ], 'state' : 0, 'color' : 3, 'type' : 1 ,'robot_pos' : []}]
-		
-	    #name, location, NS, reefp, reefr, reefl, windsock, flag, lhouse, time, reward, effect[reefp, reefr, reefl, windsock, flag, lhouse]
+		#name, location, NS, reefp, reefr, reefl, windsock, flag, lhouse, time, reward, effect[reefp, reefr, reefl, windsock, flag, lhouse]
 	    windsock = Mission_precondition( 1, "windsock", ( 2000, 2330, 0), None, None, None, None, 0, None, None, 8, 80, [None, None, None, 1, None, None])
 	    lhouse = Mission_precondition( 2, "lhouse", ( 0, 2775, 0 ), None, None, None, None, None, None, 0, 2, 50,[None, None, None, None, None, 1])
 	    getcup = Mission_precondition( 12, "getcup", ( 0, 0, 0), None, None, None, None, None, None, None, 5, 20,[None, None, None, None, None, None])
@@ -217,12 +206,12 @@ def mission_precondition(req):
 
 		# little mission yellow
 	    windsock.little_mission_count = 2
-	    windsock.location = [1850, 2800, 90]
-	    windsock.little_mission_pos = [ [1850, 2800, 90], [1850, 2300, 90]]
+	    windsock.location = [1850, 2800, math.pi/2]
+	    windsock.little_mission_pos = [ [1850, 2800, math.pi/2], [1850, 2300, math.pi/2]]
 	    windsock.little_mission_no = [ 1, 15]
 	    lhouse.little_mission_count = 3
-	    lhouse.location = [100, 3725, 180 ]
-	    lhouse.little_mission_pos = [ [100, 3725, 180 ], [ 50, 3725, 180], [100, 3725, 180 ]]
+	    lhouse.location = [100, 3725, math.pi]
+	    lhouse.little_mission_pos = [ [100, 3725, math.pi ], [ 50, 3725,math.pi], [100, 3725, math.pi ]]
 	    lhouse.little_mission_no = [ 2, 16, 17]
 	    placecupH.little_mission_count = 7
 	    placecupH.little_mission_pos =[ [1900, 1200, 0],  [1870, 1200, 0],  [1650, 1200, 0],  [1900, 1200, math.pi],  [1800, 1200, math.pi], [1770, 1200, math.pi], [1650, 1200, math.pi]]

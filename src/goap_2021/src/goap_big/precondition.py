@@ -20,7 +20,6 @@ def checkpreconditions( req, current, mis, robot):
         if m.name == 'getcup':
             if robot.freestorage > 0 and current.time < 90:
                 cupp = cup_cost( req, current, m, robot )
-                
                 if cupp != None:
                     # print("debug cup no", cupp['no'])
                     m.cost = distance( current.location, cupp[ 'location' ] )- m.reward + m.time
@@ -37,15 +36,24 @@ def checkpreconditions( req, current, mis, robot):
         elif m.name == 'getcup_12' or m.name == 'getcup_34':
             # print("why!!", m.name)
             if m.name == 'getcup_12': #cup number
-                a = 0
-                b = 1
+                if req.team == 0: #blue
+                    a = 2-1
+                    b = 4-1
+                elif req.team == 1:#yellow
+                    a = 22-1
+                    b = 24-1
             elif m.name == 'getcup_34':
-                a = 2
-                b = 3
+                if req.team == 0: #blue
+                    a = 1-1
+                    b = 3-1
+                elif req.team == 1:#yellow
+                    a = 21-1
+                    b = 23-1
             if boom1 ==  1 and boom2 == 1 and boomf == 1:
                 def myFunc(e):
                     return e['no']
                 current.cup_state.sort(key=myFunc)
+                # print( "debug cup no ",m.name,  current.cup_state[a]['no'], current.cup_state[b]['no'])
                 if robot.freestorage > 1 and current.cup_state[a]['state'] == 1 and current.cup_state[b]['state'] == 1:#check if there is room for two cup
                     state = 1
                     if (robot.claw[0]['state'] == 0 and robot.claw[1]['state'] == 0 ) and (robot.claw[2]['state'] ==0 and robot.claw[3]['state'] == 0):#check if hand 0 and 1 or 2 or 3 are free
@@ -65,6 +73,7 @@ def checkpreconditions( req, current, mis, robot):
                             current.cup_state[b]['hand'] = 3
                         m.cup.append( current.cup_state[a] )
                         m.cup.append( current.cup_state[b] )
+                        # print( "debug cup no ",m.name,  current.cup_state[a]['no'], current.cup_state[b]['no'], "hand", current.cup_state[a]['hand'] )
                         m.cost = distance( current.location, m.location ) - m.reward + m.time
                         # print("debug", m.name)
                         current.candidate.append(m)
@@ -138,17 +147,8 @@ def refreshstate(current, mission, robot, state):
             current.cup_order.append(mission.cup[1])
             robot.claw[mission.cup[0]['hand']]['state'] = 1
             robot.claw[mission.cup[1]['hand']]['state'] = 1
-        # else:
-            # print("ah", mission.cup[0]['no'], mission.cup[1]['no'])
-            if mission.name == 'getcup_12':
-                current.cup_state[ 0]['state'] = 0
-                current.cup_state[ 1]['state'] = 0
-            else:
-                current.cup_state[ 2]['state'] = 0
-                current.cup_state[ 3]['state'] = 0
-        # print("dddddd", current.cup_state[ mission.cup[0]['no'] - 1], current.cup_state[ mission.cup[1]['no'] - 1])
-        # print("check refresh", mission.cup[1]['no']  ,current.cup_state[ mission.cup[1]['no'] - 1 ]['no'])
-        
+            current.cup_state[mission.cup[0]['no'] - 1]['state'] = 0
+            current.cup_state[mission.cup[1]['no'] - 1]['state'] = 0        
     elif mission.name == 'placecupH' or mission.name == 'placecupP':
         n = robot.cupstorage - robot.freestorage
         robot.cup(-n)
