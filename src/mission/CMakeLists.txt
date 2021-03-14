@@ -125,7 +125,7 @@ include_directories(
 ## Declare a C++ library
  add_library(${PROJECT_NAME}
    src/mission_topic/mission_action.cpp
-   src/mission_topic/mission_function.cpp
+   #src/mission_topic/mission_function.cpp
  )
 
 ## Add cmake target dependencies of the library
@@ -137,8 +137,8 @@ include_directories(
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
 # add_executable(${PROJECT_NAME}_node src/mission_node.cpp)
-add_executable(mission_topic_big src/mission_topic/mission_topic_big.cpp src/mission_topic/mission_action.cpp src/mission_topic/mission_function.cpp)#
-add_executable(mission_topic_little src/mission_topic/mission_topic_little.cpp src/mission_topic/mission_action.cpp src/mission_topic/mission_function.cpp)
+add_executable(mission_topic_big src/mission_topic/mission_topic_big.cpp src/mission_topic/mission_action.cpp )#src/mission_topic/mission_function.cpp
+add_executable(mission_topic_little src/mission_topic/mission_topic_little.cpp src/mission_topic/mission_action.cpp)
 add_executable(main_talker src/mission_topic/main_talker.cpp)
 add_executable(main_talker_launch src/mission_topic/main_talker_launch.cpp)
 add_executable(planer src/mission_topic/planer.cpp)

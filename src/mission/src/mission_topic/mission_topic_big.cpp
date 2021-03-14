@@ -17,7 +17,7 @@
 using namespace std;
 
 #include "mission/mission_action.h"
-#include "mission/mission_function.h"
+// #include "mission/mission_function.h"
 ros::Publisher tomain;
 ros::Publisher forST2;
 // ros::Publisher forplaner;
@@ -40,13 +40,14 @@ std::vector<float> planer_tx{0,0,0};
 std::vector<int> ST2_tx{0,0,0};
 std::vector<int> ST2_rx{0,0,0,0,0,0};
 std::vector<int> ST2_previous_tx{0,0,0,0,0,0};
-
+// std::vector<int> placecup_hand{15, 48, 960, 3072};
 int state_planer = 0;
 int state_ST2 = 0;
 int state_mission = 2;
 int tx = 101;
 int team;
 bool publish_planer;
+int success = 1, fail = 0, ing = 2, stop = 3, little_mission = 4; // mission state
 class mission_setting{
     public:
         int mission_no;
@@ -130,15 +131,15 @@ int hand_ST2( int num){ // due to different numbering between ST2 and GOAP
     }
     return hand;
 }
-void publish_ST2(){
-//     for ( int i = 0; i < 6; i++){
-//         for_st2.data.push_back(ST2_tx[i]);
-//         ROS_INFO("publish in for %d ", ST2_tx[i]);
-//     }
-//     // forST2.publish(for_st2);
-//     // ST2_tx.clear(); 
-//     for_st2.data.clear(); 
-}
+// void publish_ST2(){
+// //     for ( int i = 0; i < 6; i++){
+// //         for_st2.data.push_back(ST2_tx[i]);
+// //         ROS_INFO("publish in for %d ", ST2_tx[i]);
+// //     }
+// //     // forST2.publish(for_st2);
+// //     // ST2_tx.clear(); 
+// //     for_st2.data.clear(); 
+// }
 bool checkST2_state(std::vector<int> &tx){
     // if st2 tx == rx
     int state = 1;
@@ -170,7 +171,7 @@ void ST2_tx_transform_outterhand_1( int hand, int suck, int degree, int platform
     }
     ST2_tx[5] = up_down;    
     ROS_INFO("outterhand: hand = [%d], suck = [%d], degree = [%d]", hand, suck, degree);
-    publish_ST2();
+    // publish_ST2();
 }
 void ST2_tx_transform_innerhand_1( int hand1, int hand2, int suck, int platform){
     if ( hand2 == -1){
@@ -186,14 +187,52 @@ void ST2_tx_transform_innerhand_1( int hand1, int hand2, int suck, int platform)
     ST2_tx[4] = platform;
     ST2_tx[5] = 2;
     ROS_INFO("innerhand: hand = [%d, %d], suck = [%d], hand ST2 [%d]", hand1, hand2, suck, ST2_tx[0]);
-    publish_ST2();
+    // publish_ST2();
 }
 void placecup(int hand, int degree){
-    ST2_tx[0] = hand;
-    ST2_tx[1] = 0;
-    ST2_tx[2] = degree;
-    ROS_INFO("placecup %d %d %d", ST2_tx[0], ST2_tx[1], ST2_tx[2]);
-    publish_ST2();
+    if ( state_planer == 1){
+            if ( placecup_h.count == 0){
+                ST2_tx_transform_outterhand_1( hand, 0, degree, 2, 2);//first action hand to assigned degree
+                placecup_h.count ++;    
+                state_mission = ing;
+            }
+            else if ( checkST2_state(ST2_tx) == 1 && placecup_h.count == 1){//{3, 1, 404, 2, 2, 2}
+                if ( hand % 2 == 0 ){
+                    // ROS_INFO("debug hand [%d] [%d]", msg->hand[0], 9 % 2 );
+                    ST2_tx_transform_outterhand_1(hand, 2, 404, 2, 0);// second action hand turn to down
+                }
+                placecup_h.count ++;  
+            }
+            else if ( checkST2_state( {ST2_tx})  && placecup_h.count == 2){
+                ST2_tx_transform_outterhand_1(hand, 2, 404, 1, 2); // fourth action platform down
+                placecup_h.count ++;
+            }
+            else if ( checkST2_state( {ST2_tx})  && placecup_h.count ==3){
+                ST2_tx_transform_outterhand_1(hand, 0, 404, 2, 2); // third close suction
+                placecup_h.count ++;
+            }
+            else if ( checkST2_state( {ST2_tx})  && placecup_h.count == 4){
+                ST2_tx_transform_outterhand_1(hand, 2, 404, 0, 2); // fifth action platform down
+                placecup_h.count ++;
+            }
+            else if ( checkST2_state( {ST2_tx})  && placecup_h.count == 5){
+                if ( hand % 2 == 0 ){
+                    ST2_tx_transform_outterhand_1(hand, 2, 404, 2, 1); // sixth action hand turn up
+                }
+                placecup_h.count ++;
+            }
+            // else if ( checkST2_state( {ST2_tx})  && placecup_h.count == 6){
+            //     ST2_tx_transform_outterhand_1(hand, 2, placecup_theta[1], 2, 2); // seventh action hand move away from camera
+            //     placecup_h.count ++;
+            // }
+            else if (checkST2_state( {ST2_tx})  && placecup_h.count == 6){
+                placecup_h.count = 0;
+                state_mission = success;
+            }
+        }
+    else{
+        state_mission = ing;
+    }
 }
 int cup_color(int num){
     if ( num == 1 || num == 3 || num == 6 ||num == 8 || num ==10 || num == 12 || num ==13 || num ==16 ){
@@ -203,15 +242,85 @@ int cup_color(int num){
         return 2;
     }
 }
-int degree_transform( int d ){
-    int theta;
-    theta = d;
-    return theta;
-}
 void init(){
     ROS_INFO("initialize");
 }
-
+void getcup_one( int hand){
+    ROS_INFO("count [%d]", getcup.count);
+        int handd = pow( 2, hand);
+        if ( state_planer == 1){
+            if ( hand <= 4 ){
+                if ( getcup.count == 0){
+                    ST2_tx_transform_innerhand_1(handd, -1, 1, 2);//first action open suction
+                    getcup.count ++;    
+                    state_mission = ing;
+                }
+                else if ( checkST2_state(ST2_tx) == 1 && getcup.count == 1){//{3, 1, 404, 2, 2, 2}
+                    ST2_tx_transform_innerhand_1(handd, -1, 2, 1);// second action paltform down
+                    getcup.count ++;  
+                }
+                else if ( checkST2_state( {ST2_tx})  && getcup.count == 2){
+                    ST2_tx_transform_innerhand_1(handd, -1, 2, 0); // third action platform up
+                    getcup.count ++;
+                }
+                else if (checkST2_state( {ST2_tx})  && getcup.count == 3){
+                    getcup.count = 0;
+                    state_mission = success;
+                }
+            }
+            else if ( hand > 4){
+                if ( getcup.count == 0){
+                    ST2_tx_transform_outterhand_1(handd, 1, getcup_theta[0], 2, 2);//first action hand to assigned degree
+                    getcup.count ++;    
+                    state_mission = ing;
+                }
+                else if ( checkST2_state(ST2_tx) == 1 && getcup.count == 1){//{3, 1, 404, 2, 2, 2}
+                    if ( hand % 2 == 0 ){
+                        // ROS_INFO("debug hand [%d] [%d]", hand, 9 % 2 );
+                        ST2_tx_transform_outterhand_1(handd, 2, 404, 2, 0);// second action hand turn to down
+                    }
+                    getcup.count ++;  
+                }
+                else if ( checkST2_state( {ST2_tx})  && getcup.count == 2){
+                    ST2_tx_transform_outterhand_1(handd, 1, 404, 2, 2); // third open suction
+                    getcup.count ++;
+                }
+                else if ( checkST2_state( {ST2_tx})  && getcup.count == 3){
+                    ST2_tx_transform_outterhand_1(handd, 2, 404, 1, 2); // fourth action platform down
+                    getcup.count ++;
+                }
+                else if ( checkST2_state( {ST2_tx})  && getcup.count == 4){
+                    ST2_tx_transform_outterhand_1(handd, 2, 404, 0, 2); // fifth action platform down
+                    getcup.count ++;
+                }
+                else if ( checkST2_state( {ST2_tx})  && getcup.count == 5){
+                    if ( hand % 2 == 0 ){
+                        ST2_tx_transform_outterhand_1(handd, 2, 404, 2, 1); // sixth action hand turn up
+                    }
+                    getcup.count ++;
+                }
+                else if ( checkST2_state( {ST2_tx})  && getcup.count == 6){
+                    ST2_tx_transform_outterhand_1(handd, 2, getcup_theta[1], 2, 2); // seventh action hand move away from camera
+                    getcup.count ++;
+                }
+                else if (checkST2_state( {ST2_tx})  && getcup.count == 7){
+                    getcup.count = 0;
+                    state_mission = success;
+                }
+            }
+        }   
+        else{
+            state_mission = ing;
+        }
+}
+void do_nothing(){
+    if ( state_planer == 1){
+            state_mission = 1; //no action need to be done by ST2 so always return success
+        }
+    else{
+        state_mission = ing;
+    }
+}
 void chatterCallback_ST2(const std_msgs::Int32MultiArray::ConstPtr& msg)
 {
     // ROS_INFO("I heard ST2: [%d]", msg->data[0]);
@@ -232,7 +341,7 @@ void chatterCallback(const mission::maintomission::ConstPtr& msg)
   tx++;
   state_planer = msg->planer_state;
   team = msg->team;
-  int success = 1, fail = 0, ing = 2, stop = 3, little_mission = 4;
+  
   if ( initialize == 1){
       init();
       initialize = 0;
@@ -260,7 +369,7 @@ void chatterCallback(const mission::maintomission::ConstPtr& msg)
         break; 
     case 1: {//windsock
         ST2_tx[0] = action1_ST2_blue[0];  
-        publish_ST2();
+        // publish_ST2();
         if ( state_planer == 1){    
             if ( checkST2_state(ST2_tx)){
                 state_mission = success;
@@ -276,7 +385,7 @@ void chatterCallback(const mission::maintomission::ConstPtr& msg)
         }
     case 15:{ // windsock 2
         ST2_tx[0] = action1_ST2_blue[1];  
-        publish_ST2();
+        // publish_ST2();
         if ( state_planer == 1){
             if ( checkST2_state(ST2_tx)){
                 state_mission = success;
@@ -291,384 +400,72 @@ void chatterCallback(const mission::maintomission::ConstPtr& msg)
         break;
     }
     case 2:{ // lhouse 
-        state_ST2 = 1;
-        if ( state_planer == 1){
-            state_mission = 1; //no action need to be done by ST2 so always return success
-        }
-        else{
-            state_mission = ing;
-        }
-        
+        do_nothing();
         break;
     }
     case 16: {//lhouse 2{
-        state_ST2 = 1;
-        if ( state_planer == 1){
-            state_mission = 1; //no action need to be done by ST2 so always return success
-        }
-        else{
-            state_mission = ing;
-        }
+        do_nothing();
         break;
     }
     case 17: {//lhouse 3{
-        state_ST2 = 1;
-        if ( state_planer == 1){
-            state_mission = 1; //no action need to be done by ST2 so always return success
-        }
-        else{
-            state_mission = ing;
-        }
+        do_nothing();
         break;
     }
     case 3: // flag
-        if ( state_planer == 1){
-            state_mission = 1; //no action need to be done by ST2 so always return success
-        }
-        else{
-            state_mission = ing;
-        }
+        do_nothing();
         break;
     case 4: // anchorN
-        if ( state_planer == 1){
-            state_mission = 1; //no action need to be done by ST2 so always return success
-        }
-        else{
-            state_mission = ing;
-        }
+        do_nothing();
         break;
     case 5: // anchorS
-        if ( state_planer == 1){
-            state_mission = 1; //no action need to be done by ST2 so always return success
-        }
-        else{
-            state_mission = ing;
-        }
+        do_nothing();
         break;
     case 6: // reef_l
-        if ( state_planer == 1){
-            state_mission = 1; //no action need to be done by ST2 so always return success
-        }
-        else{
-            state_mission = ing;
-        }
+        do_nothing();
         break;
     case 7: // reef_r
-        if ( state_planer == 1){
-            state_mission = 1; //no action need to be done by ST2 so always return success
-        }
-        else{
-            state_mission = ing;
-        }
+        do_nothing();
         break;
     case 8: // reef_p
-        if ( state_planer == 1){
-            state_mission = 1; //no action need to be done by ST2 so always return success
-        }
-        else{
-            state_mission = ing;
-        }
+        do_nothing();
         break;
     case 9: {// placecup_h
     // place 4 or 2 cup at the same time and need to cordinate with planer
-        if ( state_planer == 1){
-            if ( placecup_h.count == 0){
-                ST2_tx_transform_outterhand_1( 15, 2, placecup_theta[0], 2, 2);//first action hand to assigned degree
-                placecup_h.count ++;    
-                state_mission = ing;
-            }
-            else if ( checkST2_state(ST2_tx) == 1 && placecup_h.count == 1){//{3, 1, 404, 2, 2, 2}
-                if ( msg->hand[0] % 2 == 0 ){
-                    // ROS_INFO("debug hand [%d] [%d]", msg->hand[0], 9 % 2 );
-                    ST2_tx_transform_outterhand_1(15, 2, 404, 2, 0);// second action hand turn to down
-                }
-                placecup_h.count ++;  
-            }
-            else if ( checkST2_state( {ST2_tx})  && placecup_h.count == 2){
-                ST2_tx_transform_outterhand_1(15, 2, 404, 1, 2); // fourth action platform down
-                placecup_h.count ++;
-            }
-            else if ( checkST2_state( {ST2_tx})  && placecup_h.count ==3){
-                ST2_tx_transform_outterhand_1(15, 0, 404, 2, 2); // third close suction
-                placecup_h.count ++;
-            }
-            else if ( checkST2_state( {ST2_tx})  && placecup_h.count == 4){
-                ST2_tx_transform_outterhand_1(15, 2, 404, 0, 2); // fifth action platform down
-                placecup_h.count ++;
-            }
-            else if ( checkST2_state( {ST2_tx})  && placecup_h.count == 5){
-                if ( msg->hand[0] % 2 == 0 ){
-                    ST2_tx_transform_outterhand_1(15, 2, 404, 2, 1); // sixth action hand turn up
-                }
-                placecup_h.count ++;
-            }
-            else if ( checkST2_state( {ST2_tx})  && placecup_h.count == 6){
-                ST2_tx_transform_outterhand_1(15, 2, placecup_theta[1], 2, 2); // seventh action hand move away from camera
-                placecup_h.count ++;
-            }
-            else if (checkST2_state( {ST2_tx})  && placecup_h.count == 7){
-                placecup_h.count = 0;
-                state_mission = success;
-            }
-        }
-        else{
-            state_mission = ing;
-        }
+        placecup( placecup_hand[0], placecup_theta[0]);
         break;
     }
     case 18:{ //placecup h 2 = 2 hand
-        ROS_INFO("count [%d]", placecup_h.count);
-        if ( state_planer == 1){
-            if ( getcup.count == 0){
-                    ST2_tx_transform_outterhand_1(48, 2, getcup_theta[0], 2, 2);//first action hand to assigned degree
-                    getcup.count ++;    
-                    state_mission = ing;
-                }
-            else if ( checkST2_state(ST2_tx) == 1 && getcup.count == 1){//{3, 1, 404, 2, 2, 2}
-                if ( msg->hand[0] % 2 == 0 ){
-                    // ROS_INFO("debug hand [%d] [%d]", msg->hand[0], 9 % 2 );
-                    ST2_tx_transform_outterhand_1(48, 2, 404, 2, 0);// second action hand turn to down
-                }
-                getcup.count ++;  
-            }
-            else if ( checkST2_state( {ST2_tx})  && getcup.count == 2){
-                ST2_tx_transform_outterhand_1(48, 2, 404, 1, 2); // fourth action platform down
-                getcup.count ++;
-            }
-            else if ( checkST2_state( {ST2_tx})  && getcup.count == 3){
-                ST2_tx_transform_outterhand_1(48, 1, 404, 2, 2); // third open suction
-                getcup.count ++;
-            }
-            else if ( checkST2_state( {ST2_tx})  && getcup.count == 4){
-                ST2_tx_transform_outterhand_1(48, 2, 404, 0, 2); // fifth action platform up
-                getcup.count ++;
-            }
-            else if ( checkST2_state( {ST2_tx})  && getcup.count == 5){
-                if ( msg->hand[0] % 2 == 0 ){
-                    ST2_tx_transform_outterhand_1(48, 2, 404, 2, 1); // sixth action hand turn up
-                }
-                getcup.count ++;
-            }
-            else if ( checkST2_state( {ST2_tx})  && getcup.count == 6){
-                ST2_tx_transform_outterhand_1(48, 2, getcup_theta[1], 2, 2); // seventh action hand move away from camera
-                getcup.count ++;
-            }
-            else if (checkST2_state( {ST2_tx})  && getcup.count == 7){
-                getcup.count = 0;
-                state_mission = success;
-            }
-        }
-        else{
-            state_mission = ing;
-        }
+        placecup( placecup_hand[1], placecup_theta[1]);
         break;
     }
     case 19:{ // placecup h back away
-        if ( state_planer == 1){
-            state_mission = 1; //no action need to be done by ST2 so always return success
-        }
-        else{
-            state_mission = ing;
-        }
+        do_nothing();
         break;
     }
     case 20:{ // placecup h spin
-        if ( state_planer == 1){
-            state_mission = 1; //no action need to be done by ST2 so always return success
-        }
-        else{
-            state_mission = ing;
-        }
+        do_nothing();
         break;
     }
     case 21:{ //placecup h 2 = 4 hand
-        if ( state_planer == 1){
-            if ( placecup_h.count == 0){
-                ST2_tx_transform_outterhand_1( 960, 2, placecup_theta[0], 2, 2);//first action hand to assigned degree
-                placecup_h.count ++;    
-                state_mission = ing;
-            }
-            else if ( checkST2_state(ST2_tx) == 1 && placecup_h.count == 1){//{3, 1, 404, 2, 2, 2}
-                if ( msg->hand[0] % 2 == 0 ){
-                    // ROS_INFO("debug hand [%d] [%d]", msg->hand[0], 9 % 2 );
-                    ST2_tx_transform_outterhand_1(960, 2, 404, 2, 0);// second action hand turn to down
-                }
-                placecup_h.count ++;  
-            }
-            
-            else if ( checkST2_state( {ST2_tx})  && placecup_h.count == 2){
-                ST2_tx_transform_outterhand_1(960, 2, 404, 1, 2); // fourth action platform down
-                placecup_h.count ++;
-            }
-            else if ( checkST2_state( {ST2_tx})  && placecup_h.count == 3){
-                ST2_tx_transform_outterhand_1(960, 0, 404, 2, 2); // third close  suction
-                placecup_h.count ++;
-            }
-            else if ( checkST2_state( {ST2_tx})  && placecup_h.count == 4){
-                ST2_tx_transform_outterhand_1(960, 2, 404, 0, 2); // fifth action platform down
-                placecup_h.count ++;
-            }
-            else if ( checkST2_state( {ST2_tx})  && placecup_h.count == 5){
-                if ( msg->hand[0] % 2 == 0 ){
-                    ST2_tx_transform_outterhand_1(960, 2, 404, 2, 1); // sixth action hand turn up
-                }
-                placecup_h.count ++;
-            }
-            else if ( checkST2_state( {ST2_tx})  && placecup_h.count == 6){
-                ST2_tx_transform_outterhand_1(960, 2, placecup_theta[1], 2, 2); // seventh action hand move away from camera
-                placecup_h.count ++;
-            }
-            else if (checkST2_state( {ST2_tx})  && placecup_h.count == 7){
-                placecup_h.count = 0;
-                state_mission = success;
-            }
-        }
-        else{
-            state_mission = ing;
-        }
+        placecup( placecup_hand[2], placecup_theta[2]);
         break;
     }
     case 22:{ //placecup h 2 = 2 hand
-        if ( state_planer == 1){
-            if ( getcup.count == 0){
-                    ST2_tx_transform_outterhand_1(3072, 2, getcup_theta[0], 2, 2);//first action hand to assigned degree
-                    getcup.count ++;    
-                    state_mission = ing;
-                }
-            else if ( checkST2_state(ST2_tx) == 1 && getcup.count == 1){//{3, 1, 404, 2, 2, 2}
-                if ( msg->hand[0] % 2 == 0 ){
-                    // ROS_INFO("debug hand [%d] [%d]", msg->hand[0], 9 % 2 );
-                    ST2_tx_transform_outterhand_1(3072, 2, 404, 2, 0);// second action hand turn to down
-                }
-                getcup.count ++;  
-            }
-            else if ( checkST2_state( {ST2_tx})  && getcup.count == 2){
-                ST2_tx_transform_outterhand_1(3072, 2, 404, 1, 2); // fourth action platform down
-                getcup.count ++;
-            }
-            else if ( checkST2_state( {ST2_tx})  && getcup.count == 3){
-                ST2_tx_transform_outterhand_1(3072, 1, 404, 2, 2); // third open suction
-                getcup.count ++;
-            }
-            else if ( checkST2_state( {ST2_tx})  && getcup.count == 4){
-                ST2_tx_transform_outterhand_1(3072, 2, 404, 0, 2); // fifth action platform up
-                getcup.count ++;
-            }
-            else if ( checkST2_state( {ST2_tx})  && getcup.count == 5){
-                if ( msg->hand[0] % 2 == 0 ){
-                    ST2_tx_transform_outterhand_1(3072, 2, 404, 2, 1); // sixth action hand turn up
-                }
-                getcup.count ++;
-            }
-            else if ( checkST2_state( {ST2_tx})  && getcup.count == 6){
-                ST2_tx_transform_outterhand_1(3072, 2, getcup_theta[1], 2, 2); // seventh action hand move away from camera
-                getcup.count ++;
-            }
-            else if (checkST2_state( {ST2_tx})  && getcup.count == 7){
-                getcup.count = 0;
-                state_mission = success;
-            }
-        }
-        else{
-            state_mission = ing;
-        }
+        placecup( placecup_hand[3], placecup_theta[3]);
         break;
     }
     case 23:{ // placecup h back away
-        if ( state_planer == 1){
-            state_mission = 1; //no action need to be done by ST2 so always return success
-        }
-        else{
-            state_mission = ing;
-        }
+        do_nothing();
         break;
     }
     case 10: // placecup_p 
-        if ( state_planer == 1){
-            state_mission = 1; //no action need to be done by ST2 so always return success
-        }
-        else{
-            state_mission = ing;
-        }
+        do_nothing();
         break;
     case 11: // placecup_r
-        if ( state_planer == 1){
-            state_mission = 1; //no action need to be done by ST2 so always return success
-        }
-        else{
-            state_mission = ing;
-        }
+        do_nothing();
         break;
     case 12:{ // getcup
-        ROS_INFO("count [%d]", getcup.count);
-        int degree;
-        degree = 0;
-        degree = degree_transform(degree);
-        int handd;
-        if ( state_planer == 1){
-            if ( msg->hand[0] <= 4 ){
-                if ( getcup.count == 0){
-                    ST2_tx_transform_innerhand_1(msg -> hand[0], -1, 1, 2);//first action open suction
-                    getcup.count ++;    
-                    state_mission = ing;
-                }
-                else if ( checkST2_state(ST2_tx) == 1 && getcup.count == 1){//{3, 1, 404, 2, 2, 2}
-                    ST2_tx_transform_innerhand_1(msg -> hand[0], -1, 2, 1);// second action paltform down
-                    getcup.count ++;  
-                }
-                else if ( checkST2_state( {ST2_tx})  && getcup.count == 2){
-                    ST2_tx_transform_innerhand_1(msg -> hand[0], -1, 2, 0); // third action platform up
-                    getcup.count ++;
-                }
-                else if (checkST2_state( {ST2_tx})  && getcup.count == 3){
-                    getcup.count = 0;
-                    state_mission = success;
-                }
-            }
-            else if ( msg->hand[0] > 4){
-                if ( getcup.count == 0){
-                    ST2_tx_transform_outterhand_1(msg -> hand[0], 2, getcup_theta[0], 2, 2);//first action hand to assigned degree
-                    getcup.count ++;    
-                    state_mission = ing;
-                }
-                else if ( checkST2_state(ST2_tx) == 1 && getcup.count == 1){//{3, 1, 404, 2, 2, 2}
-                    if ( msg->hand[0] % 2 == 0 ){
-                        // ROS_INFO("debug hand [%d] [%d]", msg->hand[0], 9 % 2 );
-                        ST2_tx_transform_outterhand_1(msg -> hand[0], 2, 404, 2, 0);// second action hand turn to down
-                    }
-                    getcup.count ++;  
-                }
-                else if ( checkST2_state( {ST2_tx})  && getcup.count == 2){
-                    ST2_tx_transform_outterhand_1(msg -> hand[0], 1, 404, 2, 2); // third open suction
-                    getcup.count ++;
-                }
-                else if ( checkST2_state( {ST2_tx})  && getcup.count == 3){
-                    ST2_tx_transform_outterhand_1(msg -> hand[0], 2, 404, 1, 2); // fourth action platform down
-                    getcup.count ++;
-                }
-                else if ( checkST2_state( {ST2_tx})  && getcup.count == 4){
-                    ST2_tx_transform_outterhand_1(msg -> hand[0], 2, 404, 0, 2); // fifth action platform down
-                    getcup.count ++;
-                }
-                else if ( checkST2_state( {ST2_tx})  && getcup.count == 5){
-                    if ( msg->hand[0] % 2 == 0 ){
-                        ST2_tx_transform_outterhand_1(msg -> hand[0], 2, 404, 2, 1); // sixth action hand turn up
-                    }
-                    getcup.count ++;
-                }
-                else if ( checkST2_state( {ST2_tx})  && getcup.count == 6){
-                    ST2_tx_transform_outterhand_1(msg -> hand[0], 2, getcup_theta[1], 2, 2); // seventh action hand move away from camera
-                    getcup.count ++;
-                }
-                else if (checkST2_state( {ST2_tx})  && getcup.count == 7){
-                    getcup.count = 0;
-                    state_mission = success;
-                }
-            }
-        }   
-        else{
-            state_mission = ing;
-        }
+        getcup_one( msg->hand[0]);
         break;
     }
     case 13: {// getcup12
@@ -755,6 +552,7 @@ int main(int argc, char **argv)
             ROS_INFO("publish in for %d %d", ST2_tx[i], for_st2.data[i]);
         }
         forST2.publish(for_st2);
+        forST2com.publish(for_st2);
         for_st2.data.clear(); 
         to_main.data=state_mission;
         tomain.publish(to_main);
