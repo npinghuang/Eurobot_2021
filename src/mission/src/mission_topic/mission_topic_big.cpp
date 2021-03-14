@@ -17,7 +17,7 @@
 using namespace std;
 
 #include "mission/mission_action.h"
-#include "mission/misison_function.h"
+#include "mission/mission_function.h"
 ros::Publisher tomain;
 ros::Publisher forST2;
 // ros::Publisher forplaner;
@@ -261,59 +261,113 @@ void chatterCallback(const mission::maintomission::ConstPtr& msg)
     case 1: {//windsock
         ST2_tx[0] = action1_ST2_blue[0];  
         publish_ST2();
-        
-        if ( checkST2_state(ST2_tx)){
-            state_mission = success;
+        if ( state_planer == 1){    
+            if ( checkST2_state(ST2_tx)){
+                state_mission = success;
+            }
+            else{
+                state_mission = ing;
+            }    
         }
         else{
             state_mission = ing;
-        }
+        }     
         break;
         }
     case 15:{ // windsock 2
         ST2_tx[0] = action1_ST2_blue[1];  
         publish_ST2();
+        if ( state_planer == 1){
+            if ( checkST2_state(ST2_tx)){
+                state_mission = success;
+            }
+            else{
+                state_mission = ing;
+            }    
+        }
+        else{
+            state_mission = ing;
+        }   
+        break;
+    }
+    case 2:{ // lhouse 
+        state_ST2 = 1;
+        if ( state_planer == 1){
+            state_mission = 1; //no action need to be done by ST2 so always return success
+        }
+        else{
+            state_mission = ing;
+        }
         
-        if ( checkST2_state(ST2_tx)){
-            state_mission = success;
+        break;
+    }
+    case 16: {//lhouse 2{
+        state_ST2 = 1;
+        if ( state_planer == 1){
+            state_mission = 1; //no action need to be done by ST2 so always return success
         }
         else{
             state_mission = ing;
         }
         break;
     }
-    case 2:{ // lhouse 
-        state_ST2 = 1;
-        state_mission = 1; //no action need to be done by ST2 so always return success
-        break;
-    }
-    case 16: {//lhouse 2{
-        state_ST2 = 1;
-        state_mission = 1; //no action need to be done by ST2 so always return success
-        break;
-    }
     case 17: {//lhouse 3{
         state_ST2 = 1;
-        state_mission = 1; //no action need to be done by ST2 so always return success
+        if ( state_planer == 1){
+            state_mission = 1; //no action need to be done by ST2 so always return success
+        }
+        else{
+            state_mission = ing;
+        }
         break;
     }
     case 3: // flag
-        state_mission = success;
+        if ( state_planer == 1){
+            state_mission = 1; //no action need to be done by ST2 so always return success
+        }
+        else{
+            state_mission = ing;
+        }
         break;
     case 4: // anchorN
-        state_mission = success;
+        if ( state_planer == 1){
+            state_mission = 1; //no action need to be done by ST2 so always return success
+        }
+        else{
+            state_mission = ing;
+        }
         break;
     case 5: // anchorS
-        state_mission = success;
+        if ( state_planer == 1){
+            state_mission = 1; //no action need to be done by ST2 so always return success
+        }
+        else{
+            state_mission = ing;
+        }
         break;
     case 6: // reef_l
-        state_mission = success;
+        if ( state_planer == 1){
+            state_mission = 1; //no action need to be done by ST2 so always return success
+        }
+        else{
+            state_mission = ing;
+        }
         break;
     case 7: // reef_r
-        state_mission = success;
+        if ( state_planer == 1){
+            state_mission = 1; //no action need to be done by ST2 so always return success
+        }
+        else{
+            state_mission = ing;
+        }
         break;
     case 8: // reef_p
-        state_mission = success;
+        if ( state_planer == 1){
+            state_mission = 1; //no action need to be done by ST2 so always return success
+        }
+        else{
+            state_mission = ing;
+        }
         break;
     case 9: {// placecup_h
     // place 4 or 2 cup at the same time and need to cordinate with planer
@@ -356,6 +410,9 @@ void chatterCallback(const mission::maintomission::ConstPtr& msg)
                 placecup_h.count = 0;
                 state_mission = success;
             }
+        }
+        else{
+            state_mission = ing;
         }
         break;
     }
@@ -401,14 +458,27 @@ void chatterCallback(const mission::maintomission::ConstPtr& msg)
                 state_mission = success;
             }
         }
+        else{
+            state_mission = ing;
+        }
         break;
     }
     case 19:{ // placecup h back away
-        state_mission = success; // no action needed
+        if ( state_planer == 1){
+            state_mission = 1; //no action need to be done by ST2 so always return success
+        }
+        else{
+            state_mission = ing;
+        }
         break;
     }
     case 20:{ // placecup h spin
-        state_mission = success; // no action needed
+        if ( state_planer == 1){
+            state_mission = 1; //no action need to be done by ST2 so always return success
+        }
+        else{
+            state_mission = ing;
+        }
         break;
     }
     case 21:{ //placecup h 2 = 4 hand
@@ -421,7 +491,9 @@ void chatterCallback(const mission::maintomission::ConstPtr& msg)
             else if ( checkST2_state(ST2_tx) == 1 && placecup_h.count == 1){//{3, 1, 404, 2, 2, 2}
                 if ( msg->hand[0] % 2 == 0 ){
                     // ROS_INFO("debug hand [%d] [%d]", msg->hand[0], 9 % 2 );
-                    ST2_tx_transform_outterhand_state_mission;
+                    ST2_tx_transform_outterhand_1(960, 2, 404, 2, 0);// second action hand turn to down
+                }
+                placecup_h.count ++;  
             }
             
             else if ( checkST2_state( {ST2_tx})  && placecup_h.count == 2){
@@ -450,6 +522,9 @@ void chatterCallback(const mission::maintomission::ConstPtr& msg)
                 placecup_h.count = 0;
                 state_mission = success;
             }
+        }
+        else{
+            state_mission = ing;
         }
         break;
     }
@@ -494,17 +569,35 @@ void chatterCallback(const mission::maintomission::ConstPtr& msg)
                 state_mission = success;
             }
         }
+        else{
+            state_mission = ing;
+        }
         break;
     }
     case 23:{ // placecup h back away
-        state_mission = success; // no action needed
+        if ( state_planer == 1){
+            state_mission = 1; //no action need to be done by ST2 so always return success
+        }
+        else{
+            state_mission = ing;
+        }
         break;
     }
     case 10: // placecup_p 
-        state_mission = success;
+        if ( state_planer == 1){
+            state_mission = 1; //no action need to be done by ST2 so always return success
+        }
+        else{
+            state_mission = ing;
+        }
         break;
     case 11: // placecup_r
-        state_mission = success;
+        if ( state_planer == 1){
+            state_mission = 1; //no action need to be done by ST2 so always return success
+        }
+        else{
+            state_mission = ing;
+        }
         break;
     case 12:{ // getcup
         ROS_INFO("count [%d]", getcup.count);
@@ -573,6 +666,9 @@ void chatterCallback(const mission::maintomission::ConstPtr& msg)
                 }
             }
         }   
+        else{
+            state_mission = ing;
+        }
         break;
     }
     case 13: {// getcup12
@@ -597,6 +693,9 @@ void chatterCallback(const mission::maintomission::ConstPtr& msg)
                 state_mission = success;
             }
         }
+        else{
+            state_mission = ing;
+        }
         break;
         }
     case 14:{ // getcup34
@@ -620,6 +719,9 @@ void chatterCallback(const mission::maintomission::ConstPtr& msg)
                 getcup_34.count = 0;
                 state_mission = success;
             }
+        }
+        else{
+            state_mission = ing;
         }
         break;
         }
