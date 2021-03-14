@@ -40,7 +40,7 @@ time: 0.0
 friend_action: [0,0]
 action_list: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
 cup_color: [0,1,0,1,0]
-cup: 65535
+cup: 16777215
 hand: [0,0,0,0,0,0,0,0,0,0,0,0]
 enemy1_pos: [0,0]
 enemy2_pos: [0,0]

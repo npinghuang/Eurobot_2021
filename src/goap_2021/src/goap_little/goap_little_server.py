@@ -270,7 +270,7 @@ def GOAP_new(req):
                 position.append(current.cup_order[temp]['location'][0])
                 position.append( current.cup_order[temp]['location'][1])
                 position.append( current.cup_order[temp]['location'][2])
-                position.append( current.cup_order[temp]['no'])
+                # position.append( current.cup_order[temp]['no'])
                 action.append(a.no)
                 cup.append(current.cup_order[temp]['no'])
                 cup.append(current.cup_order[temp]['hand'] + 1) #change hand number to start from 1

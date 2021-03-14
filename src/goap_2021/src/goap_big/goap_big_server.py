@@ -267,7 +267,7 @@ def GOAP_nornal(req):
                 position.append(current.cup_order[temp]['location'][0])
                 position.append( current.cup_order[temp]['location'][1])
                 position.append( current.cup_order[temp]['location'][2])
-                position.append( current.cup_order[temp]['no'])
+                # position.append( current.cup_order[temp]['no'])
                 action.append(a.no)
                 cup.append(current.cup_order[temp]['no'])
                 cup.append(current.cup_order[temp]['hand'] + 1) #change hand number to start from 1
@@ -285,11 +285,13 @@ def GOAP_nornal(req):
                 cup.append(handd)
                 temp += 2
             elif a.name == 'flag':
-                print("action", a.no, a.name,current.location)
+                print("action", a.no, a.name,a.location)
                 action.append(a.no)
-                position.append(current.location[0])
-                position.append( current.location[1])
-                position.append(current.location[2])
+                for a in current.achieved:
+                    if a.no == 4 or a.no == 5:
+                        position.append(a.location[0])
+                        position.append( a.location[1])
+                        position.append(a.location[2])
                 cup.append( 0)
                 cup.append(0)
                 # position.append(0)
@@ -354,77 +356,105 @@ def GOAP_nornal(req):
         cup.append( 0)
         cup.append(0)
     return action, position, cup
-# def GOAP_script(req):
-#     global penalty_mission
-#     global counter
-#     global action
-#     global position
-#     global cup
-#     if req.emergency == True:
-#         action.append(0)
-#         position.append(req.my_pos[0])
-#         position.append( req.my_pos[1])
-#         position.append(req.my_pos[2] )
-#         cup.append( 0)
-#         cup.append(0)
-#         return action, position, cup
-#     elif req.emergency == False and req.team == 0: #blue team script
-#         (current, robot1) = mission_precondition(req)
-#         if req.NS == False:
-#             scrpit_mission = [ 'getcup_12', 'getcup_34', 'lhouse', 'getcup', 'getcup', 'getcup', 'getcup', 'getcup', 'getcup', 'getcup', 'getcup', 'placecupH', 'windsock', 'anchorN', 'flag']
-#         elif req.NS == True:
-#             scrpit_mission = [ 'getcup_12', 'getcup_34', 'lhouse', 'getcup', 'getcup', 'getcup', 'getcup', 'getcup', 'getcup', 'getcup', 'getcup', 'placecupH', 'windsock', 'anchorS, 'flag']
-#         #('action', 13, 'getcup_12', 1085, 400, 0, 2, 4, 'hand', 2, 1)
-#         count_script = 0
-#         while count_script < len( scrpit_mission):
-#             for m in current.leaf:
-#                 if m.name == 'getcup_12':
-#                     action.append(13)
-#                     position.append(m.location[0])
-#                     position.append(m.location[1])
-#                     position.append(m.location[2])
-#                     cup.append(0)
-#                     cup.append(21)
-#         # ('action', 14, 'getcup_34', 500, 400, 0, 1, 3, 'hand', 3, 4)
-#         action.append(14)
-#         position.append(500)
-#         position.append( 400 )
-#         position.append(0)
-#         cup.append(0)
-#         cup.append(0)
-#         # ('action', 2, 'lhouse', 100, 275, 180, 0)
-#         action.append(2)
-#         position.append(100)
-#         position.append( 275 )
-#         position.append(0)
-#         cup.append(0)
-#         cup.append(0)
-# # ('action', 16, 50, 275, 3.141592653589793, 0)
-# # ('action', 17, 100, 275, 3.141592653589793, 0)
-# # ('action', 5, 'getcup', 52.19106325397121, 636.3331988777023, 1.9634954084936207, 'hand: ', 5)
-# # ('action', 6, 'getcup', 293.4314575050762, 906.5025253169417, -0.7853981633974483, 'hand: ', 9)
-# # ('action', 9, 'getcup', 693.4314575050762, 1050.5025253169417, -0.7853981633974483, 'hand: ', 6)
-# # ('action', 10, 'getcup', 1093.4314575050762, 1220.5025253169417, -2.356194490192345, 'hand: ', 7)
-# # ('action', 15, 'getcup', 1093.4314575050762, 1680.5025253169417, -0.7853981633974483, 'hand: ', 11)
-# # ('action', 16, 'getcup', 693.4314575050762, 1850.5025253169417, -0.7853981633974483, 'hand: ', 10)
-# # ('action', 19, 'getcup', 293.4314575050762, 1994.5025253169417, -0.7853981633974483, 'hand: ', 12)
-# # ('action', 20, 'getcup', 62.56562912333068, 2326.6965019425056, -0.39269908169872414, 'hand: ', 8)
-# # ('action', 9, 'placecupH', 1900, 1800, 0, 0)
-# # ('action', 18, 1870, 1800, 0, 0)
-# # ('action', 19, 1650, 1800, 0, 0)
-# # ('action', 20, 1900, 1800, 3.141592653589793, 0)
-# # ('action', 21, 1800, 1800, 3.141592653589793, 0)
-# # ('action', 22, 1770, 1800, 3.141592653589793, 0)
-# # ('action', 23, 1650, 1800, 3.141592653589793, 0)
-# # ('action', 1, 'windsock', 1850, 200, 1.5707963267948966, 0)
-# # ('action', 15, 1850, 700, 1.5707963267948966, 0)
-# # ('action', 4, 'anchorN', 300, 200, 0, 0)
-# # ('action', 3, 'flag', [1850, 200, 1.5707963267948966])
+def GOAP_script(req):
+    global penalty_mission
+    global counter
+    global action
+    global position
+    global cup
+    del action[:]
+    del position[:]
+    del cup[:]
+    if req.emergency == True:
+        action.append(0)
+        position.append(req.my_pos[0])
+        position.append( req.my_pos[1])
+        position.append(req.my_pos[2] )
+        cup.append( 0)
+        cup.append(0)
+        # return action, position, cup
+    elif req.emergency == False: #blue team script
+        (current, robot1) = mission_precondition(req)     
+        if req.team == 0:
+            if req.ns == False:
+                scrpit_mission =[13, 14, 2, 16, 17, 12, 12, 12, 12, 12, 12, 12, 12, 9, 18, 19, 20, 21, 22, 23, 12, 9, 18, 19, 20, 21, 22, 23, 4, 3]
+            elif req.ns == True:
+                scrpit_mission = [13, 14, 2, 16, 17, 12, 12, 12, 12, 12, 12, 12, 12, 9, 18, 19, 20, 21, 22, 23, 12, 9, 18, 19, 20, 21, 22, 23, 5, 3]
+            cup_script = [0, 21, 0, 34, 0, 0, 0, 0, 0, 0, 5, 5, 6, 9, 9, 6, 10, 7, 15, 11, 16, 10, 19, 12, 20, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 24, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        #('action', 13, 'getcup_12', 1085, 400, 0, 2, 4, 'hand', 2, 1)
+            position_script = [1085.0, 400.0, 0.0, 500.0, 400.0, 0.0, 100.0, 275.0, 3.1415927410125732, 
+            50.0, 275.0, 3.1415927410125732, 100.0, 275.0, 3.1415927410125732, 
+            52.191062927246094, 636.3331909179688, 1.9634953737258911, 293.43145751953125, 906.5025024414062, -0.7853981852531433, 
+            693.4314575195312, 1050.5025634765625, -0.7853981852531433, 1093.431396484375, 1220.5025634765625, -2.356194496154785, 
+            1093.431396484375, 1680.5025634765625, -0.7853981852531433, 693.4314575195312, 1850.5025634765625, -0.7853981852531433, 
+            293.43145751953125, 1994.5025634765625, -0.7853981852531433, 62.56562805175781, 2326.696533203125, -0.39269909262657166, 
+            1900.0, 1800.0, 0.0, 1870.0, 1800.0, 0.0, 1650.0, 1800.0, 0.0, 1900.0, 1800.0, 3.1415927410125732, 1800.0, 1800.0, 3.1415927410125732, 
+            1770.0, 1800.0, 3.1415927410125732, 1650.0, 1800.0, 3.1415927410125732, 1146.224853515625, 2721.194091796875, 0.13089969754219055,
+            1900.0, 1800.0, 0.0, 1870.0, 1800.0, 0.0, 1650.0, 1800.0, 0.0, 1900.0, 1800.0, 3.1415927410125732, 1800.0, 1800.0, 3.1415927410125732, 
+            1770.0, 1800.0, 3.1415927410125732, 1650.0, 1800.0, 3.1415927410125732, 300.0, 200.0, 0.0, 300.0, 200.0, 0.0]
+        elif req.team == 1:
+            cup_script = [0, 21, 0, 34, 20, 7, 19, 5, 16, 8, 15, 6, 10, 9, 9, 11, 6, 10, 5, 12, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            position_script = [1085.0, 2600.0, 0.0, 500.0, 2600.0, 0.0, 62.56562805175781, 2326.696533203125, -0.39269909262657166, 293.43145751953125, 1994.5025634765625, -0.7853981852531433, 693.4314575195312, 1850.5025634765625, -2.356194496154785, 1093.431396484375, 1680.5025634765625, -0.7853981852531433, 1093.431396484375, 1220.5025634765625, -0.7853981852531433, 693.4314575195312, 1050.5025634765625, -0.7853981852531433, 293.43145751953125, 906.5025024414062, -0.7853981852531433, 62.56562805175781, 666.6964721679688, 1.1780972480773926, 1850.0, 1200.0, 0.0, 1870.0, 1200.0, 0.0, 1650.0, 1200.0, 0.0, 1900.0, 1200.0, 3.1415927410125732, 1800.0, 1200.0, 3.1415927410125732, 1770.0, 1200.0, 3.1415927410125732, 1650.0, 1200.0, 3.1415927410125732,  300.0, 2775.0, 0.0,  300.0, 2775.0, 0.0, ]
+            if req.ns == False:
+                scrpit_mission =[13, 14, 12, 12, 12, 12, 12, 12, 12, 12, 9, 18, 19, 20, 21, 22, 23, 4, 3]
+            elif req.ns == True:
+                scrpit_mission =[13, 14, 12, 12, 12, 12, 12, 12, 12, 12, 9, 18, 19, 20, 21, 22, 23,5, 3]
 
-#         return action, position, cup
-#     elif req.emergency == False and req.team == 1: #yellow team script
+        count_script = 0
+        count_cup = 0
+        while count_script < len( scrpit_mission):
+            if scrpit_mission[count_script] > 14:
+                action.append(scrpit_mission[count_script])
+                position.append(position_script[ 3* count_script])
+                position.append(position_script[ 3* count_script + 1])
+                position.append(position_script[ 3* count_script + 2])
+                cup.append(cup_script[ 2* count_script])
+                cup.append(cup_script[ 2* count_script + 1])
+            else:
+                for m in current.leaf:
+                    if m.name == scrpit_mission[ count_script ] or m.no == scrpit_mission[ count_script ]:
+                        if m.name == 'getcup_12':
+                            action.append(13)
+                            position.append(m.location[0])
+                            position.append(m.location[1])
+                            position.append(m.location[2])
+                            cup.append(cup_script[ 2* count_script])
+                            cup.append(cup_script[ 2* count_script + 1])
+                        elif m.name == 'getcup_34':
+                            # ('action', 14, 'getcup_34', 500, 400, 0, 1, 3, 'hand', 3, 4)
+                            action.append(14)
+                            position.append(m.location[0])
+                            position.append(m.location[1])
+                            position.append(m.location[2])
+                            cup.append(cup_script[ 2* count_script])
+                            cup.append(cup_script[ 2* count_script + 1])
+                        elif m.name == 'getcup':
+                            action.append(12)
+                            position.append(position_script[ 3* count_script])
+                            position.append(position_script[ 3* count_script + 1])
+                            position.append(position_script[ 3* count_script + 2])
+                            cup.append(cup_script[ 2* count_script])
+                            cup.append(cup_script[ 2* count_script + 1])
+                        elif m.name == 'flag':
+                            action.append(m.no)
+                            position.append(position[ 3* ( count_script - 1)])
+                            position.append(position[ 3*( count_script - 1) + 1])
+                            position.append(position[ 3*( count_script - 1)  + 2])
+                            cup.append(cup_script[ 2* count_script])
+                            cup.append(cup_script[ 2* count_script + 1])
+                        
+                        else:
+                            action.append(m.no)
+                            position.append(m.location[0])
+                            position.append(m.location[1])
+                            position.append(m.location[2])
+                            cup.append(cup_script[ 2* count_script])
+                            cup.append(cup_script[ 2* count_script + 1])
+            count_script += 1
 
-#         return action, position, cup
+    for a in range(0, len(action)):
+        print( "mission", action[a], "position", position[3*a], position[3*a + 1], position[3*a + 2], "cup", cup[ 2* a], cup[ 2* a + 1])
+    return action, position, cup
 def GOAP(req):
     print("-------------------------------------------------")
     if req.strategy == 0:

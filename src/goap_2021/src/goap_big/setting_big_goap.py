@@ -177,7 +177,7 @@ def mission_precondition(req):
 	    windsock.little_mission_pos = [ [1850, 200, math.pi/2], [1850, 700, math.pi/2]]
 	    windsock.little_mission_no = [ 1, 15]
 	    lhouse.little_mission_count = 3
-	    lhouse.location = [100, 275, 180 ]
+	    lhouse.location = [100, 275, math.pi ]
 	    lhouse.little_mission_pos = [ [100, 275, math.pi ], [ 50, 275, math.pi], [100, 275, math.pi]]
 	    lhouse.little_mission_no = [ 2, 16, 17]
 	    placecupH.little_mission_count = 7
