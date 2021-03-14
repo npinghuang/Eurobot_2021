@@ -53,7 +53,7 @@ def checkpreconditions( req, current, mis, robot):
                 def myFunc(e):
                     return e['no']
                 current.cup_state.sort(key=myFunc)
-                # print( "debug cup no ",m.name,  current.cup_state[a]['no'], current.cup_state[b]['no'])
+                # print( "debug cup no ",m.name,  robot.freestorage, current.cup_state[a]['no'], current.cup_state[a]['state'], current.cup_state[b]['no'],  current.cup_state[b]['state'])
                 if robot.freestorage > 1 and current.cup_state[a]['state'] == 1 and current.cup_state[b]['state'] == 1:#check if there is room for two cup
                     state = 1
                     if (robot.claw[0]['state'] == 0 and robot.claw[1]['state'] == 0 ) and (robot.claw[2]['state'] ==0 and robot.claw[3]['state'] == 0):#check if hand 0 and 1 or 2 or 3 are free

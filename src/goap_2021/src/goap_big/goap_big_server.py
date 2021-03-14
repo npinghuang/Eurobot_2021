@@ -88,8 +88,7 @@ action = []
 position = []
 cup = []
 counter = 0 # for little mission
-def GOAP(req):
-    print("-------------------------------------------------")
+def GOAP_nornal(req):
     global penalty_mission
     global counter
     global action
@@ -97,7 +96,7 @@ def GOAP(req):
     global cup
     time_main = req.time
     tmp = 0
-    
+    # strategy 0 is not script 1 for script
     # print("previous current emergency", cur.emergency)
     if (cur.mission)!= None:
         print("previous action ", cur.mission.name)
@@ -355,6 +354,85 @@ def GOAP(req):
         cup.append( 0)
         cup.append(0)
     return action, position, cup
+# def GOAP_script(req):
+#     global penalty_mission
+#     global counter
+#     global action
+#     global position
+#     global cup
+#     if req.emergency == True:
+#         action.append(0)
+#         position.append(req.my_pos[0])
+#         position.append( req.my_pos[1])
+#         position.append(req.my_pos[2] )
+#         cup.append( 0)
+#         cup.append(0)
+#         return action, position, cup
+#     elif req.emergency == False and req.team == 0: #blue team script
+#         (current, robot1) = mission_precondition(req)
+#         if req.NS == False:
+#             scrpit_mission = [ 'getcup_12', 'getcup_34', 'lhouse', 'getcup', 'getcup', 'getcup', 'getcup', 'getcup', 'getcup', 'getcup', 'getcup', 'placecupH', 'windsock', 'anchorN', 'flag']
+#         elif req.NS == True:
+#             scrpit_mission = [ 'getcup_12', 'getcup_34', 'lhouse', 'getcup', 'getcup', 'getcup', 'getcup', 'getcup', 'getcup', 'getcup', 'getcup', 'placecupH', 'windsock', 'anchorS, 'flag']
+#         #('action', 13, 'getcup_12', 1085, 400, 0, 2, 4, 'hand', 2, 1)
+#         count_script = 0
+#         while count_script < len( scrpit_mission):
+#             for m in current.leaf:
+#                 if m.name == 'getcup_12':
+#                     action.append(13)
+#                     position.append(m.location[0])
+#                     position.append(m.location[1])
+#                     position.append(m.location[2])
+#                     cup.append(0)
+#                     cup.append(21)
+#         # ('action', 14, 'getcup_34', 500, 400, 0, 1, 3, 'hand', 3, 4)
+#         action.append(14)
+#         position.append(500)
+#         position.append( 400 )
+#         position.append(0)
+#         cup.append(0)
+#         cup.append(0)
+#         # ('action', 2, 'lhouse', 100, 275, 180, 0)
+#         action.append(2)
+#         position.append(100)
+#         position.append( 275 )
+#         position.append(0)
+#         cup.append(0)
+#         cup.append(0)
+# # ('action', 16, 50, 275, 3.141592653589793, 0)
+# # ('action', 17, 100, 275, 3.141592653589793, 0)
+# # ('action', 5, 'getcup', 52.19106325397121, 636.3331988777023, 1.9634954084936207, 'hand: ', 5)
+# # ('action', 6, 'getcup', 293.4314575050762, 906.5025253169417, -0.7853981633974483, 'hand: ', 9)
+# # ('action', 9, 'getcup', 693.4314575050762, 1050.5025253169417, -0.7853981633974483, 'hand: ', 6)
+# # ('action', 10, 'getcup', 1093.4314575050762, 1220.5025253169417, -2.356194490192345, 'hand: ', 7)
+# # ('action', 15, 'getcup', 1093.4314575050762, 1680.5025253169417, -0.7853981633974483, 'hand: ', 11)
+# # ('action', 16, 'getcup', 693.4314575050762, 1850.5025253169417, -0.7853981633974483, 'hand: ', 10)
+# # ('action', 19, 'getcup', 293.4314575050762, 1994.5025253169417, -0.7853981633974483, 'hand: ', 12)
+# # ('action', 20, 'getcup', 62.56562912333068, 2326.6965019425056, -0.39269908169872414, 'hand: ', 8)
+# # ('action', 9, 'placecupH', 1900, 1800, 0, 0)
+# # ('action', 18, 1870, 1800, 0, 0)
+# # ('action', 19, 1650, 1800, 0, 0)
+# # ('action', 20, 1900, 1800, 3.141592653589793, 0)
+# # ('action', 21, 1800, 1800, 3.141592653589793, 0)
+# # ('action', 22, 1770, 1800, 3.141592653589793, 0)
+# # ('action', 23, 1650, 1800, 3.141592653589793, 0)
+# # ('action', 1, 'windsock', 1850, 200, 1.5707963267948966, 0)
+# # ('action', 15, 1850, 700, 1.5707963267948966, 0)
+# # ('action', 4, 'anchorN', 300, 200, 0, 0)
+# # ('action', 3, 'flag', [1850, 200, 1.5707963267948966])
+
+#         return action, position, cup
+#     elif req.emergency == False and req.team == 1: #yellow team script
+
+#         return action, position, cup
+def GOAP(req):
+    print("-------------------------------------------------")
+    if req.strategy == 0:
+        (action, position, cup) = GOAP_nornal(req)
+    elif req.strategy == 1:
+        (action, position, cup) = GOAP_script(req)
+    return action, position, cup
+    
 
 def goap_server():
     rospy.init_node('goap_server')
