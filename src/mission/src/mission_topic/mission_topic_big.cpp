@@ -4,7 +4,7 @@
 #include <std_msgs/Int32MultiArray.h>
 #include <std_msgs/Int32.h>
 #include <std_msgs/Float32MultiArray.h>
-#include<geometry_msgs/PoseStamped.h>
+// #include<geometry_msgs/PoseStamped.h>
 #include "mission/maintomission.h"
 // #include "mission/missiontomain.h"
 #include <sstream>
@@ -39,7 +39,8 @@ std::vector<int> hand{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 std::vector<float> planer_tx{0,0,0};
 std::vector<int> ST2_tx{0,0,0};
 std::vector<int> ST2_rx{0,0,0,0,0,0};
-std::vector<int> ST2_previous_tx{0,0,0,0,0,0};
+// std::vector<int> ST2_previous_tx{0,0,0,0,0,0};
+std::vector<int> old_command{0,0,0,0,0};// action, cup1, cup2, hand1, hand2
 // std::vector<int> placecup_hand{15, 48, 960, 3072};
 int state_planer = 0;
 int state_ST2 = 0;
@@ -328,6 +329,18 @@ void chatterCallback_ST2(const std_msgs::Int32MultiArray::ConstPtr& msg)
         ST2_rx[i] = msg -> data[i];
     }
 }
+bool newaction(const mission::maintomission::ConstPtr& msg){
+    if (old_command [0] == msg-> action &&
+    old_command [1] == msg -> cup[0] &&
+    old_command [2] == msg -> cup[1] &&
+    old_command [3] == msg -> hand[0] &&
+    old_command [4] == msg -> hand[1]){
+        return false;
+    }
+    else{
+        return true;
+    }
+}
 // for running on pi
 // void chatterCallback_ST2com(const std_msgs::Int32MultiArray::ConstPtr& msg){
 //     // ROS_INFO("I heard ST2: [%d]", msg->data[0]);
@@ -355,7 +368,11 @@ void chatterCallback(const mission::maintomission::ConstPtr& msg)
         ST2_tx[5] = 2;
         state_mission = stop;
     }
-    else{
+    else if ( state_mission == success && newaction(msg) == 0 ){
+        state_mission = success;
+        ROS_INFO("old action!");
+    }
+    else if ( state_mission != success || newaction(msg) == 1){
   switch (msg->action)
   {
     case 0: //emergency
@@ -526,6 +543,11 @@ void chatterCallback(const mission::maintomission::ConstPtr& msg)
         break;
   }
     }
+    old_command[0] = msg->action;
+    old_command[1] = msg->cup[0];
+    old_command[2] = msg->cup[1];
+    old_command[3] = msg->hand[0];
+    old_command[4] = msg->hand[1];
 }
 
 int main(int argc, char **argv)
@@ -537,8 +559,8 @@ int main(int argc, char **argv)
     // forplaner = n.advertise<std_msgs::Float32MultiArray>("MissionToplaner", 1);
     forST2 = n.advertise<std_msgs::Int32MultiArray>("MissionToST2", 1);
     forST2com = n.advertise<std_msgs::Int32MultiArray>("txST1", 1);
-    tomain = n.advertise<std_msgs::Int32>("MissionToMain", 100);
-    sub = n.subscribe("MainToMission", 1000, chatterCallback);
+    tomain = n.advertise<std_msgs::Int32>("missionToMain", 100);
+    sub = n.subscribe("mainToMission", 1000, chatterCallback);
     // subplaner = n.subscribe("planerToMission", 1000, chatterCallback_planer);
     subST2 = n.subscribe("ST2ToMission", 1000, chatterCallback_ST2);
     // subST2com = n.subscribe("rxST1", 1000, chatterCallback_ST2com);

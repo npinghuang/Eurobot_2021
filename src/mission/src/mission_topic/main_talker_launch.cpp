@@ -20,8 +20,8 @@ int main(int argc, char **argv)
 
   ros::NodeHandle n;
 
-  ros::Publisher chatter_pub = n.advertise<mission::maintomission>("MainToMission", 1000);
-  ros::Subscriber sub = n.subscribe("MissionToMain", 1000, chatterCallback);
+  ros::Publisher chatter_pub = n.advertise<mission::maintomission>("mainToMission", 1000);
+  ros::Subscriber sub = n.subscribe("missionToMain", 1000, chatterCallback);
   ros::Rate loop_rate(10);
   int mode;
   int count = 0;
