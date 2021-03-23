@@ -18,7 +18,7 @@ def checkpreconditions( req, current, mis, robot):
             boom2 = check_boom( m.location, current.enemy_2)
             boomf = check_boom( m.location, current.friend_pos )
         if m.name == 'getcup':
-            if robot.freestorage > 0 and current.time < 90:
+            if robot.freestorage > 0 and current.time < 70:
                 cupp = cup_cost( req, current, m, robot )
                 if cupp != None:
                     # print("debug cup no", cupp['no'])
@@ -87,11 +87,12 @@ def checkpreconditions( req, current, mis, robot):
                 # print("preee place cup", robot.freestorage)
                 current.candidate.append(m)
         elif m.name == 'windsock':
+            print("windsock", current.windsock,boom1, boom2, boomf)
             if current.windsock != 1 and boom1 ==  1 and boom2 == 1 and boomf == 1:
                 m.cost = distance( current.location, m.location ) - m.reward + m.time
                 current.candidate.append(m)
         elif m.name == 'lhouse':
-            # print("lhouse", current.lhouse,boom1, boom2, boomf)
+            print("lhouse", current.lhouse,boom1, boom2, boomf)
             if current.lhouse != 1 and boom1 == 1 and boom2 == 1 and boomf == 1:
                 m.cost = distance( current.location, m.location ) - m.reward + m.time 
                 current.candidate.append(m)

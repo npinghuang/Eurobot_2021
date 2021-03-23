@@ -29,7 +29,7 @@ ros::Subscriber sub;
 ros::Subscriber subST2;
 // ros::Subscriber subST2com;
 // mission::missiontomain to_main;
-std_msgs::Int32 to_main;
+std_msgs::Int32MultiArray to_main;
 std_msgs::Float32MultiArray for_planer;
 float planer_rx = 9;
 // int ST2_rx = 8;
@@ -482,23 +482,32 @@ void chatterCallback(const mission::maintomission::ConstPtr& msg)
         do_nothing();
         break;
     case 12:{ // getcup
-        getcup_one( msg->hand[0]);
+        getcup_one( msg->cup[1]);
         break;
     }
     case 13: {// getcup12
         ROS_INFO("count [%d]", getcup_12.count);
+        int hand_1 = 0, hand_2 = 0;
+        if ( msg->cup[1] == 12){
+            hand_1 = 1;
+            hand_2 = 2;
+        }
+        else if(msg -> cup[1] == 34){
+            hand_1 = 3;
+            hand_2 = 4;
+        }
         if ( state_planer == 1 ){
             if ( getcup_12.count == 0){
-                ST2_tx_transform_innerhand_1(msg -> hand[0], msg -> hand[1], 1, 2);
+                ST2_tx_transform_innerhand_1(hand_1, hand_2, 1, 2);
                 getcup_12.count ++;    
                 state_mission = ing;
             }
             if ( checkST2_state(ST2_tx) == 1 && getcup_12.count == 1){//{3, 1, 404, 2, 2, 2}
-                ST2_tx_transform_innerhand_1(msg -> hand[0], msg -> hand[1], 2, 1);// second action platform
+                ST2_tx_transform_innerhand_1(hand_1, hand_2, 2, 1);// second action platform
                 getcup_12.count ++;  
             }
             else if ( checkST2_state( {ST2_tx})  && getcup_12.count == 2){
-                ST2_tx_transform_innerhand_1(msg -> hand[0], msg -> hand[1], 2, 0);
+                ST2_tx_transform_innerhand_1(hand_1, hand_2, 2, 0);
                 getcup_12.count ++;
             }
             else if (checkST2_state( {ST2_tx})  && getcup_12.count == 3)
@@ -513,19 +522,28 @@ void chatterCallback(const mission::maintomission::ConstPtr& msg)
         break;
         }
     case 14:{ // getcup34
+        int hand_1 = 0, hand_2 = 0;
+        if ( msg->cup[1] == 12){
+            hand_1 = 1;
+            hand_2 = 2;
+        }
+        else if(msg -> cup[1] == 34){
+            hand_1 = 3;
+            hand_2 = 4;
+        }
         ROS_INFO("count [%d]", getcup_34.count);
         if ( state_planer == 1 ){
             if ( getcup_34.count == 0){
-                ST2_tx_transform_innerhand_1(msg -> hand[0], msg -> hand[1], 1, 2);
+                ST2_tx_transform_innerhand_1(hand_1, hand_2, 1, 2);
                 getcup_34.count ++;    
                 state_mission = ing;
             }
             if ( checkST2_state(ST2_tx) == 1 && getcup_34.count == 1){//{3, 1, 404, 2, 2, 2}
-                ST2_tx_transform_innerhand_1(msg -> hand[0], msg -> hand[1], 2, 1);// second platform
+                ST2_tx_transform_innerhand_1(hand_1, hand_2, 2, 1);// second platform
                 getcup_34.count ++;  
             }
             else if ( checkST2_state( {ST2_tx})  && getcup_34.count == 2){
-                ST2_tx_transform_innerhand_1(msg -> hand[0], msg -> hand[1], 2, 0);
+                ST2_tx_transform_innerhand_1(hand_1, hand_2, 2, 0);
                 getcup_34.count ++;
             }
             else if (checkST2_state( {ST2_tx})  && getcup_34.count == 3)
@@ -552,20 +570,20 @@ void chatterCallback(const mission::maintomission::ConstPtr& msg)
 
 int main(int argc, char **argv)
 {
- 
+    to_main.data={ 0, 0};
     ros::init(argc, argv, "mission");
     ros::NodeHandle n;
 
     // forplaner = n.advertise<std_msgs::Float32MultiArray>("MissionToplaner", 1);
     forST2 = n.advertise<std_msgs::Int32MultiArray>("MissionToST2", 1);
     forST2com = n.advertise<std_msgs::Int32MultiArray>("txST1", 1);
-    tomain = n.advertise<std_msgs::Int32>("missionToMain", 100);
-    sub = n.subscribe("mainToMission", 1000, chatterCallback);
+    tomain = n.advertise<std_msgs::Int32MultiArray>("missionToMain", 10);
+    sub = n.subscribe("mainToMission", 100, chatterCallback);
     // subplaner = n.subscribe("planerToMission", 1000, chatterCallback_planer);
     subST2 = n.subscribe("ST2ToMission", 1000, chatterCallback_ST2);
     // subST2com = n.subscribe("rxST1", 1000, chatterCallback_ST2com);
     ros::Rate loop_rate(10);
-
+    int timestep = 1;
     int count = 0;
     while (ros::ok())
     {
@@ -576,7 +594,9 @@ int main(int argc, char **argv)
         forST2.publish(for_st2);
         forST2com.publish(for_st2);
         for_st2.data.clear(); 
-        to_main.data=state_mission;
+        to_main.data[0]=state_mission;
+        to_main.data[1]=timestep;
+        timestep++;
         tomain.publish(to_main);
         ros::spinOnce();
 

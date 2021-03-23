@@ -1,16 +1,16 @@
 #include "ros/ros.h"
 #include "std_msgs/String.h"
 #include "mission/maintomission.h"
-#include <std_msgs/Int32.h>
+#include <std_msgs/Int32MultiArray.h>
 // #include "mission/missiontomain.h"
 #include <sstream>
 
 int state_mission;
 int mission_var = 1;
-void chatterCallback(const std_msgs::Int32::ConstPtr& msg)
+void chatterCallback(const std_msgs::Int32MultiArray::ConstPtr& msg)
 {
-  ROS_INFO("I heard mission state: [%d]", msg-> data);
-  state_mission = msg -> data;
+  ROS_INFO("I heard mission state: [%d]", msg-> data[0]);
+  state_mission = msg -> data[0];
 }
 
 int main(int argc, char **argv)
@@ -20,8 +20,8 @@ int main(int argc, char **argv)
 
   ros::NodeHandle n;
 
-  ros::Publisher chatter_pub = n.advertise<mission::maintomission>("mainToMission", 1000);
-  ros::Subscriber sub = n.subscribe("missionToMain", 1000, chatterCallback);
+  ros::Publisher chatter_pub = n.advertise<mission::maintomission>("mainToMission", 100);
+  ros::Subscriber sub = n.subscribe("missionToMain", 10, chatterCallback);
   ros::Rate loop_rate(10);
   int mode;
   int count = 0;

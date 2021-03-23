@@ -25,7 +25,7 @@ ros::Publisher forST2_littlecom;
 ros::Subscriber sub;
 ros::Subscriber subplaner;
 ros::Subscriber subST2_little;
-std_msgs::Int32 to_main;
+std_msgs::Int32MultiArray to_main;
 std_msgs::Float32MultiArray for_planer;
 float planer_rx = 9;
 std::vector<int> ST2_little_rx{0,0,0,0,0,0,0,0,0};
@@ -46,7 +46,7 @@ int state_mission = 2;
 int success = 1, fail = 0, ing = 2, stop = 3;
 int tx = 101;
 int team;
-int data_len = 9;
+int data_len = 3;
 
 bool publish_planer;
 class mission_setting{
@@ -155,7 +155,7 @@ void claw_action(int color, int state, std::vector<int> &reef_color){
         int hd = claw_trans(claw);
         publish_ST2_little( 3, 2, hd);
     }
-    if ( state_ST2_little == 1){
+    if ( checkST2_state( {ST2_little_tx})  == 1){
         state_mission = success;
         // for ( int i = 0; i < reef_color.size(); i++){
         //     claw_color[i] = reef_color[i];
@@ -280,31 +280,35 @@ int main(int argc, char **argv)
 
 ros::init(argc, argv, "mission");
 ros::NodeHandle n;
-
-forplaner = n.advertise<std_msgs::Float32MultiArray>("MissionToplaner", 1);
+to_main.data={ 0, 0};
+forplaner = n.advertise<std_msgs::Float32MultiArray>("missionToplaner", 1);
 forST2_little = n.advertise<std_msgs::Int32MultiArray>("MissionToST2_little", 1);
 forST2_littlecom = n.advertise<std_msgs::Int32MultiArray>("txST1", 1);
 // ros::Publisher forNavigation = n.advertise<geometry_msgs::PoseStamped>("move_base_simple/goal", 1);
 // ros::Publisher forplaner = n.advertise<std_msgs::String>("forplaner", 1);
 // ros::Publisher forST2_little = n.advertise<std_msgs::String>("forST2_little", 1);
-tomain = n.advertise<std_msgs::Int32>("MissionToMain", 100);
-sub = n.subscribe("MainToMission", 1000, chatterCallback);
+tomain = n.advertise<std_msgs::Int32MultiArray>("missionToMain", 100);
+sub = n.subscribe("mainToMission", 1000, chatterCallback);
 subplaner = n.subscribe("planerToMission", 1000, chatterCallback_planer);
 subST2_little = n.subscribe("ST2_littleToMission", 1000, chatterCallback_ST2_little);
 //   ros::Publisher chatter_pub = n.advertise<std_msgs::String>("chatter", 1000);
 ros::Rate loop_rate(10);
-
-    int count = 0;
+ROS_INFO("debug outside while");
+int count = 0;
+int timestep = 1;
   while (ros::ok())
   {
+    ROS_INFO("debug inside while");
     for ( int i = 0; i < data_len; i++){
         for_ST2_little.data.push_back(ST2_little_tx[i]);
-        // ROS_INFO("publish in for %d ", ST2_little_tx[i]);
+        ROS_INFO("publish in for %d ", ST2_little_tx[i]);
     }
     forST2_little.publish(for_ST2_little);
     for_ST2_little.data.clear(); 
     // to_main.state = state_mission;
-    to_main.data = state_mission;
+    to_main.data[0]=state_mission;
+    to_main.data[1]=timestep;
+    timestep++;
     tomain.publish(to_main);
     ros::spinOnce();
 

@@ -153,7 +153,7 @@ def mission_precondition(req):
 			{ 'no' : 23, 'location' : [ 0, 0, 0 ], 'state' : 0, 'color' : 3, 'type' : 1 ,'robot_pos' : []}, { 'no' : 24, 'location' : [ 0, 0, 0 ], 'state' : 0, 'color' : 3, 'type' : 1 ,'robot_pos' : []}]
 
 		#no, name, location, NS, reefp, reefr, reefl, windsock, flag, lhouse, time, reward, effect[reefp, reefr, reefl, windsock, flag, lhouse]
-		windsock = Mission_precondition( 1, "windsock", ( 2000, 430, 0), None, None, None, None, 0, None, None, 8, 80, [None, None, None, 1, None, None,])
+		windsock = Mission_precondition( 1, "windsock", ( 2000, 430, 0), None, None, None, None, 0, None, None, 8, 50, [None, None, None, 1, None, None,])
 		lhouse = Mission_precondition( 2, "lhouse", ( 0, 300, 0 ), None, None, None, None, None, None, 0, 2, 50,[None, None, None, None, None, 1])
 		getcup = Mission_precondition( 12, "getcup", ( 0, 0, 0), None, None, None, None, None, None, None, 5, 20,[None, None, None, None, None, None])
 		#special case for cup 12 34
@@ -208,14 +208,14 @@ def mission_precondition(req):
 			{ 'no' : 23, 'location' : [ 0, 0, 0 ], 'state' : 0, 'color' : 3, 'type' : 1 ,'robot_pos' : []}, { 'no' : 24, 'location' : [ 0, 0, 0 ], 'state' : 0, 'color' : 3, 'type' : 1 ,'robot_pos' : []}]
 		
 		#name, location, NS, reefp, reefr, reefl, windsock, flag, lhouse, time, reward, effect[reefp, reefr, reefl, windsock, flag, lhouse]
-		windsock = Mission_precondition( 1, "windsock", ( 2000, 2330, 0), None, None, None, None, 0, None, None, 8, 80, [None, None, None, 1, None, None])
+		windsock = Mission_precondition( 1, "windsock", ( 2000, 2330, 0), None, None, None, None, 0, None, None, 8, 50, [None, None, None, 1, None, None])
 		lhouse = Mission_precondition( 2, "lhouse", ( 0, 2775, 0 ), None, None, None, None, None, None, 0, 2, 50,[None, None, None, None, None, 1])
 		getcup = Mission_precondition( 12, "getcup", ( 0, 0, 0), None, None, None, None, None, None, None, 5, 20,[None, None, None, None, None, None])
 		#special case for cup 12 34
 		getcup_12 = Mission_precondition( 13, "getcup_12", ( 1085, 2600, 0), None, None, None, None, None, None, None, 10, 1300,[None, None, None, None, None, None])
 		getcup_34 = Mission_precondition( 14, "getcup_34", ( 500, 2600, 0), None, None, None, None, None, None, None, 10, 1300,[None, None, None, None, None, None])
 		#reef cup counts separately
-		reef_private = Mission_precondition( 8, "reef_private", ( 1600, 3000, 0 ), None, None, 1, None, None, None, None, 9, 100,[0, None, None, None, None, None])
+		reef_private = Mission_precondition( 8, "reef_private", ( 1600, 3000, 0 ), None, None, 1, None, None, None, None, 9, 500,[0, None, None, None, None, None])
 		reef_left = Mission_precondition( 6, "reef_left", ( 0, 850, 0 ), None, None, None, 1, None, None, None, 9, 200,[None, None, 0, None, None, None])
 		reef_right = Mission_precondition(7, "reef_right", ( 0, 2150, 0 ), None, None, None, 1, None, None, None, 9, 200,[None, 0, None, None, None, None])
 		placecup_reef = Mission_precondition( 11, "placecup_reef", ( 800, 2775, 0 ), None, None, None, None, None, None, None, 10, 10000,[None, None, None, None, None, None])

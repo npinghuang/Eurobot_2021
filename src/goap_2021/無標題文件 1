@@ -31,11 +31,11 @@ enemy1_pos: [0,0]
 enemy2_pos: [0,0]
 strategy: 0" 
 
-"my_pos: [800,200,0]
+"my_pos: [800,2700,0]
 friend_pos: [0,0,0]
 ns: false
 emergency: false
-team: false
+team: true
 time: 0.0
 friend_action: [0,0]
 action_list: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
@@ -44,7 +44,7 @@ cup: 16777215
 hand: [0,0,0,0,0,0,0,0,0,0,0,0]
 enemy1_pos: [0,0]
 enemy2_pos: [0,0]
-strategy: 0" 
+strategy: 1" 
 
 "my_pos: [10,10,0]
 friend_pos: [0,0,0]

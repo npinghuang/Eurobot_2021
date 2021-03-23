@@ -178,7 +178,7 @@ def mission_precondition(req):
 	    windsock.little_mission_no = [ 1, 15]
 	    lhouse.little_mission_count = 3
 	    lhouse.location = [100, 275, math.pi ]
-	    lhouse.little_mission_pos = [ [100, 275, math.pi ], [ 50, 275, math.pi], [100, 275, math.pi]]
+	    lhouse.little_mission_pos = [ [150, 275, math.pi ], [ 100, 275, math.pi], [150, 275, math.pi]]
 	    lhouse.little_mission_no = [ 2, 16, 17]
 	    placecupH.little_mission_count = 7
 	    placecupH.little_mission_pos =[ [1900, 1800, 0],  [1870, 1800, 0],  [1650, 1800, 0],  [1900, 1800, math.pi],  [1800, 1800, math.pi], [1770, 1800, math.pi], [1650, 1800, math.pi]]
@@ -186,8 +186,8 @@ def mission_precondition(req):
 
 	elif req.team == 1: 
 		#name, location, NS, reefp, reefr, reefl, windsock, flag, lhouse, time, reward, effect[reefp, reefr, reefl, windsock, flag, lhouse]
-	    windsock = Mission_precondition( 1, "windsock", ( 2000, 2330, 0), None, None, None, None, 0, None, None, 8, 80, [None, None, None, 1, None, None])
-	    lhouse = Mission_precondition( 2, "lhouse", ( 0, 2775, 0 ), None, None, None, None, None, None, 0, 2, 50,[None, None, None, None, None, 1])
+	    windsock = Mission_precondition( 1, "windsock", ( 2000, 2330, 0), None, None, None, None, 0, None, None, 8, 100, [None, None, None, 1, None, None])
+	    lhouse = Mission_precondition( 2, "lhouse", ( 0, 2775, 0 ), None, None, None, None, None, None, 0, 2, 1000,[None, None, None, None, None, 1])
 	    getcup = Mission_precondition( 12, "getcup", ( 0, 0, 0), None, None, None, None, None, None, None, 5, 20,[None, None, None, None, None, None])
 	    #special case for cup 12 34
 	    getcup_12 = Mission_precondition( 13, "getcup_12", ( 1085, 2600, 0), None, None, None, None, None, None, None, 10, 13000,[None, None, None, None, None, None])
@@ -210,8 +210,8 @@ def mission_precondition(req):
 	    windsock.little_mission_pos = [ [1850, 2800, math.pi/2], [1850, 2300, math.pi/2]]
 	    windsock.little_mission_no = [ 1, 15]
 	    lhouse.little_mission_count = 3
-	    lhouse.location = [100, 3725, math.pi]
-	    lhouse.little_mission_pos = [ [100, 3725, math.pi ], [ 50, 3725,math.pi], [100, 3725, math.pi ]]
+	    lhouse.location = [150, 2725, math.pi]
+	    lhouse.little_mission_pos = [ [150, 2725, math.pi ], [ 100, 2725,math.pi], [150, 2725, math.pi ]]
 	    lhouse.little_mission_no = [ 2, 16, 17]
 	    placecupH.little_mission_count = 7
 	    placecupH.little_mission_pos =[ [1900, 1200, 0],  [1870, 1200, 0],  [1650, 1200, 0],  [1900, 1200, math.pi],  [1800, 1200, math.pi], [1770, 1200, math.pi], [1650, 1200, math.pi]]
@@ -235,14 +235,15 @@ def cup_location_transfrom(cup_state):
 	for cup in cup_state:
 		del cup['robot_pos'][:]
 	# set parameter here 
-	r = 50 #expansion radius
+	r = 80 #expansion radius
 	n = 8 # how many dot per each cup
-	x = 0
-	y = 0
-	theta = 0
-	border = 100 #margin from each border
+	x = 0.0
+	y = 0.0
+	theta = 0.0
+	border = 125 #margin from each border
 	cup_margin = 200 #margin for not to hit other cup
 	angle = math.pi / n 
+	# obstacle at harbour
 	bump_middle = [ 1700, 1490 ]
 	bump_right_blue = [ 1850, 2090 ]
 	bump_left_yellow = [ 1850, 955 ]
@@ -254,8 +255,9 @@ def cup_location_transfrom(cup_state):
 				y = cup['location'][1] + ( r * math.cos( i * angle ))
 				theta = i * angle
 				case = 1
+				
 				if x > border and x < ( 2000 - border ) and y > border and y < ( 3000 - border ): #check if hit the wall or not
-					if cup['no'] <= 16 and cup['no'] >= 13: #check if hit the wall at harbour 
+					if (cup['no'] <= 7 and cup['no'] >= 14) and (cup['no'] <= 17 and cup['no'] >= 18): #check if hit the wall at harbour 
 						if (x > ( bump_middle[0] - 30 ) and x < ( 2000 )) or (y > ( bump_middle[1] - border ) and y < ( bump_middle[1] + border )): #left one
 							case = 0
 						#for blue
@@ -266,6 +268,7 @@ def cup_location_transfrom(cup_state):
 							case = 0
 					#check if hit other cup or not
 					tmp = 0
+					
 					while tmp != -1 and tmp < len(cup_state) and case == 1:
 						if cup['no'] != cup_state[tmp]['no'] and cup_state[tmp]['state'] == 1: #not to examine the same cup
 							d = distance( cup_state[tmp]['location'], [ x, y ] )
@@ -276,6 +279,7 @@ def cup_location_transfrom(cup_state):
 						else:
 							tmp += 1
 					if tmp != -1 and case == 1:
+						print("cup pos no: ", cup['no'], x, y, theta)
 						cup['robot_pos'].append( [x, y, theta] )
 		# print("cup", cup['no'], len(cup['robot_pos']))
 
