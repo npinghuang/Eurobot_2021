@@ -61,7 +61,7 @@ def evaluate(current, robot):
     mm = 0
     for m in current.achieved:
         if m.name == 'windsock':
-            score += 15 * 2
+            score += 15 
         elif m.name == 'lhouse':
             score += 10
         elif m.name == 'anchorN' or  m.name == 'anchorS':
