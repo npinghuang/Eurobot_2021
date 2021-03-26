@@ -183,15 +183,18 @@ def mission_precondition(req):
 		reef_left.little_mission_count = 3
 		reef_left.location = [80, 850, math.pi]
 		reef_left.little_mission_pos = [ [80, 850, math.pi], [50, 850, math.pi],  [80, 850, math.pi]]
-		reef_left.little_mission_no = [ 6, 24, 25]
+		reef_left.little_mission_no = [ 7, 26, 27]
 		reef_right.little_mission_count = 3
 		reef_right.location = [80, 850, math.pi]
 		reef_right.little_mission_pos = [ [80, 850, math.pi], [50, 2150, math.pi],  [80, 850, math.pi]]
-		reef_right.little_mission_no = [ 6, 26, 27]
+		reef_right.little_mission_no = [ 6, 24, 25]
 		reef_private.little_mission_count = 3
 		reef_private.location = [1600, 80, -math.pi / 2]
 		reef_private.little_mission_pos = [ [1600, 80, -math.pi / 2], [1600, 50, -math.pi / 2],  [1600, 80, -math.pi / 2]]
-		reef_private.little_mission_no = [ 6, 28, 29]
+		reef_private.little_mission_no = [ 8, 28, 29]
+		placecup_reef.little_mission_count = 2
+		placecup_reef.little_mission_no = [ 11, 30]
+		placecup_reef.little_mission_pos = [[ 800, 200, 0 ],[ 800, 200, 0 ] ]
 	elif req.team == 1: 
 		# yellow : ( no, ( x, y ), 1 for cup still there 0 for cup gone,  2  for green 3 for red, type : private 0 or public 1 )
 		cur.cup_state = [  { 'no' : 1, 'location' : [ 1200, 2700, 0 ], 'state' : 1, 'color' : 2, 'type' : 0 ,'robot_pos' : []}, { 'no' : 2, 'location' : [ 1085, 2555, 0 ], 'state' : 1, 'color' : 3, 'type' : 0 ,'robot_pos' : []},
@@ -241,16 +244,15 @@ def mission_precondition(req):
 		reef_left.little_mission_no = [ 6, 24, 25]
 		reef_right.little_mission_count = 3
 		reef_right.location = [80, 850, math.pi]
-		reef_right.little_mission_pos = [ [80, 850, math.pi], [50, 2150, math.pi],  [80, 850, math.pi]]
-		reef_right.little_mission_no = [ 6, 26, 27]
+		reef_right.little_mission_pos = [ [80, 2150, math.pi], [50, 2150, math.pi],  [80, 2150, math.pi]]
+		reef_right.little_mission_no = [ 7, 26, 27]
 		reef_private.little_mission_count = 3
 		reef_private.location = [1600, 3920, math.pi / 2]
 		reef_private.little_mission_pos = [ [1600, 3920, math.pi / 2], [1600, 3950, math.pi / 2],  [1600, 3920, math.pi / 2]]
-		reef_private.little_mission_no = [ 6, 28, 29]
-		# placecup_reef.location = [800, 2775, 0]
-		# placecup_reef.little_mission_count = 0 
-		# placecup_reef.little_mission_pos = []
-		# placecup_reef.little_mission_no = [ 11, 30]
+		reef_private.little_mission_no = [ 8, 28, 29]
+		placecup_reef.little_mission_count = 2
+		placecup_reef.little_mission_no = [ 11, 30]
+		placecup_reef.little_mission_pos = [[ 800, 2700, 0 ],[ 800, 2700, 0 ] ]
 	cur.leaf = [ windsock, lhouse, reef_private, reef_right, reef_left, placecup_reef,  anchorN, anchorS, flag] # change item in this array to set what action is to be considered in goap
 	# cur.myfunc("current")
 	#refresh cup state

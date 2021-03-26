@@ -15,6 +15,8 @@
 #include<math.h>
 using namespace std;
 
+//1 for red 0 for green
+//0 for N 1 for S
 #include "mission/mission_action.h"
 ros::Publisher tomain;
 ros::Publisher forST2_little;
@@ -33,7 +35,7 @@ int initialize = 1;
 // int planer_tx = 88;
 std::vector<int> hand{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 std::vector<float> planer_tx{0,0,0};
-std::vector<int> ST2_little_tx{0,0,0};
+std::vector<int> ST2_little_tx{0,0,0,0,0,0,0,0,0};
 std::vector<int> claw{0,0,0,0,0};
 std::vector<int> claw_color{0,0,0,0,0};
 std::vector<int> reefl_color{2, 3, 2, 3, 2};
@@ -46,7 +48,7 @@ int state_mission = 2;
 int success = 1, fail = 0, ing = 2, stop = 3;
 int tx = 101;
 int team;
-int data_len = 3;
+int data_len = 9;
 
 bool publish_planer;
 class mission_setting{
@@ -101,20 +103,28 @@ bool checkST2_state(std::vector<int> &tx){
     // if st2 tx == rx
     int state = 1;
     for ( int i = 0; i < data_len; i++){
-        if ( tx[i] != ST2_little_rx[i]){
+        if ( tx[i] != ST2_little_rx[i] || ST2_little_rx[i] == 3){ // return 3 from performing action
             state = 0;
             break;
         }
     }
     return state;
 }
-void publish_planner(){
-    for_planer.data.push_back(planer_tx[0]);
-    for_planer.data.push_back(planer_tx[1]);
-    for_planer.data.push_back(planer_tx[2]);
-    forplaner.publish(for_planer);
-    for_planer.data.clear();
+void do_nothing(){
+    if ( state_planer == 1){
+            state_mission = 1; //no action need to be done by ST2 so always return success
+        }
+    else{
+        state_mission = ing;
+    }
 }
+// void publish_planner(){
+//     for_planer.data.push_back(planer_tx[0]);
+//     for_planer.data.push_back(planer_tx[1]);
+//     for_planer.data.push_back(planer_tx[2]);
+//     forplaner.publish(for_planer);
+//     for_planer.data.clear();
+// }
 int claw_trans( std::vector<int> &vector ){
     int temp = 0;
     for ( int i = 0; i < vector.size(); i++){
@@ -142,6 +152,7 @@ void claw_action(int color, int state, std::vector<int> &reef_color){
     case 1:{ // getcup
         for ( int i = 0; i < claw.size(); i++){
             claw[i] = 0; // 0 for close 1 for open 
+            ST2_little_tx[ 1+ i ] = 0;
             claw_color[i] = reef_color[i];
             ROS_INFO("claw color %d", reef_color[i] );
         }
@@ -216,46 +227,294 @@ void chatterCallback(const mission::maintomission::ConstPtr& msg)
       state_mission = success;
       break;
     case 6: // reef_l
+        do_nothing();
+        break;
+    case 24 :
         if ( state_planer == 1){
-            if ( reef_l.count == 0){ // open claw
+            switch (reef_l.count)
+            {
+            case 0://open claw
                 state_mission = ing;
-                ST2_little_tx[0] = 0;
-                for ( int i = 1; i < 9; i++){
-                    ST2_little_tx[i] = 1;
-                }
-            }
-            else if ( checkST2_state(ST2_little_tx) == 1 && reef_l.count == 1){ // lower platform
-                ST2_little_tx[0] = 0;
-                for ( int i = 1; i < 8; i++){
-                    ST2_little_tx[i] = 1;
-                }
-                ST2_little_tx[8] = 2;
-            }
-            else if ( checkST2_state(ST2_little_tx) == 1 && reef_l.count == 2){ // raise platform
                 ST2_little_tx[0] = 0;
                 for ( int i = 1; i < 8; i++){
                     ST2_little_tx[i] = 1;
                 }
                 ST2_little_tx[8] = 1;
+                if ( checkST2_state(ST2_little_tx) == 1 ){
+                    reef_l.count ++;
+                }
+                break;
+            case 1:
+                ST2_little_tx[8] = 2;
+                if ( checkST2_state(ST2_little_tx) == 1 ){
+                    reef_l.count ++;
+                }
+                break;
+            case 2:
+                for ( int i = 1; i < 6; i ++){
+                    ST2_little_tx[i] = 0;
+                }
+                 if ( checkST2_state(ST2_little_tx) == 1 ){
+                    reef_l.count ++;
+                }
+                break;
+            case 3: // raise platform
+                ST2_little_tx[8] = 1;
+                if ( checkST2_state(ST2_little_tx) == 1 ){
+                    reef_l.count ++;
+                }
+                break;
+            case 4: // mission done
+                if ( checkST2_state(ST2_little_tx) == 1 ){
+                    state_mission = success;
+                    reef_l.count  = 0;
+                }
+                break;
+            default:
+                break;
+            }            
+        }
+        // claw_action(0,1, reefl_color);
+        break;
+    case 25: // reef_l
+        do_nothing();
+        break;
+    case 7: // reef_r
+        do_nothing();
+        break;
+    case 26:
+        if ( state_planer == 1){
+            switch (reef_r.count)
+            {
+            case 0://open claw
+                state_mission = ing;
+                ST2_little_tx[0] = 0;
+                for ( int i = 1; i < 8; i++){
+                    ST2_little_tx[i] = 1;
+                }
+                ST2_little_tx[8] = 1;
+                if ( checkST2_state(ST2_little_tx) == 1 ){
+                    reef_r.count ++;
+                }
+                break;
+            case 1:
+                ST2_little_tx[8] = 2;
+                if ( checkST2_state(ST2_little_tx) == 1 ){
+                    reef_r.count ++;
+                }
+                break;
+            case 2:
+                for ( int i = 1; i < 6; i ++){
+                    ST2_little_tx[i] = 0;
+                }
+                 if ( checkST2_state(ST2_little_tx) == 1 ){
+                    reef_r.count ++;
+                }
+                break;
+            case 3: // raise platform
+                ST2_little_tx[8] = 1;
+                if ( checkST2_state(ST2_little_tx) == 1 ){
+                    reef_r.count ++;
+                }
+                break;
+            case 4: // mission done
+                if ( checkST2_state(ST2_little_tx) == 1 ){
+                    state_mission = success;
+                    reef_r.count  = 0;
+                }
+                break;
+            default:
+                break;
+            }            
+        }
+        break;
+    case 27: // reef_r
+        do_nothing();
+        break;
+    case 8: // reef_p
+        do_nothing();
+        break;
+    case 28: // reef_p
+        if ( state_planer == 1){
+            switch (reef_p.count)
+            {
+            case 0://open claw
+                state_mission = ing;
+                ST2_little_tx[0] = 0;
+                for ( int i = 1; i < 8; i++){
+                    ST2_little_tx[i] = 1;
+                }
+                ST2_little_tx[8] = 1;
+                if ( checkST2_state(ST2_little_tx) == 1 ){
+                    reef_p.count ++;
+                }
+                break;
+            case 1:
+                ST2_little_tx[8] = 2;
+                if ( checkST2_state(ST2_little_tx) == 1 ){
+                    reef_p.count ++;
+                }
+                break;
+            case 2:
+                for ( int i = 1; i < 6; i ++){
+                    ST2_little_tx[i] = 0;
+                }
+                 if ( checkST2_state(ST2_little_tx) == 1 ){
+                    reef_p.count ++;
+                }
+                break;
+            case 3: // raise platform
+                ST2_little_tx[8] = 1;
+                if ( checkST2_state(ST2_little_tx) == 1 ){
+                    reef_p.count ++;
+                }
+                break;
+            case 4: // mission done
+                if ( checkST2_state(ST2_little_tx) == 1 ){
+                    state_mission = success;
+                    reef_p.count  = 0;
+                }
+                break;
+            default:
+                break;
+            }            
+        }
+        break;
+    case 29: // reef_r
+        do_nothing();
+        break;
+//   case 11: // placecup_r
+//     for ( int color = 2; color <= 3; color ++){
+//         claw_action(color, 0, reef_null);
+//     }
+    
+//     //   state_mission = success;
+//       break;
+    case 11: // placecup_r for 0418 demo
+        ROS_INFO("placecup count %d", placecup_r.count);
+        if ( state_planer == 1 ){
+            switch ( placecup_r.count )
+            {
+            case 0 :// lower platform
+                state_mission = ing;
+                ST2_little_tx[0] = 0;
+                for ( int i = 1; i < claw_color.size() + 1; i++){
+                        ST2_little_tx[i] = 0;
+                }
+                ST2_little_tx[6] = 1;
+                ST2_little_tx[7] = 1;
+                ST2_little_tx[8] = 0;
+                if ( checkST2_state(ST2_little_tx) == 1 ){
+                    placecup_r.count ++;
+                }
+                break;
+            case 1: // open claw for greeen cup
+                ST2_little_tx[0] = 0;
+                for ( int i = 1; i < claw_color.size() + 1; i++){
+                    if ( msg -> NS == 0 ){ // N green -> red 
+                        if ( msg->reef [ i - 1 ] == 0 ){//green
+                            ST2_little_tx[i] = 1;
+                        }
+                        else{
+                            ST2_little_tx[i] = 0;
+                        }
+                    }
+                    else{ // S red
+                        if ( msg->reef [ i - 1 ] == 1 ){//green
+                            ST2_little_tx[i] = 1;
+                        }
+                        else{
+                            ST2_little_tx[i] = 0;
+                        }
+                    }
+                }
+                ST2_little_tx[6] = 1;
+                ST2_little_tx[7] = 1;
+                ST2_little_tx[8] = 0;
+                if ( checkST2_state(ST2_little_tx) == 1 ){
+                    placecup_r.count ++;
+                }
+                break;
+            case 2: //raise platform
+                ST2_little_tx[8] = 1;
+                if ( checkST2_state(ST2_little_tx) == 1 ){
+                    placecup_r.count ++;
+                }
+                break;
+            case 3: // mission done
+                if ( checkST2_state(ST2_little_tx) == 1 ){
+                    state_mission = success;
+                    placecup_r.count  = 0;
+                }
+                break;
+            default:
+                break;
             }
-            else if ( checkST2_state(ST2_little_tx) == 1 && reef_l.count == 3){
-                state_mission = success;
-                reef_l.count = 0;
-            }
+                
             
         }
-    claw_action(0,1, reefl_color);
-    break;
-  case 7: // reef_r
-    claw_action(0,1, reefr_color);
+        // for ( int color = 2; color <= 3; color ++){
+        //     claw_action(color, 0, reef_null);
+        // }
+    
+    //   state_mission = success;
       break;
-  case 8: // reef_p
-    claw_action(0,1, reefp_color);
-      break;
-  case 11: // placecup_r
-    for ( int color = 2; color <= 3; color ++){
-        claw_action(color, 0, reef_null);
-    }
+    case 30: // place cup 2nd color
+        if ( state_planer == 1){
+            switch ( placecup_r.count )
+            {
+            case 0 :// lower platform
+                state_mission = ing;
+                ST2_little_tx[0] = 0;
+                for ( int i = 1; i < claw_color.size() + 1; i++){
+                        ST2_little_tx[i] = 0;
+                }
+                ST2_little_tx[6] = 1;
+                ST2_little_tx[7] = 1;
+                ST2_little_tx[8] = 0;
+                if ( checkST2_state(ST2_little_tx) == 1 ){
+                    placecup_r.count ++;
+                }
+                break;
+            case 1: // open claw for cup
+                ST2_little_tx[0] = 0;
+                for ( int i = 1; i < claw_color.size() + 1; i++){
+                    if ( msg -> NS == 0 ){ // N green -> red 
+                        if ( msg->reef [ i - 1 ] == 1 ){//red
+                            ST2_little_tx[i] = 1;
+                        }
+                    }
+                    else{ // S red
+                        if ( msg->reef [ i - 1 ] == 0 ){//green
+                            ST2_little_tx[i] = 1;
+                        }
+                    }
+                }
+                if ( checkST2_state(ST2_little_tx) == 1 ){
+                    placecup_r.count ++;
+                }
+                break;
+            case 2: //raise platform
+                ST2_little_tx[8] = 1;
+                if ( checkST2_state(ST2_little_tx) == 1 ){
+                    placecup_r.count ++;
+                }
+                break;
+            case 3: // mission done
+                if ( checkST2_state(ST2_little_tx) == 1 ){
+                    state_mission = success;
+                    placecup_r.count  = 0;
+                }
+                break;
+            default:
+                break;
+            }
+                
+            
+        }
+        // for ( int color = 2; color <= 3; color ++){
+        //     claw_action(color, 0, reef_null);
+        // }
     
     //   state_mission = success;
       break;

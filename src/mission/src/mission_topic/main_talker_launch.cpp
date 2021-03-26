@@ -40,7 +40,8 @@ int main(int argc, char **argv)
     to_mission.hand = {hand1_param,hand2_param};
     to_mission.action_pos = { 0, 0, 0 };
     to_mission.cup = {1,2};
-    
+    to_mission.NS = false;
+    to_mission.reef = {0,1,0,1,0};
     to_mission.planer_state = 1;
     to_mission.team = 0;
 

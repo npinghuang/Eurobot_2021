@@ -248,7 +248,7 @@ void init(){
 }
 void getcup_one( int hand){
     ROS_INFO("count [%d]", getcup.count);
-        int handd = pow( 2, hand);
+        int handd = hand;
         if ( state_planer == 1){
             if ( hand <= 4 ){
                 if ( getcup.count == 0){
