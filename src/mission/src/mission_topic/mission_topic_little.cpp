@@ -106,7 +106,8 @@ bool checkST2_state(std::vector<int> &tx){
     // if st2 tx == rx
     int state = 1;
     for ( int i = 0; i < data_len; i++){
-        if ( tx[i] != ST2_little_rx[i] || ST2_little_rx[i] == 3){ // return 3 from performing action
+ROS_INFO("check rx %d %d",i, ST2_little_rx[i]);
+        if ( tx[i] != ST2_little_rx[i] ){ // return 3 from performing action
             state = 0;
             break;
         }
@@ -207,14 +208,22 @@ bool newaction(const mission::maintomission::ConstPtr& msg){
 }
 void chatterCallback_planer(const std_msgs::Int32MultiArray::ConstPtr& msg)
 {
-    // ROS_INFO("I heard action: [%d]", msg->data[0]);
-    state_planer = msg -> data[0] ;
+    ROS_INFO("I heard PLANER:  [%d]", msg->data[0]);
+    //state_planer = msg -> data[0] ;
 }
 void chatterCallback_ST2_little(const std_msgs::Int32MultiArray::ConstPtr& msg)
 {
     // ROS_INFO("I heard ST2_little: [%d]", msg->data[0]);
+    //for ( int i = 0; i < data_len; i++){
+    //    ST2_little_rx[i] = msg -> data[i];
+  //  }
+}
+void chatterCallback_ST2_littlecom(const std_msgs::Int32MultiArray::ConstPtr& msg)
+{
+     
     for ( int i = 0; i < data_len; i++){
         ST2_little_rx[i] = msg -> data[i];
+//ROS_INFO("I heard ST2_little:%d [%d]",i, msg->data[i]);
     }
 }
 void chatterCallback(const mission::maintomission::ConstPtr& msg)
@@ -222,6 +231,7 @@ void chatterCallback(const mission::maintomission::ConstPtr& msg)
   ROS_INFO("I heard action: [%d]", msg->action);
   tx++;
   state_planer = msg->planer_state;
+  ROS_INFO("I heard PLANER: [%d]", state_planer);
   team = msg->team;
   
     // initialize here st2 will give number 5 initially
@@ -316,6 +326,7 @@ void chatterCallback(const mission::maintomission::ConstPtr& msg)
         do_nothing();
         break;
     case 26:
+	ROS_INFO("reef r count %d", reef_r.count);
         if ( state_planer == 1){
             switch (reef_r.count)
             {
@@ -326,6 +337,7 @@ void chatterCallback(const mission::maintomission::ConstPtr& msg)
                     ST2_little_tx[i] = 1;
                 }
                 ST2_little_tx[8] = 1;
+		ROS_INFO("reef state %d", checkST2_state(ST2_little_tx));
                 if ( checkST2_state(ST2_little_tx) == 1 ){
                     reef_r.count ++;
                 }
@@ -445,22 +457,22 @@ void chatterCallback(const mission::maintomission::ConstPtr& msg)
                 ST2_little_tx[0] = 0;
                 for ( int i = 1; i < claw_color.size() + 1; i++){
                     if ( msg -> NS == 0 ){ // N green -> red 
-                        // if ( msg->reef [ i - 1 ] == 0 ){//green
-                        //     ST2_little_tx[i] = 1;
-                        // }
-                        // else{
-                        //     ST2_little_tx[i] = 0;
-                        // }
-                        ST2_little_tx[i] = 1;
+                         if ( msg->reef [ i - 1 ] == 0 ){//green
+                             ST2_little_tx[i] = 1;
+                         }
+                         else{
+                             ST2_little_tx[i] = 0;
+                         }
+                        //ST2_little_tx[i] = 1;
                     }
                     else{ // S red
-                        // if ( msg->reef [ i - 1 ] == 1 ){//green
-                        //     ST2_little_tx[i] = 1;
-                        // }
-                        // else{
-                        //     ST2_little_tx[i] = 0;
-                        // }
-                        ST2_little_tx[i] = 1;
+                         if ( msg->reef [ i - 1 ] == 1 ){//green
+                             ST2_little_tx[i] = 1;
+                         }
+                         else{
+                             ST2_little_tx[i] = 0;
+                         }
+                        //ST2_little_tx[i] = 1;
                     }
                 }
                 ST2_little_tx[6] = 1;
@@ -514,18 +526,7 @@ void chatterCallback(const mission::maintomission::ConstPtr& msg)
             case 1: // open claw for cup
                 ST2_little_tx[0] = 0;
                 for ( int i = 1; i < claw_color.size() + 1; i++){
-                    if ( msg -> NS == 0 ){ // N green -> red 
-                        // if ( msg->reef [ i - 1 ] == 1 ){//red
-                        //     ST2_little_tx[i] = 1;
-                        // }
-                        ST2_little_tx[i] = 1;
-                    }
-                    else{ // S red
-                        // if ( msg->reef [ i - 1 ] == 0 ){//green
-                        //     ST2_little_tx[i] = 1;
-                        // }
-                        ST2_little_tx[i] = 1;
-                    }
+                    ST2_little_tx[i] = 1;
                 }
                 if ( checkST2_state(ST2_little_tx) == 1 ){
                     placecup_r.count ++;
@@ -577,10 +578,10 @@ old_command[3] = msg->hand[0];
 old_command[4] = msg->hand[1];
 }
 
-for_ST2_little.data = {0,1,1,1,1,1,1,1,1};
+
 int main(int argc, char **argv)
 {
-
+for_ST2_little.data = {0,1,1,1,1,1,1,1,1};
 ros::init(argc, argv, "mission");
 ros::NodeHandle n;
 to_main.data={ 0, 0};
@@ -594,6 +595,7 @@ tomain = n.advertise<std_msgs::Int32MultiArray>("missionToMain", 100);
 sub = n.subscribe("mainToMission", 1000, chatterCallback);
 subplaner = n.subscribe("planerToMission", 1000, chatterCallback_planer);
 subST2_little = n.subscribe("ST2_littleToMission", 1000, chatterCallback_ST2_little);
+subST2_littlecom = n.subscribe("rxST1", 1000, chatterCallback_ST2_littlecom);
 //   ros::Publisher chatter_pub = n.advertise<std_msgs::String>("chatter", 1000);
 ros::Rate loop_rate(10);
 ROS_INFO("debug outside while");
@@ -603,12 +605,14 @@ int timestep = 1;
   {
     ROS_INFO("debug inside while");
     for ( int i = 0; i < data_len; i++){
+        //for_ST2_little.data.push_back(ST2_little_tx[i]);
         for_ST2_little.data[i] = ST2_little_tx[i];
-        ROS_INFO("publish in for %d ", ST2_little_tx[i]);
+        ROS_INFO("publish in for %d ", for_ST2_little.data[i]);
     }
-    forST2_little.publish(for_ST2_little);
+    //forST2_little.publish(for_ST2_little);
     forST2_littlecom.publish(for_ST2_little);
-    // for_ST2_little.data.clear(); 
+    //for_ST2_little.data.clear(); 
+    //for_ST2_littlecom.data.clear();
     // to_main.state = state_mission;
     to_main.data[0]=state_mission;
     to_main.data[1]=timestep;
