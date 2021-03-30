@@ -156,11 +156,23 @@ def cup_cost(req, current, mission, robot):
     
 
     if len( available_cup ) > 0:
-        def myFunc(e):
-            return e['distance']
-        available_cup.sort(key=myFunc)
-        mission = available_cup[0]
-        mission['location'] = available_cup[0]['robot_pos'][0]
+        # def myFunc(e):
+        #     return e['distance']
+        # available_cup.sort(key=myFunc)
+        # mission = available_cup[0]
+        # mission['location'] = available_cup[0]['robot_pos'][0]
+        # i am soo dumb dumb
+        distance_min = available_cup[0]['distance']
+        min_no = None
+        ii = 0
+        for d in available_cup:
+            if d['distance'] < distance_min:
+                distance_min = d['distance']
+                min_no = ii
+            ii += 1
+        # print("cup min", available_cup[min_no]['no'], available_cup[min_no]['robot_pos'][0])
+        mission = available_cup[min_no]
+        mission['location'] = available_cup[min_no]['robot_pos'][0]
     else :
         mission = None
 

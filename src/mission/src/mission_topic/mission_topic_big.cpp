@@ -27,7 +27,7 @@ ros::Publisher forST2com;
 ros::Subscriber sub;
 // ros::Subscriber subplaner;
 ros::Subscriber subST2;
-// ros::Subscriber subST2com;
+ros::Subscriber subST2com;
 // mission::missiontomain to_main;
 std_msgs::Int32MultiArray to_main;
 std_msgs::Float32MultiArray for_planer;
@@ -325,7 +325,16 @@ void do_nothing(){
         state_mission = ing;
     }
 }
+// for fake ST2
 void chatterCallback_ST2(const std_msgs::Int32MultiArray::ConstPtr& msg)
+{
+    // ROS_INFO("I heard ST2: [%d]", msg->data[0]);
+    for ( int i = 0; i < 6; i++){
+        ST2_rx[i] = msg -> data[i];
+    }
+}
+// from rxST2
+void chatterCallback_ST2com(const std_msgs::Int32MultiArray::ConstPtr& msg)
 {
     // ROS_INFO("I heard ST2: [%d]", msg->data[0]);
     for ( int i = 0; i < 6; i++){
@@ -584,12 +593,12 @@ int main(int argc, char **argv)
 
     // forplaner = n.advertise<std_msgs::Float32MultiArray>("MissionToplaner", 1);
     forST2 = n.advertise<std_msgs::Int32MultiArray>("MissionToST2", 1);
-    forST2com = n.advertise<std_msgs::Int32MultiArray>("txST1", 1);
+    forST2com = n.advertise<std_msgs::Int32MultiArray>("txST2", 1);
     tomain = n.advertise<std_msgs::Int32MultiArray>("missionToMain", 10);
     sub = n.subscribe("mainToMission", 100, chatterCallback);
     // subplaner = n.subscribe("planerToMission", 1000, chatterCallback_planer);
     subST2 = n.subscribe("ST2ToMission", 1000, chatterCallback_ST2);
-    // subST2com = n.subscribe("rxST1", 1000, chatterCallback_ST2com);
+    subST2com = n.subscribe("rxST2", 1000, chatterCallback_ST2com);
     ros::Rate loop_rate(10);
     ROS_INFO("mission publish");
     int count = 0;

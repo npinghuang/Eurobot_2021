@@ -279,7 +279,7 @@ def cup_location_transfrom(cup_state):
 						else:
 							tmp += 1
 					if tmp != -1 and case == 1:
-						print("cup pos no: ", cup['no'], x, y, theta)
+						# print("cup pos no: ", cup['no'], x, y, theta)
 						cup['robot_pos'].append( [x, y, theta] )
 		# print("cup", cup['no'], len(cup['robot_pos']))
 

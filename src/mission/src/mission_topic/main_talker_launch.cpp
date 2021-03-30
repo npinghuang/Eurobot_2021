@@ -35,13 +35,14 @@ int main(int argc, char **argv)
     n.getParam("/mission_param", param);  
     n.getParam("/hand1", hand1_param);
     n.getParam("/hand2", hand2_param);    
+    
     to_mission.action =  param;
 
     to_mission.hand = {hand1_param,hand2_param};
     to_mission.action_pos = { 0, 0, 0 };
-    to_mission.cup = {1,2};
+    to_mission.cup = {1,hand1_param};
     to_mission.NS = false;
-    to_mission.reef = {0,1,0,1,0};
+    to_mission.reef = {1,1,0,1,0,0,1,0,1,1};
     to_mission.planer_state = 1;
     to_mission.team = 0;
 

@@ -33,7 +33,7 @@ def checkpreconditions( req, current, mis, robot):
                     if boom1 ==  1 and boom2 == 1 and boomf == 1:
                     # if abs(cupp['location'][0] - current.enemy_1[0] ) > margin and abs(cupp['location'][1] - current.enemy_1[1] ) > margin and abs(cupp['location'][0] - current.enemy_2[0] ) > margin and abs(cupp['location'][1] - current.enemy_2[1] ) > margin:
                         current.candidate.append(m)
-        elif m.name == 'getcup_12' or m.name == 'getcup_34':
+        elif (m.name == 'getcup_12' or m.name == 'getcup_34' ):#and m not in current.achieved
             # print("why!!", m.name)
             if m.name == 'getcup_12': #cup number
                 if req.team == 0: #blue
@@ -87,12 +87,12 @@ def checkpreconditions( req, current, mis, robot):
                 # print("preee place cup", robot.freestorage)
                 current.candidate.append(m)
         elif m.name == 'windsock':
-            print("windsock", current.windsock,boom1, boom2, boomf)
+            # print("windsock", current.windsock,boom1, boom2, boomf)
             if current.windsock != 1 and boom1 ==  1 and boom2 == 1 and boomf == 1:
                 m.cost = distance( current.location, m.location ) - m.reward + m.time
                 current.candidate.append(m)
         elif m.name == 'lhouse':
-            print("lhouse", current.lhouse,boom1, boom2, boomf)
+            # print("lhouse", current.lhouse,boom1, boom2, boomf)
             if current.lhouse != 1 and boom1 == 1 and boom2 == 1 and boomf == 1:
                 m.cost = distance( current.location, m.location ) - m.reward + m.time 
                 current.candidate.append(m)
@@ -194,6 +194,22 @@ def compare_cost( array ):
     def myFunc(e):
         return e.cost
     array.sort(key=myFunc)
+    # print("sort", array[0].name, array[0].cost)
+    cost_min = array[0].cost
+    min_no = 0
+    # ii = 0
+    # for d in array:
+    #     print("sort for", d.name, d.cost)
+    #     if d.cost <= cost_min:
+    #         cost_min = d.cost
+    #         min_no = ii
+    #     ii += 1
+    # print("cost min", array[min_no].name, array[min_no].cost)
+    
+    return array[min_no]
+    # key2 = min(array, key = lambda k: k.cost)
+    # print("key2", key2.name)
+    # return key2
 
 def rotate_time(a, b):
     r = abs( a[2] - b[2])
