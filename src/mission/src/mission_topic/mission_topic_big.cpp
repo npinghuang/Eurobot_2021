@@ -14,9 +14,15 @@
 #include<queue>
 #include<vector>
 #include<math.h>
+// #include<dos.h>   //for delay()
+#include <time.h>
+#include "ros/time.h"
 using namespace std;
 
 #include "mission/mission_action.h"
+
+// ros::Duration onesec(0, 1000000000);
+ros::Duration onesec(0, 0);
 // #include "mission/mission_function.h"
 ros::Publisher tomain;
 ros::Publisher forST2;
@@ -49,6 +55,7 @@ int tx = 101;
 int team;
 bool publish_planer;
 int success = 1, fail = 0, ing = 2, stop = 3, little_mission = 4; // mission state
+int timestep = 1;//for main
 class mission_setting{
     public:
         int mission_no;
@@ -83,7 +90,22 @@ class mission_setting{
     mission_setting getcup(12, "getcup", 0, 0);
     mission_setting getcup_12( 13, "getcup_12", 0, 0);
     mission_setting getcup_34( 14, "getcup_34", 0, 0);
-
+void print_tx(){
+    ROS_INFO("TX { %d %d %d %d %d %d}", ST2_tx[0],ST2_tx[1],ST2_tx[2],ST2_tx[3],ST2_tx[4],ST2_tx[5]);
+}
+void delay(int number_of_seconds)
+{
+    // Converting time into milli_seconds
+    int milli_seconds = 10 * number_of_seconds;
+  
+    // Storing start time
+    clock_t start_time = clock();
+  
+    // looping till required time is not achieved
+    while (clock() < start_time + milli_seconds)
+        ;
+}
+int angle_test;
 int hand_ST2( int num){ // due to different numbering between ST2 and GOAP
     int hand; 
     switch (num)
@@ -132,34 +154,55 @@ int hand_ST2( int num){ // due to different numbering between ST2 and GOAP
     }
     return hand;
 }
-// void publish_ST2(){
-// //     for ( int i = 0; i < 6; i++){
-// //         for_st2.data.push_back(ST2_tx[i]);
-// //         ROS_INFO("publish in for %d ", ST2_tx[i]);
-// //     }
-// //     // forST2.publish(for_st2);
-// //     // ST2_tx.clear(); 
-// //     for_st2.data.clear(); 
-// }
+int suction_count = 0;
 bool checkST2_state(std::vector<int> &tx){
     // if st2 tx == rx
     int state = 1;
-    for ( int i = 0; i < 6; i++){
-        if ( tx[i] != ST2_rx[i]){
-            state = 0;
-            break;
+    if ( ST2_rx[2] == 404){
+        for ( int i = 0; i < 6; i++){
+            if ( tx[i] != ST2_rx[i]){
+                state = 0;
+                break;
+            }
+        }    
+    }
+   if ( ST2_rx[3] == 1 || ST2_rx[4] == 1){ // if platform is at down position we need to add a delay to it 
+        if ( state == 1){
+            if ( suction_count < 15 ){
+                state = 0;
+                suction_count ++;
+                ROS_INFO("suction count %d", suction_count);
+                // break;
+            }
+            else if ( suction_count == 15){ // i don't know why it works QQ
+                state = 1;
+                suction_count ++;
+            }
+            else if ( suction_count == 16){
+                state = 1;
+                suction_count = 0;
+            }
         }
     }
+    else if (ST2_rx[2] != 404) { // if i give a angle to ST2 there's some certain way of communication
+        for ( int i = 0; i < 6; i++){
+            if ( tx[i] != ST2_rx[i] && i != 1){
+                state = 0;
+                break;
+            }
+        }
+    }
+    
     return state;
 }
-void ST2_tx_transform_outterhand_1( int hand, int suck, int degree, int platform, int up_down){
+void  ST2_tx_transform_outterhand_1( int hand, int suck, int degree, int platform, int up_down){
     int hand_st = hand_ST2(hand);
     ROS_INFO("mission hand %d %d", hand, hand_ST2(hand));
-    if ( hand < 12){
+    if ( hand <= 12){
         ST2_tx[0] = pow(2, hand_st);
     }
     else{
-        ST2_tx[0] = hand;
+        ST2_tx[0] = hand_st;
     }
     ST2_tx[1] = suck;
     ST2_tx[2] = degree;
@@ -172,13 +215,41 @@ void ST2_tx_transform_outterhand_1( int hand, int suck, int degree, int platform
         ST2_tx[3] = 2;
     }
     ST2_tx[5] = up_down;    
+    print_tx();
     ROS_INFO("outterhand: hand = [%d], suck = [%d], degree = [%d]", hand, suck, degree);
     // publish_ST2();
+    onesec.sleep();
+}
+void ST2_tx_transform_outterhand( int hand, int suck, int degree, int platform, int up_down){ // only for placing the cup
+    // int hand_st = hand_ST2(hand);
+    int hand_st = hand;
+    ROS_INFO("mission hand %d %d", hand, hand_ST2(hand));
+    // if ( hand <= 12){
+    //     ST2_tx[0] = pow(2, hand_st);
+    // }
+    // else{
+    ST2_tx[0] = hand;
+    // }
+    ST2_tx[1] = suck;
+    ST2_tx[2] = degree;
+    if ( hand_st % 2 == 0){ // hand is on right platform
+        ST2_tx[3] = platform;
+        ST2_tx[4] = platform;
+    }
+    else if ( hand_st % 2 == 1){ // hand is on left platform
+        ST2_tx[4] = platform;
+        ST2_tx[3] = platform;
+    }
+    ST2_tx[5] = up_down;    
+    print_tx();
+    ROS_INFO("outterhand: hand = [%d], suck = [%d], degree = [%d]", hand, suck, degree);
+    // publish_ST2();
+    onesec.sleep();
 }
 void ST2_tx_transform_innerhand_1( int hand1, int hand2, int suck, int platform){
     if ( hand2 == -1){
         ST2_tx[0] =  pow(2,hand_ST2(hand1));   
-        ROS_INFO("mission hand %d %d", hand1, hand_ST2(hand1));
+        // ROS_INFO("mission hand %d %d", hand1, hand_ST2(hand1));
     }
     else{
         ST2_tx[0] =  pow(2, hand_ST2(hand1)) +  pow(2, hand_ST2(hand2));
@@ -189,39 +260,45 @@ void ST2_tx_transform_innerhand_1( int hand1, int hand2, int suck, int platform)
     ST2_tx[3] = platform;
     ST2_tx[4] = platform;
     ST2_tx[5] = 2;
-    ROS_INFO("innerhand: hand = [%d, %d], suck = [%d], hand ST2 [%d]", hand1, hand2, suck, ST2_tx[0]);
+    print_tx();
+    // ROS_INFO("innerhand: hand = [%d, %d], suck = [%d], hand ST2 [%d]", hand1, hand2, suck, ST2_tx[0]);
     // publish_ST2();
+    onesec.sleep();
 }
 void placecup(int hand, int degree){
     if ( state_planer == 1){
             if ( placecup_h.count == 0){
-                ST2_tx_transform_outterhand_1( hand, 0, degree, 2, 2);//first action hand to assigned degree
+                ST2_tx_transform_outterhand( hand, 0, degree, 2, 2);//first action hand to assigned degree
                 placecup_h.count ++;    
                 state_mission = ing;
             }
             else if ( checkST2_state(ST2_tx) == 1 && placecup_h.count == 1){//{3, 1, 404, 2, 2, 2}
-                if ( hand % 2 == 0 ){
+                if (  hand == 51 || hand == 3264 ){ 
                     // ROS_INFO("debug hand [%d] [%d]", msg->hand[0], 9 % 2 );
-                    ST2_tx_transform_outterhand_1(hand, 2, 404, 2, 0);// second action hand turn to down
+                    ST2_tx_transform_outterhand(hand, 2, 404, 2, 1);// second action hand turn to down
+                }
+                else if (  hand == 12 || hand == 768 ){ 
+                    // ROS_INFO("debug hand [%d] [%d]", msg->hand[0], 9 % 2 );
+                    ST2_tx_transform_outterhand(hand, 2, 404, 2, 0);// second action hand turn to up
                 }
                 placecup_h.count ++;  
             }
             else if ( checkST2_state( {ST2_tx})  && placecup_h.count == 2){
-                ST2_tx_transform_outterhand_1(hand, 2, 404, 1, 2); // fourth action platform down
+                ST2_tx_transform_outterhand(hand, 2, 404, 1, 2); // fourth action platform down
                 placecup_h.count ++;
             }
             else if ( checkST2_state( {ST2_tx})  && placecup_h.count ==3){
-                ST2_tx_transform_outterhand_1(hand, 0, 404, 2, 2); // third close suction
+                ST2_tx_transform_outterhand(hand, 0, 404, 2, 2); // third close suction
                 placecup_h.count ++;
             }
             else if ( checkST2_state( {ST2_tx})  && placecup_h.count == 4){
-                ST2_tx_transform_outterhand_1(hand, 2, 404, 0, 2); // fifth action platform down
+                ST2_tx_transform_outterhand(hand, 2, 404, 0, 2); // fifth action platform up
                 placecup_h.count ++;
             }
             else if ( checkST2_state( {ST2_tx})  && placecup_h.count == 5){
-                if ( hand % 2 == 0 ){
-                    ST2_tx_transform_outterhand_1(hand, 2, 404, 2, 1); // sixth action hand turn up
-                }
+                // if ( hand % 2 == 0 ){
+                //     ST2_tx_transform_outterhand(hand, 2, 404, 2, 1); // sixth action hand turn up
+                // }
                 placecup_h.count ++;
             }
             // else if ( checkST2_state( {ST2_tx})  && placecup_h.count == 6){
@@ -245,6 +322,7 @@ int cup_color(int num){
         return 2;
     }
 }
+
 void init(){
     ROS_INFO("initialize");
 }
@@ -273,14 +351,15 @@ void getcup_one( int hand){
                 }
             }
             else if ( hand > 4){
+                ROS_INFO("debug updown,");
                 if ( getcup.count == 0){
                     ST2_tx_transform_outterhand_1(handd, 1, getcup_theta[0], 2, 2);//first action hand to assigned degree
                     getcup.count ++;    
                     state_mission = ing;
                 }
                 else if ( checkST2_state(ST2_tx) == 1 && getcup.count == 1){//{3, 1, 404, 2, 2, 2}
-                    if ( hand % 2 == 0 ){
-                        // ROS_INFO("debug hand [%d] [%d]", hand, 9 % 2 );
+                    if (  hand_ST2(hand) == 2 ||  hand_ST2(hand) == 3 ||  hand_ST2(hand) == 8 ||  hand_ST2(hand) == 9 ){ //bug gggg hand % 2 == 1 
+                        ROS_INFO("debug hand i suck" );
                         ST2_tx_transform_outterhand_1(handd, 2, 404, 2, 0);// second action hand turn to down
                     }
                     getcup.count ++;  
@@ -294,17 +373,17 @@ void getcup_one( int hand){
                     getcup.count ++;
                 }
                 else if ( checkST2_state( {ST2_tx})  && getcup.count == 4){
-                    ST2_tx_transform_outterhand_1(handd, 2, 404, 0, 2); // fifth action platform down
+                    ST2_tx_transform_outterhand_1(handd, 2, 404, 0, 2); // fifth action platform up
                     getcup.count ++;
                 }
                 else if ( checkST2_state( {ST2_tx})  && getcup.count == 5){
-                    if ( hand % 2 == 0 ){
+                    if (  hand_ST2(hand) == 2 ||  hand_ST2(hand) == 3 ||  hand_ST2(hand) == 8 ||  hand_ST2(hand) == 9 ){
                         ST2_tx_transform_outterhand_1(handd, 2, 404, 2, 1); // sixth action hand turn up
                     }
                     getcup.count ++;
                 }
                 else if ( checkST2_state( {ST2_tx})  && getcup.count == 6){
-                    ST2_tx_transform_outterhand_1(handd, 2, getcup_theta[1], 2, 2); // seventh action hand move away from camera
+                    // ST2_tx_transform_outterhand_1(handd, 2, getcup_theta[1], 2, 2); // seventh action hand move away from camera
                     getcup.count ++;
                 }
                 else if (checkST2_state( {ST2_tx})  && getcup.count == 7){
@@ -333,14 +412,6 @@ void chatterCallback_ST2(const std_msgs::Int32MultiArray::ConstPtr& msg)
         ST2_rx[i] = msg -> data[i];
     }
 }
-// from rxST2
-void chatterCallback_ST2com(const std_msgs::Int32MultiArray::ConstPtr& msg)
-{
-    // ROS_INFO("I heard ST2: [%d]", msg->data[0]);
-    for ( int i = 0; i < 6; i++){
-        ST2_rx[i] = msg -> data[i];
-    }
-}
 bool newaction(const mission::maintomission::ConstPtr& msg){
     if (old_command [0] == msg-> action &&
     old_command [1] == msg -> cup[0] &&
@@ -354,12 +425,12 @@ bool newaction(const mission::maintomission::ConstPtr& msg){
     }
 }
 // for running on pi
-// void chatterCallback_ST2com(const std_msgs::Int32MultiArray::ConstPtr& msg){
-//     // ROS_INFO("I heard ST2: [%d]", msg->data[0]);
-//     for ( int i = 0; i < 6; i++){
-//         ST2_rx[i] = msg -> data[i];
-// }
-// }
+void chatterCallback_ST2com(const std_msgs::Int32MultiArray::ConstPtr& msg){
+    // ROS_INFO("I heard ST2: [%d]", msg->data[0]);
+    for ( int i = 0; i < 6; i++){
+        ST2_rx[i] = msg -> data[i];
+}
+}
 void chatterCallback(const mission::maintomission::ConstPtr& msg)
 {
   ROS_INFO("I heard action: [%d]", msg->action);
@@ -398,6 +469,7 @@ void chatterCallback(const mission::maintomission::ConstPtr& msg)
         break; 
     case 1: {//windsock
         ST2_tx[0] = action1_ST2_blue[0];  
+        print_tx();
         // publish_ST2();
         if ( state_planer == 1){    
             if ( checkST2_state(ST2_tx)){
@@ -426,6 +498,7 @@ void chatterCallback(const mission::maintomission::ConstPtr& msg)
         else{
             state_mission = ing;
         }   
+        print_tx();
         break;
     }
     case 2:{ // lhouse 
@@ -461,10 +534,13 @@ void chatterCallback(const mission::maintomission::ConstPtr& msg)
     case 9: {// placecup_h
     // place 4 or 2 cup at the same time and need to cordinate with planer
         placecup( placecup_hand[0], placecup_theta[0]);
+        // onesec.sleep();
         break;
     }
     case 18:{ //placecup h 2 = 2 hand
         placecup( placecup_hand[1], placecup_theta[1]);
+        ROS_INFO("debug wtf %d", placecup_hand[1]);
+        // onesec.sleep();
         break;
     }
     case 19:{ // placecup h back away
@@ -476,11 +552,13 @@ void chatterCallback(const mission::maintomission::ConstPtr& msg)
         break;
     }
     case 21:{ //placecup h 2 = 4 hand
-        placecup( placecup_hand[2], placecup_theta[2]);
+        placecup( placecup_hand[2], 0);
+        // onesec.sleep();
         break;
     }
     case 22:{ //placecup h 2 = 2 hand
-        placecup( placecup_hand[3], placecup_theta[3]);
+        placecup( placecup_hand[3], 30);
+        // onesec.sleep();
         break;
     }
     case 23:{ // placecup h back away
@@ -495,6 +573,7 @@ void chatterCallback(const mission::maintomission::ConstPtr& msg)
         break;
     case 12:{ // getcup
         getcup_one( msg->cup[1]);
+        // onesec.sleep();
         break;
     }
     case 13: {// getcup12
@@ -508,19 +587,19 @@ void chatterCallback(const mission::maintomission::ConstPtr& msg)
             hand_1 = 3;
             hand_2 = 4;
         }
-        // ROS_INFO("count [%d]", getcup_12.count);
+        ROS_INFO("count [%d]", getcup_12.count);
         if ( state_planer == 1 ){
             if ( getcup_12.count == 0){
-                ST2_tx_transform_innerhand_1(hand_1, hand_2, 1, 2);
+                ST2_tx_transform_innerhand_1(hand_1, hand_2, 1, 2); // open suction
                 getcup_12.count ++;    
                 state_mission = ing;
             }
             if ( checkST2_state(ST2_tx) == 1 && getcup_12.count == 1){//{3, 1, 404, 2, 2, 2}
-                ST2_tx_transform_innerhand_1(hand_1, hand_2, 2, 1);// second action platform
+                ST2_tx_transform_innerhand_1(hand_1, hand_2, 2, 1);// second action platform down
                 getcup_12.count ++;  
             }
             else if ( checkST2_state( {ST2_tx})  && getcup_12.count == 2){
-                ST2_tx_transform_innerhand_1(hand_1, hand_2, 2, 0);
+                ST2_tx_transform_innerhand_1(hand_1, hand_2, 2, 0);//platform up
                 getcup_12.count ++;
             }
             else if (checkST2_state( {ST2_tx})  && getcup_12.count == 3)
@@ -528,6 +607,7 @@ void chatterCallback(const mission::maintomission::ConstPtr& msg)
                 getcup_12.count = 0;
                 state_mission = success;
             }
+            // onesec.sleep();
         }
         else{
             state_mission = ing;
@@ -547,18 +627,18 @@ void chatterCallback(const mission::maintomission::ConstPtr& msg)
         }
         // ROS_INFO("count [%d]", getcup_34.count);
         if ( state_planer == 1 ){
-            ROS_INFO("mission debug %d", getcup_34.count);
+            // ROS_INFO("mission debug %d", getcup_34.count);
             if ( getcup_34.count == 0){
-                ST2_tx_transform_innerhand_1(hand_1, hand_2, 1, 2);
+                ST2_tx_transform_innerhand_1(hand_1, hand_2, 1, 2); // open suction
                 getcup_34.count ++;    
                 state_mission = ing;
             }
             if ( checkST2_state(ST2_tx) == 1 && getcup_34.count == 1){//{3, 1, 404, 2, 2, 2}
-                ST2_tx_transform_innerhand_1(hand_1, hand_2, 2, 1);// second platform
+                ST2_tx_transform_innerhand_1(hand_1, hand_2, 2, 1);// second platform down
                 getcup_34.count ++;  
             }
             else if ( checkST2_state( {ST2_tx})  && getcup_34.count == 2){
-                ST2_tx_transform_innerhand_1(hand_1, hand_2, 2, 0);
+                ST2_tx_transform_innerhand_1(hand_1, hand_2, 2, 0);//platform up
                 getcup_34.count ++;
             }
             else if (checkST2_state( {ST2_tx})  && getcup_34.count == 3)
@@ -566,14 +646,81 @@ void chatterCallback(const mission::maintomission::ConstPtr& msg)
                 getcup_34.count = 0;
                 state_mission = success;
             }
+            // onesec.sleep();
         }
         else{
             state_mission = ing;
-            ROS_INFO("mission debug %d", getcup_34.count);
+            // ROS_INFO("mission debug %d", getcup_34.count);
         }
         break;
         }
+    case 99: //opensuction
+        ST2_tx[0] = msg->cup[1];
+        ST2_tx[1] = 1;
+        ST2_tx[2] =404;
+        ST2_tx[3] = 2;
+        ST2_tx[4] = 2;
+        ST2_tx[5] = 2;
+        break;
+    case 100:
+        ROS_INFO("angle param %d", angle_test);
+        ST2_tx[0] = msg->cup[1];
+        ST2_tx[1] = 2;
+        ST2_tx[2] =   angle_test  ;
+        ST2_tx[3] = 2;
+        ST2_tx[4] = 2;
+        ST2_tx[5] = 2;
+        break;
+    case 101: //opensuction
+        ST2_tx[0] = msg->cup[1];
+        ST2_tx[1] = 0;
+        ST2_tx[2] =404;
+        ST2_tx[3] = 2;
+        ST2_tx[4] = 2;
+        ST2_tx[5] = 2;
+        break;
+    case 102: //opensuction
+        ST2_tx[0] = msg->cup[1];
+        ST2_tx[1] = 2;
+        ST2_tx[2] =404;
+        ST2_tx[3] = 2;
+        ST2_tx[4] = 2;
+        ST2_tx[5] = 2;
+        break;
+    case 103:
+        ST2_tx[0] = msg->cup[1];
+        ST2_tx[1] = 2;
+        ST2_tx[2] = 10;
+        ST2_tx[3] = 2;
+        ST2_tx[4] = 2;
+        ST2_tx[5] = 2;
+        break;
+    case 104:
+        ST2_tx[0] = msg->cup[1];
+        ST2_tx[1] = 2;
+        ST2_tx[2] = 0;
+        ST2_tx[3] = 2;
+        ST2_tx[4] = 2;
+        ST2_tx[5] = 2;
+        break;
+    case 105:
+        ST2_tx[0] = msg->cup[1];
+        ST2_tx[1] = 2;
+        ST2_tx[2] = 0;
+        ST2_tx[3] = 2;
+        ST2_tx[4] = 2;
+        ST2_tx[5] = 0;
+        break;
+    case 106:
+        ST2_tx[0] = msg->cup[1];
+        ST2_tx[1] = 2;
+        ST2_tx[2] = 0;
+        ST2_tx[3] = 2;
+        ST2_tx[4] = 2;
+        ST2_tx[5] = 1;
+        break;
     default:
+        do_nothing();
         break;
   }
     }
@@ -582,15 +729,19 @@ void chatterCallback(const mission::maintomission::ConstPtr& msg)
     old_command[2] = msg->cup[1];
     old_command[3] = msg->hand[0];
     old_command[4] = msg->hand[1];
+    to_main.data[0]=state_mission;
+    to_main.data[1]=timestep;
+    timestep ++;
+    tomain.publish(to_main);
 }
-int timestep = 1;//for main
+
 
 int main(int argc, char **argv)
 {
  
     ros::init(argc, argv, "mission");
     ros::NodeHandle n;
-
+    ros::Time::init();
     // forplaner = n.advertise<std_msgs::Float32MultiArray>("MissionToplaner", 1);
     forST2 = n.advertise<std_msgs::Int32MultiArray>("MissionToST2", 1);
     forST2com = n.advertise<std_msgs::Int32MultiArray>("txST2", 1);
@@ -601,22 +752,20 @@ int main(int argc, char **argv)
     subST2com = n.subscribe("rxST2", 1000, chatterCallback_ST2com);
     ros::Rate loop_rate(10);
     ROS_INFO("mission publish");
+    
     int count = 0;
     to_main.data = {2, 1};
     while (ros::ok())
     {
-        
+        n.getParam("/angle", angle_test); 
         for ( int i = 0; i < 6; i++){
             for_st2.data.push_back(ST2_tx[i]);
-            ROS_INFO("publish in for %d %d", ST2_tx[i], for_st2.data[i]);
+            // ROS_INFO("publish in for %d %d", ST2_tx[i], for_st2.data[i]);
         }
         forST2.publish(for_st2);
         forST2com.publish(for_st2);
         for_st2.data.clear(); 
-        to_main.data[0]=state_mission;
-        to_main.data[1]=timestep;
-        timestep ++;
-        tomain.publish(to_main);
+        
         ros::spinOnce();
 
         loop_rate.sleep();

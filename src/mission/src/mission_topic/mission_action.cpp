@@ -52,7 +52,7 @@ extern const std::vector<vector<float>> action9_planer_yellow{
         {.100, 2.750, 0},
         {.150, 2.750, 0}
     };
-extern const std::vector<int> placecup_hand{15, 48, 960, 3072};
+extern const std::vector<int> placecup_hand{51, 12, 3264, 768};
     // { 1, 2, 7, 5},
     // { 8, 6, -1, -1},
     // { 4, 3, 11, 9},
@@ -62,6 +62,6 @@ extern const std::vector<int> placecup_hand{15, 48, 960, 3072};
         // {6, 7, 10, 11},
         // { 8, 9, -1, -1},
     // };
-extern const std::vector<int> placecup_theta = {45, 60, 45, 60};
-extern const std::vector<int> getcup_theta = {45, 60, 45, 60};
+extern const std::vector<int> placecup_theta = {0, 10, 0, 10};
+extern const std::vector<int> getcup_theta = {0, 10, 0, 10};
 

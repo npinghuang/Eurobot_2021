@@ -1,0 +1,26 @@
+<launch>
+
+	<!--<include file="$(find aruco_pose)/launch/CupAndAruco.launch">
+	</include> -->
+
+	<include file="$(find mission)/launch/big.launch" >
+	</include>
+
+	<node name="eurobot_gui" pkg="eurobot_gui" type="eurobot_gui.py" output="screen" respawn="false">
+	</node>
+
+	<node name="data_node" pkg="main2021" type="Data" output="screen" respawn="false">
+	</node>
+
+	<node name="goap_node" pkg="main2021" type="goap_big_server.py" output="screen" respawn="false">
+	</node>
+
+	<node name="camera_node" pkg="main2021" type="cameraTest" respawn="false">
+	</node>
+
+	<node name="main_node" pkg="main2021" type="main" output="screen" respawn="false">
+	</node>
+
+	<param  name="start" type="int" value="0"/>
+</launch>
+

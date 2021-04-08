@@ -1,0 +1,6 @@
+bool req
+---
+int32[] color
+float32[] cup_pos
+
+

@@ -1,0 +1,27 @@
+<launch>
+
+  <include file="$(find realsense2_camera)/launch/rs_camera.launch">
+	<arg name="camera"              value="camera1"/>
+	<arg name="serial_no"           value="948122071492"/>
+	<arg name="color_fps"           value="15"/>
+	<arg name="enable_gyro"         value="false"/>
+	<arg name="enable_accel"        value="false"/>
+  </include>
+
+  <node pkg="nodelet" type="nodelet" name="nodelet_manager" args="manager"/>
+
+    <!-- detect aruco markers -->
+    <node pkg="nodelet" clear_params="true" type="nodelet" name="aruco_detect" args="load aruco_pose/aruco_detect nodelet_manager">
+        <remap from="image_raw" to="camera1/color/image_raw"/>
+        <remap from="camera_info" to="camera1/color/camera_info"/>
+        <param name="length" value="0.7"/>
+    </node>
+<!-- 
+    <node pkg="nodelet" clear_params="true" type="nodelet" name="aruco_map" args="load aruco_pose/aruco_map nodelet_manager">
+        <remap from="image_raw" to="camera1/color/image_raw"/>
+        <remap from="camera_info" to="camera1/color/camera_info"/>
+        <remap from="markers" to="aruco_detect/markers"/>
+        <param name="map" value="$(find aruco_pose)/map/map.txt"/>
+    </node>
+-->
+</launch>

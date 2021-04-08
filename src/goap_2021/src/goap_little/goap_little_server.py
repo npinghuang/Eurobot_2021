@@ -315,7 +315,10 @@ def GOAP_normal(req):
                     cup.append(0)
                     cup.append(0)
                     i += 1
-        current.mission = current.achieved[0]
+        if len ( current.achieved) != 0:
+            current.mission = current.achieved[0]
+        else:
+            current.mission = None
         mission_list = []
         temp = 0
         for a in current.achieved:
