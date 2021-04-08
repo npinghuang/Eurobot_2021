@@ -52,7 +52,7 @@ int success = 1, fail = 0, ing = 2, stop = 3;
 int tx = 101;
 int team;
 int data_len = 9;
-
+int timestep = 1;
 bool publish_planer;
 class mission_setting{
     public:
@@ -586,6 +586,10 @@ old_command[1] = msg->cup[0];
 old_command[2] = msg->cup[1];
 old_command[3] = msg->hand[0];
 old_command[4] = msg->hand[1];
+to_main.data[0]=state_mission;
+to_main.data[1]=timestep;
+timestep++;
+tomain.publish(to_main);
 }
 
 
@@ -608,12 +612,12 @@ subST2_little = n.subscribe("ST2_littleToMission", 1000, chatterCallback_ST2_lit
 subST2_littlecom = n.subscribe("rxST2", 1000, chatterCallback_ST2_littlecom);
 //   ros::Publisher chatter_pub = n.advertise<std_msgs::String>("chatter", 1000);
 ros::Rate loop_rate(10);
-ROS_INFO("debug outside while");
+// ROS_INFO("debug outside while");
 int count = 0;
-int timestep = 1;
+
   while (ros::ok())
   {
-    ROS_INFO("debug inside while");
+    // ROS_INFO("debug inside while");
     for ( int i = 0; i < data_len; i++){
         //for_ST2_little.data.push_back(ST2_little_tx[i]);
         for_ST2_little.data[i] = ST2_little_tx[i];
@@ -624,10 +628,7 @@ int timestep = 1;
     //for_ST2_little.data.clear(); 
     //for_ST2_littlecom.data.clear();
     // to_main.state = state_mission;
-    to_main.data[0]=state_mission;
-    to_main.data[1]=timestep;
-    timestep++;
-    tomain.publish(to_main);
+    
     ros::spinOnce();
 
     loop_rate.sleep();
