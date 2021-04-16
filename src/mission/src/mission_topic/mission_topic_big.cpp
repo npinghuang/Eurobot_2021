@@ -159,7 +159,7 @@ int hand_ST2( int num){ // due to different numbering between ST2 and GOAP
     return hand;
 }
 int suction_count = 0;
-float suction_delay = 1.0;
+float suction_delay = 1.5;
 float doing_time;
 bool checkST2_state(std::vector<int> &tx){
     // if st2 tx == rx
@@ -393,7 +393,12 @@ void getcup_one( int hand){
             else if ( hand > 4){
                 ROS_INFO("debug updown,");
                 if ( getcup.count == 0){
-                    ST2_tx_transform_outterhand_1(handd, 1, getcup_theta[0], 2, 2);//first action hand to assigned degree
+                    if ( handd == 7 || handd == 8 ||  handd == 9 ||  handd == 10 ){
+                        ST2_tx_transform_outterhand_1(handd, 1, getcup_theta[1], 2, 2);//first action hand to assigned degree
+                    }
+                    else{
+                        ST2_tx_transform_outterhand_1(handd, 1, getcup_theta[0], 2, 2);//first action hand to assigned degree
+                    }
                     getcup.count ++;    
                     state_mission = ing;
                 }
@@ -592,12 +597,12 @@ void chatterCallback(const mission::maintomission::ConstPtr& msg)
                 break;
             }
             case 21:{ //placecup h 2 = 4 hand
-                placecup( placecup_hand[2], 0);
+                placecup( placecup_hand[2], placecup_theta[0]);
                 // onesec.sleep();
                 break;
             }
             case 22:{ //placecup h 2 = 2 hand
-                placecup( placecup_hand[3], 30);
+                placecup( placecup_hand[3], placecup_theta[1]);
                 // onesec.sleep();
                 break;
             }
@@ -797,6 +802,7 @@ int main(int argc, char **argv)
     to_main.data = {2, 1};
     while (ros::ok())
     {
+        // ROS_INFO_STREAM("stream rx :"<<msg->cup);
         n.getParam("/angle", angle_test); 
         for ( int i = 0; i < 6; i++){
             for_st2.data.push_back(ST2_tx[i]);
