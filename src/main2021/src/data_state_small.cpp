@@ -6,7 +6,7 @@
 #include "main2021/cup.h"
 #include "main2021/gui_state.h"
 
-#include "../include/main2021/data_state.h"
+#include "../include/main2021/data_state_small.h"
 
 
 #include <iostream>
@@ -255,7 +255,7 @@ void data_state::datacallback(const main2021::Data::ConstPtr& msg){
 	sdegree = msg->small_chicken_pos[2];//0;
 	saction.assign(msg->small_action.begin(), msg->small_action.end());
 	saction_list.assign(msg->small_action_list.begin(), msg->small_action_list.end());
-	scup = 16777215;//msg->small_cup;
+	scup = msg->small_cup;//16777215;
 	sscore = msg->small_score;
 	//big chicken
 	bx = msg->big_chicken_pos[0];
@@ -263,7 +263,7 @@ void data_state::datacallback(const main2021::Data::ConstPtr& msg){
 	bdegree = msg->big_chicken_pos[2];
 	baction.assign(msg->big_action.begin(), msg->big_action.end());
 	baction_list.assign(msg->big_action_list.begin(), msg->big_action_list.end());
-	bcup = msg->big_cup;//16777215;
+	bcup = 16777215;//msg->big_cup;
 	bscore = msg->big_score;
 
 	team = msg->team;

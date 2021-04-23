@@ -274,14 +274,15 @@ def GOAP_nornal(req):
     # if current.time >= 90:
         for a in current.achieved: 
             if a.name == 'getcup':
-                print("action",current.cup_order[temp]['no'] , a.name, current.cup_order[temp]['location'][0], current.cup_order[temp]['location'][1], current.cup_order[temp]['location'][2],"hand: ",current.cup_order[temp]['hand'] + 1, "color : ",current.cup_order[temp]['color'])
+                print("action",current.cup_order[temp]['no'] , a.name, current.cup_order[temp]['location'][0], current.cup_order[temp]['location'][1], current.cup_order[temp]['location'][2],"hand: ",current.cup_order[temp]['hand_ST'], "color : ",current.cup_order[temp]['color'])
                 position.append(current.cup_order[temp]['location'][0])
                 position.append( current.cup_order[temp]['location'][1])
                 position.append( current.cup_order[temp]['location'][2])
                 # position.append( current.cup_order[temp]['no'])
                 action.append(a.no)
                 cup.append(current.cup_order[temp]['no'])
-                cup.append(current.cup_order[temp]['hand'] + 1) #change hand number to start from 1
+                # cup.append(current.cup_order[temp]['hand'] + 1) #change hand number to start from 1
+                cup.append(current.cup_order[temp]['hand_ST']) #same with ST2
                 cup.append(current.cup_order[temp]['color'] ) 
                 temp = temp + 1
                 i += 1

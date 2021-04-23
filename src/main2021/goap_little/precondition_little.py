@@ -61,7 +61,7 @@ def refreshstate(current, mission, robot, state):
     
     
     if state == 0:
-        # print("debug")
+        print("debug")
         current.placecup_reef = robot.hand_little
     if state == 2:
         if m.no == 6:

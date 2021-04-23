@@ -41,7 +41,7 @@ def emergency(current):
         else:
             for c in current.cup_state:
                 if (x, y) == c['location']:
-                    # print("debug")
+                    print("debug")
                     rad += math.pi / 4
                     break
                 else:
@@ -148,9 +148,6 @@ def GOAP_normal(req):
         position.append(current.location[0])
         position.append(current.location[1])
         position.append(current.location[2] )
-        cup.append(0)
-        cup.append(0)
-        cup.append(0)
         print("emergency", current.location)    
     elif req.emergency == 0:
         
@@ -339,15 +336,6 @@ def GOAP_normal(req):
         # for p in mission_list:
         #     print("mission_list", p)
         state = 0
-    #if no action
-    if len( position ) == 0:
-        action.append(0)
-        position.append(current.location[0])
-        position.append( current.location[1])
-        position.append(current.location[2] )
-        cup.append( 0)
-        cup.append(0)
-        cup.append(0)
     previous_team = req.team
     return action, position, cup
 previous_team = None

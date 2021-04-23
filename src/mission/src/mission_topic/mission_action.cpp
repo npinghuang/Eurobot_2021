@@ -62,6 +62,6 @@ extern const std::vector<int> placecup_hand{51, 12, 3264, 768};
         // {6, 7, 10, 11},
         // { 8, 9, -1, -1},
     // };
-extern const std::vector<int> placecup_theta = {30, 20, 0, 10};
-extern const std::vector<int> getcup_theta = {25,-25, 0, 10};
+extern const std::vector<int> placecup_theta = {20, 30, 0, 10};
+extern const std::vector<int> getcup_theta = {25, -25, 0, 10};
 

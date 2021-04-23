@@ -5,14 +5,14 @@
 #include "main2021/cup_camera.h"
 #include "main2021/gui_state.h"
 
-#include "../include/main2021/data_state.h"
+#include "../include/main2021/data_state_small.h"
 
 #include <iostream>
 #include <stdlib.h>
 #include <vector>
 
-#define INIbig_POSX 690. //mm
-#define INIbig_POSY 2820. //mm
+#define INIbig_POSX 600. //mm
+#define INIbig_POSY 2805. //mm
 #define INIsmall_POSX 980. //mm
 #define INIsmall_POSY 2805. //mm
 #define INI_CUP 16777215 //24 cups are here

@@ -56,11 +56,10 @@ add_message_files(
 
 
 ## Generate services in the 'srv' folder
-# add_service_files(
-#   FILES
-#   Service1.srv
-#   Service2.srv
-# )
+add_service_files(
+  FILES
+  mission_camera.srv
+)
 
 ## Generate actions in the 'action' folder
 # add_action_files(
@@ -144,11 +143,16 @@ add_executable(main_talker_launch src/mission_topic/main_talker_launch.cpp)
 add_executable(planer src/mission_topic/planer.cpp)
 add_executable(ST2 src/mission_topic/ST2.cpp)
 add_executable(ST2_little src/mission_topic/ST2_little.cpp)
+add_executable(camera_fake src/mission_topic/camera_fake.cpp)
+add_executable(camera_fake_server src/mission_topic/camera_fake_server.cpp)
+
 # add_dependencies(target catkin_EXPORTED_TARGETS)
 add_dependencies(mission_topic_big mission_gencpp)
 add_dependencies(mission_topic_little mission_gencpp)
 add_dependencies(main_talker mission_gencpp)
 add_dependencies(main_talker_launch mission_gencpp)
+add_dependencies(camera_fake mission_gencpp)
+add_dependencies(camera_fake_server mission_gencpp)
 add_dependencies(mission_topic_big ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(mission_topic_little ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 #add_executable(mission_simple src/mission_topic/mission_simple.cpp)
@@ -185,6 +189,12 @@ target_link_libraries(ST2
 ${catkin_LIBRARIES}
 )
 target_link_libraries(ST2_little
+${catkin_LIBRARIES}
+)
+target_link_libraries(camera_fake
+${catkin_LIBRARIES}
+)
+target_link_libraries(camera_fake_server
 ${catkin_LIBRARIES}
 )
 #target_link_libraries(mission_simple

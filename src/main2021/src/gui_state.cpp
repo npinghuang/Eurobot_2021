@@ -44,34 +44,34 @@ void GUI::set_strategy(){
     if(strategy == 1){ //we are team blue(0)
         script = 0;
         team = 0;
-        big_x = 0.;
-        big_y = 0.;
+        big_x = 690.;
+        big_y = 250.;
         small_x = 800.;
         small_y = 250.;
     }
     else if(strategy == 2){ //we are team yellow(1)
         script = 0;
         team = 1;
-        big_x = 0.;
-        big_y = 0.;
-        small_x = 800.;
-        small_y = 2700.;
+        big_x = 690.;
+        big_y = 2820.;
+        small_x = 980.;
+        small_y = 2805.;
     }
     else if(strategy == 3){ //we are team blue(0) with script
         script = 1;
         team = 0;
-        big_x = 0.;
-        big_y = 0.;
+        big_x = 690.;
+        big_y = 250.;
         small_x = 800.;
         small_y = 250.;
     }
     else if(strategy == 4){ //we are team yellow(1) with script
         script = 1;
         team = 1;
-        big_x = 0.;
-        big_y = 0.;
-        small_x = 800.;
-        small_y = 2700.;
+        big_x = 690.;
+        big_y = 2820.;
+        small_x = 980.;
+        small_y = 2805.;
     }
 
 }

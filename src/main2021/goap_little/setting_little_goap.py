@@ -260,7 +260,6 @@ def mission_precondition(req):
 	ccup = req.cup
 	for i in range (len(cur.cup_state)):
 		c = int(ccup) % 2
-		# print("refreah cup", cur.cup_state[i]['no'], cur.cup_state[i]['state'])
 		if c == 0:
 			cur.cup_state[i]['state'] = c
 		# print("c", c, i, cup)

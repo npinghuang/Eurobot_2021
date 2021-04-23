@@ -50,20 +50,23 @@ def GOAP_script(req):
         # return action, position, cup
     if req.emergency == False and counter_scripts == 0: #blue team script
         (current, robot1) = mission_precondition(req)    
-        scrpit_mission =[31,38,39,13, 12,12,12,12,##getcup12,12,12,12,12,
-        9,18,23] #placecup21,22,19,20, 
-        cup_script = [ 0,0,0,
-        # 0, 21, 5,  # cup_no, hand_no, cup_color
+        scrpit_mission =[38, 39, 14, 12,12,12,12,##getcup12,12,12,12,12,
+        21,22,23] #placecup21,22,19,20,
+        cup_script = [# 0,0,0,
+        # 0, 21, 5, # cup_no, hand_no, cup_color
         0,0,0,
         0,0,0,
         # 21, 1, 3,
-        0, 21, 5,
-        20, 2, 2,
-        19, 3, 3,
-        # 16, 5, 2,
-        9, 5,  3,
-        # 6,  10, 2,
-        10, 4, 2,
+        0, 34, 5,
+        #20, 8, 2,
+        #19, 6, 3,
+        16, 10, 2,
+        15, 12, 3,
+        10, 9, 2,
+        11, 11, 3,
+        #9, 5, 3,
+        # 6, 10, 2,
+
         # 15, 12, 3,
         # 11,11,3,
         # 0,0,0,
@@ -75,26 +78,32 @@ def GOAP_script(req):
         0,0,0,
         0,0,0
         ]
-        position_script = [690,2820, 3.14159,#wait for little chicken
+        position_script = [#690,2820, 3.14159,#wait for little chicken
         # 401.556,2555.301,-2.294488, #mission 13 hand 21(0,1) cup 21 + 23
-        574.113, 2821.010, 3.126495,#583.825, 2628.019, -2.914618,#mission 12 hand 1 (1) cup 21
-        602.252, 2831.025, -2.234627,
-        394.580, 2530.203, -2.184356,#400.615, 2624.107, -3.089135,#mission 12 hand 2 (0) cup 23
-        310.461, 2441.248, -2.101246, #mission 12 hand 8(2) cup 20
-        289.693, 2227.334, -1.379065,#294.599, 2228, -1.546460, #mission 12 hand 6(3) cup 19
-        #622.891, 1991.526, -0.926271,#mission 12 hand 5(5) cup 16
-        663.025, 1232.558, -1.005220, #mission 12 hand 7(4) cup 9
+        937.777, 2824.441, 3.119224,#route to get two cup !need to change!
+        1040.704, 2738.816, 2.437762,#route to get two cup !need to change!
+        #1295.188, 2486.641, 2.512554,#route to get two cup !need to change!
+        1285.019, 2507.630, 2.380629,#mission 13 hand 34(7,8) cup 22 + 24
+        #310.461, 2441.248, -2.101246, #mission 12 hand 8(2) cup 20
+        #269.303, 2219.526, -1.479989,#294.599, 2228, -1.546460, #mission 12 hand 6(3) cup 19
+        1007.367, 1988.211, 0.893965,#mission 12 hand 6(3) cup 16
+        1040.052, 1893.872, 1.834180, #mission 12 hand 8(2) cup 15
+        1214.234, 1489.902, 1.860943, #mission 12 hand 5(5) cup 10
+        1446.855, 1184.716, -3.022684, #mission 12 hand 7(4) cup 11
+        #1023.438, 1352.961, 0.284053, #mission 12 hand 5(5) cup 10
+        #652.288, 1214.775, -1.085210, #mission 12 hand 7(4) cup 9
         #590.199, 1132.844, 0.513628, #mission 12 hand 10(9) cup 6
-        1023.438, 1352.961, 0.284053, #mission 12 hand 5(5) cup 10
+
         # 1114.633, 1562.207, -1.667093, #mission 12 hand 12(8) cup 15
-        # 1535.012, 1508.660, 2.999664,  #mission 12 hand 11(10) cup 11
+        # 1535.012, 1508.660, 2.999664, #mission 12 hand 11(10) cup 11
         # 1823.005, 1234.059, math.pi,#mission 21 place backside 4 cup
-        # 1777.299, 1234.059, math.pi,  #mission 22 place backside 2 cup
+        # 1777.299, 1234.059, math.pi, #mission 22 place backside 2 cup
         # 1398.836, 1234.059, math.pi, #mission 19 back off
-        # 1398.836, 1234.059, 0,  #mission 20 turn around
-        1756.194, 1280.637, 0, #mission 9 place front 4 cup
-        1644.174, 1280.637, 0, #mission 18 place front 2 cup
-        1398.960, 1280.637, 0, #mission 23 back off 
+        # 1398.836, 1234.059, 0, #mission 20 turn around
+        1685.365, 1187.031, 3.14, #mission 21 place front 4 cup
+        1585.365, 1187.031, 3.14,
+        #1644.174, 1280.637, 0, #mission 18 place front 2 cup
+        1455.734, 1187.031, 3.14, #mission 23 back off
         ]
         #remember to change the N or S position below!!!!
         #1900.0, 1800.0, 3.1415927410125732, 
@@ -107,9 +116,9 @@ def GOAP_script(req):
         if req.ns == False:
             # scrpit_mission =[13, 14, 2, 16, 17, 12, 12, 12, 12, 12, 12, 12, 12, 9, 18, 19, 20, 21, 22, 23, 4]
             scrpit_mission.append(4)
-            position_script.append(246.743) #N x
-            position_script.append(2485.069) #N y
-            position_script.append(2.307810) #N theta
+            position_script.append(319.157) #N x
+            position_script.append(2515.582) #N y
+            position_script.append(2.202977) #N theta
         elif req.ns == True:
             scrpit_mission.append(5)
             position_script.append(1352.316) #S x

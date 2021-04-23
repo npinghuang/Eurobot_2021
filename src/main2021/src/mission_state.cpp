@@ -10,11 +10,12 @@
 #include <stdlib.h>
 #include <vector>
 #include <algorithm>
+#include <math.h>
 
 
 mission_data::mission_data(float x, float y){
     pub_mission = n.advertise<main2021::maintomission>("mainToMission", 100);
-    sub_mission = n.subscribe<std_msgs::Int32MultiArray>("missionToMain", 10, &mission_data::m_res, this);
+    sub_mission = n.subscribe<std_msgs::Int32MultiArray>("missionToMain", 1, &mission_data::m_res, this);
 
     //initial
     m_msg.team = 1;
@@ -22,7 +23,7 @@ mission_data::mission_data(float x, float y){
     m_msg.planer_state = 0;
     m_msg.action_pos.push_back(x); //x
     m_msg.action_pos.push_back(y); //y
-    m_msg.action_pos.push_back(0); //degree
+    m_msg.action_pos.push_back(M_PI); //degree
     m_msg.cup = {0, 0};
     m_msg.hand = {0, 0, 0, 0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0};
     m_msg.reef = {0, 1, 0, 1, 0, 1, 0, 1, 0, 1};

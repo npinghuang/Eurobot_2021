@@ -12,11 +12,12 @@
 #include <iostream>
 #include <stdlib.h>
 #include <vector>
+#include <math.h>
 
 using namespace std;
 
-#define INI_POSX 800. //mm
-#define INI_POSY 2700. //mm
+#define INI_POSX 980. //mm
+#define INI_POSY 2805. //mm
 #define BEBLOCK 10*10 //mm
 #define INI_CUP 16777215 //24 cups are here
 enum Status {STRATEGY = 0, RESET, UPDATE_DATA, GET_AGENT2, READY, RUN};
@@ -29,7 +30,7 @@ float fx = 0;
 float fy = 0;
 float fdegree = 0;
 vector<int> faction(2, 0);
-vector<int> action_list(35, 0);
+vector<int> action_list(60, 0);
 vector<int> cup_color(10, 0);
 int cup = INI_CUP;
 int script = 0;
@@ -122,7 +123,7 @@ int main(int argc, char** argv)
     // m_srv.request.hand = {0};
 
     give_data.big_chicken_pos = {0, 0, 0};
-    give_data.small_chicken_pos = {INI_POSX, INI_POSY, 0};
+    give_data.small_chicken_pos = {INI_POSX, INI_POSY, M_PI};
     give_data.big_action = {0, 0};
     give_data.small_action = {0, 0};
     give_data.big_action_list = {0, 0, 0, 0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0};
@@ -133,7 +134,7 @@ int main(int argc, char** argv)
     give_data.status = 0;
 
     //定義value
-    State states(INI_POSX, INI_POSY, 0., INI_CUP);
+    State states(INI_POSX, INI_POSY, M_PI, INI_CUP);
     Friend friends;
     Position position(INI_POSX, INI_POSY);
     goap_data goap(INI_POSX, INI_POSY, INI_CUP);
@@ -155,11 +156,11 @@ int main(int argc, char** argv)
         //cup_state update
         // states.updatecup(cup);
         ROS_INFO("CUP:%d", states.get_cup());
-        // for (int i = 0; i < 5; i++)
-        // {
-        //     ROS_INFO("COLOR[%d]:%d",i , states.get_color()[i]);
-        // }
-        // ROS_INFO("NS:%d", states.get_ns());
+        for (int i = 0; i < 10; i++)
+        {
+            ROS_INFO("COLOR[%d]:%d",i , states.get_color()[i]);
+        }
+        ROS_INFO("NS:%d", states.get_ns());
         // for (int i = 0; i < 12; i++)
         // {
         //     ROS_INFO("HAND[%d]:%d", (i+1), states.get_hand()[i]);
@@ -183,7 +184,7 @@ int main(int argc, char** argv)
                 give_data.status = states.get_status();
                 states.set_team(team);
                 states.set_script(script);
-                states.setpos(x, y, 0., 0.);
+                states.setpos(x, y, 0., M_PI);
                 //call localization to get my position   
                 ROS_INFO("RESET");
                 break;
@@ -304,8 +305,8 @@ int main(int argc, char** argv)
                             states.set_m_state(DOING);
                         }
                         else{
-                            states.set_p_state(SUCCESS);
-                            // states.set_p_state(position.get_p_state());
+                            // states.set_p_state(SUCCESS);
+                            states.set_p_state(position.get_p_state());
                             //To Do*******
                             // ROS_INFO("ACT:%d", goap.sameActionOrNot());
                             mission.give_mission(&states, &goap);
@@ -352,8 +353,8 @@ int main(int argc, char** argv)
                         break;
                 }                   
         }
-        for(int i = 1 ; i <= 35 ; i++)
-            ROS_INFO("%d: %d", i, action_list[i]);
+        // for(int i = 1 ; i <= 35 ; i++)
+        //     ROS_INFO("%d: %d", i, action_list[i]);
         // ROS_INFO("M2: %d", M2);
         pub_data.publish(give_data);
         ros::spinOnce();

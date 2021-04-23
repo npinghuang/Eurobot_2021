@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include <vector>
 #include <algorithm>
+#include <math.h>
 
 
 goap_data::goap_data(float x, float y, int c){
@@ -18,7 +19,7 @@ goap_data::goap_data(float x, float y, int c){
     //initial
     g_srv.request.my_pos.push_back(x); //x
     g_srv.request.my_pos.push_back(y); //y
-    g_srv.request.my_pos.push_back(0); //degree
+    g_srv.request.my_pos.push_back(M_PI); //degree
     g_srv.request.friend_pos.push_back(0); //x
     g_srv.request.friend_pos.push_back(0); //y
     g_srv.request.friend_pos.push_back(0); //degree

@@ -13,11 +13,11 @@
         <param name="length" value="0.7"/>
     </node>
 
-   <node name = "cupDetectWithFunction" pkg = "cupDetection" type="cupDetectWithFunction" output = "screen">
+   <!-- <node name = "cupDetectWithFunction" pkg = "cupDetection" type="cupDetectWithFunction" output = "screen"> -->
 
-      <remap from ="image_raw" to="usb_cam/image_raw"/>  
+      <!-- <remap from ="image_raw" to="usb_cam/image_raw"/>   -->
       
-   </node>	
+   <!-- </node>	 -->
    <node name = "CameraResult" pkg="aruco_pose" type = "CameraResult" output = "screen">
     <!--remap from = "pub_status" to="/master/pub_status"/-->
      <param name=" testStart" type = "int" value = "0"/>
@@ -27,7 +27,7 @@
     <!--
     <node name = "gui" pkg="eurobot_gui"  type="demo_guiForCamera.py"/>
 	-->
-        <param  name="XPose" type="int" value="390"/>
-        <param  name="YPose" type="int" value="490"/>
-        <param name = "cupDistance" type = "int" value = "30"/>
+        <param  name="XPose" type="int" value="490"/>
+        <param  name="YPose" type="int" value="315"/>
+        <param name = "cupDistance" type = "int" value = "15"/>
 </launch>
