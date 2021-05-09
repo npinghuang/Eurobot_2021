@@ -63,5 +63,17 @@ extern const std::vector<int> placecup_hand{51, 12, 3264, 768};
         // { 8, 9, -1, -1},
     // };
 extern const std::vector<int> placecup_theta = {20, 30, 0, 10};
-extern const std::vector<int> getcup_theta = {25, -25, 0, 10};
+extern const std::vector<int> getcup_theta = {25, -25, 30,  -30}; // [0] for hand 2 4 9 11 [1] for hand 3 5 8 10 
+
+extern const std::vector<vector<int>> cup_pos{
+    { 400, 300 }, {1200, 300}, {1200, 300 }, {1085, 445 },
+    { 100, 670 }, {400, 956}, {1955, 1005}, { 1655, 1065 },
+    { 800, 1100 }, { 1200, 1270 }, { 1655, 1335 }, { 1955, 1395 },
+    { 1955, 1605 }, { 1655, 1665 }, { 1200, 1730 }, {800, 1900},
+    {1655, 1935 }, { 1955, 1995 }, { 400, 2044 }, { 100, 2330 },
+    { 515, 2555 }, { 1085, 2555 }, { 400, 2700 }, { 1200, 2700 }
+};
+
+extern const std::vector<int> cup_color{ 1, 0, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1};
+
 

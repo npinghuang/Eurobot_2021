@@ -28,19 +28,19 @@ ros::Time begin_time;
 ros::Time now_time;
 // #include "mission/mission_function.h"
 ros::Publisher tomain;
-ros::Publisher forCamera;
+// ros::Publisher forCamera;
 ros::Publisher forST2;
 std_msgs::Int32MultiArray for_st2;
 ros::Publisher forST2com;
 ros::Subscriber sub;
-ros::Subscriber subCamera;
+// ros::Subscriber subCamera;
 ros::Subscriber subST2;
 ros::Subscriber subST2com;
 ros::ServiceClient camera_client;
-    mission::mission_camera srv;
+mission::mission_camera srv;
 // mission::missiontomain to_main;
 std_msgs::Int32MultiArray to_main;
-std_msgs::Int32 to_camera;
+// std_msgs::Int32 to_camera;
 
 int initialize = 1;
 std::vector<int> hand{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
@@ -50,6 +50,7 @@ std::vector<int> old_tx{0,0,0,0,0,0};
 std::vector<int> old_command{0,0,0,0,0};// action, cup1, cup2, hand1, hand2
 std::vector<int> cup_camera_red;
 std::vector<int> cup_camera_green;
+std::vector<float> current_pos{0,0,0};
 
 int state_planer = 0;
 int state_ST2 = 0;
@@ -64,6 +65,8 @@ int number_of_cups = 0;
 int timestamp_camera = 0;
 int timestamp_camera_previous = 0;
 bool camera_data = 0; // if camera data is most recent 
+int current_cup_no;
+int getcup_hand;
 class mission_setting{
     public:
         int mission_no;
@@ -156,51 +159,63 @@ void tx_ST2( int hand, int suction_state,  int degree, int platform_right, int p
 }
 int cup_x = 0;
 int cup_y = 0;
-int cup_color = 0; // o for green 1 for red
-void camera(const std_msgs::Int32MultiArray::ConstPtr& msg){
-    srv.request.coordinate_mission[0] = cup_x;
-    srv.request.b = cup_y;
-    if (client.call(srv))
-    {
-        ROS_INFO("cup x [%d] y [%d] color [%d]", srv.response.coordinate_camera[0],srv.response.coordinate_camera[1], srv.response.cup_color_camera );
+std::vector<int> cup_pos_current{0,0};
+int cup_color_req = 0; // 0 for green 1 for red
+std::vector<int>  coordinate_transform( std::vector<int> &coordinate, int hand ){
+    int xi = coordinate[0];
+    int yi = coordinate[1];
+    int half_of_robot_width = 100; // mm
+    if ( hand < 6){// front side of the robot : axis rotate (theta - 90)
+        coordinate[0] = cos ( coordinate[2] - M_PI_2) * xi - sin ( coordinate[2] - M_PI_2) * yi;
+        coordinate[1] = sin ( coordinate[2] - M_PI_2) * xi - cos ( coordinate[2] - M_PI_2) * yi - half_of_robot_width;  
     }
-    else
-    {
+    else if ( hand >= 6 && hand < 12){// back side of the robot : axis rotate (theta + 90)
+        coordinate[0] = cos ( coordinate[2] + M_PI_2) * xi - sin ( coordinate[2] + M_PI_2) * yi;
+        coordinate[1] = sin ( coordinate[2] + M_PI_2) * xi - cos ( coordinate[2] + M_PI_2) * yi - half_of_robot_width;  
+    }
+    // bug! maybe front and back of the robot have different value
+    // turn unit from mm to cm
+    coordinate[0] = coordinate[0] / 10;
+    coordinate[1] = coordinate[1] / 10;
+    return coordinate;
+}
+int camera(){
+    // hand 12 cm long
+    int angle_hand;
+    int hand_x_r = 6;//cm distance of on the x axis from the middle point of the robot
+    int hand_x_l = -6;
+    cup_pos_current[0]= cup_pos[current_cup_no - 1][0];
+    cup_pos_current[1] = cup_pos[current_cup_no - 1][1];
+    cup_color_req = cup_color [current_cup_no - 1];
+    cup_pos_current = coordinate_transform(cup_pos_current, getcup_hand);
+    srv.request.coordinate_mission.resize(2);
+    srv.request.coordinate_mission[0] = cup_pos_current[0];
+    srv.request.coordinate_mission[1] = cup_pos_current[1];
+    srv.request.cup_color_mission = cup_color_req;
+    if (camera_client.call(srv)){
+        ROS_INFO("cup x [%d] y [%d] color [%d]", srv.response.coordinate_camera[0],srv.response.coordinate_camera[1], srv.response.cup_color_camera );
+        if ( srv.response.cup_color_camera == 0){ // green cup :  get cup using right side hand
+            angle_hand = atan2( double( cup_pos_current[1]), double(cup_pos_current[0] - hand_x_r));
+        }
+        else if ( srv.response.cup_color_camera == 1){ // red cup :  get cup using left side hand
+            angle_hand = atan2( double( cup_pos_current[1]), double(cup_pos_current[0] - hand_x_l));
+        }
+        angle_hand = angle_hand * 180  / M_PI; // tranform unit from rad to degree
+    }
+    else{
+        angle_hand = 404;
         ROS_ERROR("Failed to call service camera");
     }
-
-    // number_of_cups = msg -> data[0];
-    // timestamp_camera = msg -> data[ 3 * number_of_cups + 1 ];
-    // if ( timestamp_camera != timestamp_camera_previous){ // check if this is latest data
-    //     camera_data = true;
-    //     cup_camera_green.clear();
-    //     cup_camera_red.clear();
-    //     for ( int i = 1; i <= 3 * (number_of_cups - 1) + 1; i += 3){
-    //         ROS_INFO("i %d", i);
-    //         if ( msg -> data[i] == 0){ // green cup
-    //             cup_camera_green.push_back( msg -> data[ i + 1 ] ); // x
-    //             cup_camera_green.push_back( msg -> data[ i + 2 ] ); // y
-    //             ROS_INFO("green cup x [%d] y [%d]", msg -> data[ i + 1 ], msg -> data[ i + 2 ] );
-    //         }
-    //         else if ( msg -> data[i] == 1){ // red cup
-    //             cup_camera_red.push_back( msg -> data[ i + 1 ] ); // x
-    //             cup_camera_red.push_back( msg -> data[ i + 2 ] ); // y
-    //             ROS_INFO("red cup x [%d] y [%d]", msg -> data[ i + 1 ], msg -> data[ i + 2 ] );
-    //         }
-    //     }
-    // }
-    // else{
-    //     camera_data = false;
-    // }   
-}
-int hand_angle(){
-    // while( camera_data == false){
-    //     if ( camera_data == true){
-    //         break;
-    //     }
-    //     ROS_INFO("camera not ready");
-    // }
-    return 999;
+    if ( angle_hand > 30 && angle_hand != 404){
+        angle_hand = 30;
+        ROS_ERROR("angle too big");
+    }
+    else if ( angle_hand < 30 ){
+        angle_hand = -30;
+        ROS_ERROR("angle too small");
+    }
+    ROS_INFO("hand angle %d", angle_hand);
+    return angle_hand;
 }
 void placecup(int hand, int degree){
     state_mission = ing;
@@ -252,15 +267,6 @@ void placecup(int hand, int degree){
             }
     }
 }
-int cup_color(int num){
-    if ( num == 1 || num == 3 || num == 6 ||num == 8 || num ==10 || num == 12 || num ==13 || num ==16 ){
-        return 1;
-    }
-    else if ( num == 2 || num == 4 || num == 5 ||num == 7 || num == 9 || num == 11 || num ==14 || num ==15 ){
-        return 2;
-    }
-}
-
 void init(){
     ROS_INFO("initialize");
 }
@@ -288,26 +294,27 @@ void getcup_one( int hand){
         switch (getcup.count)
         {
             case 0:
-                to_camera.data = 1; //tell camera to start running
-                forCamera.publish(to_camera);
-                ROS_INFO("publish to camera %d", to_camera.data);
-                // angle = hand_angle();
                 if ( hand == 0 || hand == 1 || hand == 6 || hand == 7){ // inner suction
                     tx_ST2( handd, 1, 404, 2, 2, 2);//first action open suction
                 }
-                else if (hand == 2 ||  hand == 4 ||  hand == 9  || hand == 11 ){ // due cordination degree need to be postive or negative
-                    tx_ST2( handd, 1, getcup_theta[1], 2, 2, 2);//first action hand to assigned degree
-                }
                 else{
-                    tx_ST2( handd, 1, getcup_theta[0], 2, 2, 2);//first action hand to assigned degree
+                    angle = camera();
+                    if ( angle == 404 ){ // can't get data from camera
+                        if (hand == 2 ||  hand == 4 ||  hand == 9  || hand == 11 ){ // due cordination degree need to be postive or negative
+                            tx_ST2( handd, 1, getcup_theta[1], 2, 2, 2);//first action hand to assigned degree
+                        }
+                        else{
+                            tx_ST2( handd, 1, getcup_theta[0], 2, 2, 2);//first action hand to assigned degree
+                        }
+                    }
+                    else{//first action hand to assigned degree
+                        tx_ST2( handd, 1, angle, 2, 2, 2);
+                    }
                 }
                 getcup.count ++;    
                 state_mission = ing;
-                timestamp_camera_previous = timestamp_camera;
                 break;
             case 1:
-                to_camera.data = 0; //tell camera to stop running
-                forCamera.publish(to_camera);
                 if ( checkST2_state(ST2_tx) == 1 ){
                     if ( hand == 0 || hand == 1 || hand == 6 || hand == 7){ // inner suction
                         tx_ST2( handd, 2, 404, platform_down_r, platform_down_l, 2);// second action paltform down
@@ -360,7 +367,12 @@ void getcup_one( int hand){
                 break;
             case 6:
                 if ( checkST2_state(ST2_tx) == 1 ){
-                    // tx_ST2( handd, 2, getcup_theta[1], 2, 2, 2);{// seventh action hand move away from camera
+                    if (hand == 2 ||  hand == 4 ||  hand == 9  || hand == 11 ){ // due cordination degree need to be postive or negative
+                        tx_ST2( handd, 1, getcup_theta[3], 2, 2, 2);// seventh action hand move away from camera
+                    }
+                    else{
+                        tx_ST2( handd, 1, getcup_theta[2], 2, 2, 2);// seventh action hand move away from camera
+                    }
                     getcup.count ++;
                 }
                 break;
@@ -421,7 +433,10 @@ void chatterCallback(const mission::maintomission::ConstPtr& msg)
     tx++;
     state_planer = msg->planer_state;
     team = msg->team;
-
+    getcup_hand =  msg->cup[1];
+    for ( int i = 0; i <  3; i ++){
+        current_pos[i] = msg->action_pos[i];
+    }
     if ( initialize == 1){
         init();
         initialize = 0;
@@ -508,6 +523,7 @@ void chatterCallback(const mission::maintomission::ConstPtr& msg)
                 do_nothing();
                 break;
             case 12:{ // getcup
+                current_cup_no = msg -> cup[0]; // make cup_no into gobal variable so that I can access it in camera()
                 getcup_one( msg->cup[1]);
                 break;
             }
@@ -576,14 +592,14 @@ int main(int argc, char **argv)
     ros::init(argc, argv, "mission");
     ros::NodeHandle n;
     ros::Time::init();
-    forCamera = n.advertise<std_msgs::Int32>("missiontoCamera", 100);
+    // forCamera = n.advertise<std_msgs::Int32>("missiontoCamera", 100);
     forST2 = n.advertise<std_msgs::Int32MultiArray>("MissionToST2", 1);
     forST2com = n.advertise<std_msgs::Int32MultiArray>("txST2", 1);
     tomain = n.advertise<std_msgs::Int32MultiArray>("missionToMain", 10);
     sub = n.subscribe("mainToMission", 100, chatterCallback);
     subST2 = n.subscribe("ST2ToMission", 1000, chatterCallback_ST2);
     subST2com = n.subscribe("rxST2", 1000, chatterCallback_ST2com);
-    subCamera =  n.subscribe("opencv_Cups", 100, camera);
+    // subCamera =  n.subscribe("opencv_Cups", 100, camera);
 
     camera_client = n.serviceClient<mission::mission_camera>("camera_fake_server");
 
@@ -592,7 +608,7 @@ int main(int argc, char **argv)
     
     int count = 0;
     to_main.data = {2, 1};
-    to_camera.data = 0;
+    // to_camera.data = 0;
     while (ros::ok())
     {
         n.getParam("/angle", angle_test); 

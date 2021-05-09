@@ -60,6 +60,9 @@
         "string": "cpp",
         "string_view": "cpp",
         "unordered_set": "cpp",
-        "*.ipp": "cpp"
+        "*.ipp": "cpp",
+        "valarray": "cpp",
+        "condition_variable": "cpp",
+        "mutex": "cpp"
     }
 }
