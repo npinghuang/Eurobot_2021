@@ -1,0 +1,40 @@
+<launch>
+  <node name="usb_cam" pkg="usb_cam" type="usb_cam_node" output="screen" > 
+    <param name="video_device" value="/dev/video2" />
+    <param name="image_width" value="640" />
+    <param name="image_height" value="480" />
+    <param name="pixel_format" value="yuyv" />
+    <param name="camera_frame_id" value="usb_cam" />
+    <param name="io_method" value="mmap"/>
+  </node>
+  <node name="image_proc" pkg="image_proc" type="image_proc" ns="usb_cam">
+  </node>
+  <node name="cameraTransformation" pkg="cup_detect" type="cameraTransformation.exe" output="screen">
+  </node>
+    <param name="/green_lowH" type="double" value="50" />
+    <param name="/green_lowS" type="double" value="50" />
+    <param name="/green_lowV" type="double" value="50" />
+    <param name="/green_highH" type="double" value="80" />
+    <param name="/green_highS" type="double" value="255" />
+    <param name="/green_highV" type="double" value="255" />
+    <param name="/red1_lowH" type="double" value="170" />
+    <param name="/red1_lowS" type="double" value="10" />
+    <param name="/red1_lowV" type="double" value="100" />
+    <param name="/red1_highH" type="double" value="180" />
+    <param name="/red1_highS" type="double" value="255" />
+    <param name="/red1_highV" type="double" value="255" />
+    <param name="/red2_lowH" type="double" value="0" />
+    <param name="/red2_lowS" type="double" value="10" />
+    <param name="/red2_lowV" type="double" value="100" />  
+    <param name="/red2_highH" type="double" value="5" />
+    <param name="/red2_highS" type="double" value="255" />
+    <param name="/red2_highV" type="double" value="255" />
+    <param name="/Gaussian_Blur" type="int" value="1" />
+    <param name="/smallestLimitSize" type="double" value="50" />
+    <param name="/smallCanny" type="double" value="20" />
+    <param name="/cannyStrongEdge" type="int" value="100" />
+    <param name="/cannyWeakEdge" type="int" value="30" />
+    <param name="/detectTimes" type="int" value="3"/>
+  <node name="cupDetect" pkg="cup_detect" type="cupDetect.exe" output="screen" >
+  </node>
+</launch>

@@ -1,0 +1,5 @@
+int32[] coordinate_mission
+int32 cup_color_mission
+---
+int32[] coordinate_camera
+int32 cup_color_camera

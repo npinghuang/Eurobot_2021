@@ -7,8 +7,8 @@ bool camera(mission::mission_camera::Request  &req,
     ROS_INFO("into bool");
     res.coordinate_camera.resize(3);
     for ( int i = 0; i < 2; i++){
-        ROS_INFO("into for");
-        res.coordinate_camera[i] = req.coordinate_mission[i];
+      ROS_INFO("into for");
+      res.coordinate_camera[i] = req.coordinate_mission[i];
         // ROS_ERROR("failed to get coordinate");
     }
     // res.coordinate_camera = new int [2];

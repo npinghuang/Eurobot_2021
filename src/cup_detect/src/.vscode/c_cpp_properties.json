@@ -1,0 +1,21 @@
+{
+  "configurations": [
+    {
+      "browse": {
+        "databaseFilename": "",
+        "limitSymbolsToIncludedHeaders": true
+      },
+      "includePath": [
+        "/home/shark/catkin_ws/devel/include/**",
+        "/opt/ros/melodic/include/**",
+        "/home/shark/catkin_ws/src/cup_detect/include/**",
+        "/home/shark/catkin_ws/src/ddynamic_reconfigure/include/**",
+        "/home/shark/catkin_ws/src/realsense-ros/realsense2_camera/include/**",
+        "/home/shark/catkin_ws/src/usb_cam/include/**",
+        "/usr/include/**"
+      ],
+      "name": "ROS"
+    }
+  ],
+  "version": 4
+}

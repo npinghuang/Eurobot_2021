@@ -159,7 +159,7 @@ void tx_ST2( int hand, int suction_state,  int degree, int platform_right, int p
 }
 int cup_x = 0;
 int cup_y = 0;
-std::vector<int> cup_pos_current{0,0};
+std::vector<int> cup_pos_current{0, 0, 0};
 int cup_color_req = 0; // 0 for green 1 for red
 std::vector<int>  coordinate_transform( std::vector<int> &coordinate, int hand ){
     int xi = coordinate[0];
@@ -186,6 +186,8 @@ int camera(){
     int hand_x_l = -6;
     cup_pos_current[0]= cup_pos[current_cup_no - 1][0];
     cup_pos_current[1] = cup_pos[current_cup_no - 1][1];
+    cup_pos_current[2] = (int)current_pos[2];
+    ROS_INFO("current pos x [%f], y [%f], theta [%f]", current_pos[0], current_pos[1], current_pos[2]);
     cup_color_req = cup_color [current_cup_no - 1];
     cup_pos_current = coordinate_transform(cup_pos_current, getcup_hand);
     srv.request.coordinate_mission.resize(2);
@@ -196,11 +198,16 @@ int camera(){
         ROS_INFO("cup x [%d] y [%d] color [%d]", srv.response.coordinate_camera[0],srv.response.coordinate_camera[1], srv.response.cup_color_camera );
         if ( srv.response.cup_color_camera == 0){ // green cup :  get cup using right side hand
             angle_hand = atan2( double( cup_pos_current[1]), double(cup_pos_current[0] - hand_x_r));
+            angle_hand = angle_hand * 180  / M_PI; // tranform unit from rad to degree
         }
         else if ( srv.response.cup_color_camera == 1){ // red cup :  get cup using left side hand
             angle_hand = atan2( double( cup_pos_current[1]), double(cup_pos_current[0] - hand_x_l));
+            angle_hand = angle_hand * 180  / M_PI; // tranform unit from rad to degree
         }
-        angle_hand = angle_hand * 180  / M_PI; // tranform unit from rad to degree
+        else if ( srv.response.cup_color_camera == -1){ // no cup
+             angle_hand = 404;
+        }
+        
     }
     else{
         angle_hand = 404;

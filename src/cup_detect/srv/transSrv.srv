@@ -1,0 +1,5 @@
+int64 camera_x
+int64 camera_y
+---
+int64 robot_x
+int64 robot_y

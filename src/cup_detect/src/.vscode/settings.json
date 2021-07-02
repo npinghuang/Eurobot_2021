@@ -1,9 +1,12 @@
 {
+    "python.autoComplete.extraPaths": [
+        "/home/shark/catkin_ws/devel/lib/python2.7/dist-packages",
+        "/opt/ros/melodic/lib/python2.7/dist-packages"
+    ],
     "files.associations": {
         "cctype": "cpp",
         "clocale": "cpp",
         "cmath": "cpp",
-        "csignal": "cpp",
         "cstdarg": "cpp",
         "cstddef": "cpp",
         "cstdio": "cpp",
@@ -23,8 +26,11 @@
         "deque": "cpp",
         "list": "cpp",
         "unordered_map": "cpp",
+        "unordered_set": "cpp",
         "vector": "cpp",
         "exception": "cpp",
+        "hash_map": "cpp",
+        "hash_set": "cpp",
         "fstream": "cpp",
         "functional": "cpp",
         "initializer_list": "cpp",
@@ -59,23 +65,7 @@
         "set": "cpp",
         "string": "cpp",
         "string_view": "cpp",
-        "unordered_set": "cpp",
-        "*.ipp": "cpp",
-        "valarray": "cpp",
-        "condition_variable": "cpp",
-        "mutex": "cpp",
-        "hash_map": "cpp",
-        "hash_set": "cpp",
-        "slist": "cpp"
+        "csignal": "cpp"
     },
-    "python.autoComplete.extraPaths": [
-        "/home/enping/Eurobot_2021/devel/lib/python2.7/dist-packages",
-        "/home/enping/catkin_ws/devel/lib/python2.7/dist-packages",
-        "/opt/ros/melodic/lib/python2.7/dist-packages"
-    ],
-    "python.analysis.extraPaths": [
-        "/home/enping/Eurobot_2021/devel/lib/python2.7/dist-packages",
-        "/home/enping/catkin_ws/devel/lib/python2.7/dist-packages",
-        "/opt/ros/melodic/lib/python2.7/dist-packages"
-    ]
+    "python.pythonPath": "/usr/bin/python"
 }

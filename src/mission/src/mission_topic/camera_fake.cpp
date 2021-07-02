@@ -2,7 +2,7 @@
 #include <std_msgs/Int32MultiArray.h>
 #include <std_msgs/Int32.h>
 #include <sstream>
-#include<vector>
+#include <vector>
 using namespace std;
 ros::Publisher cameratomission;
 ros::Subscriber subcamera;
