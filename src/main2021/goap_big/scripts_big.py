@@ -7,6 +7,9 @@ from main2021.srv import *
 from precondition import *
 from setting_big_goap import *
 from goap_big_server import *
+
+loop_param = 10 #change loop times here !
+
 def GOAP_script(req):
     global penalty_mission
     global counter
@@ -15,6 +18,7 @@ def GOAP_script(req):
     global cup
     global counter_scripts
     global previous_team
+    global loop_param
     # del action[:]
     # del position[:]
     # del cup[:]
@@ -239,7 +243,7 @@ def GOAP_script(req):
             count_script += 1 #for appending next action
             loop_count += 1
             # print("loop count :", loop_count)
-            if  count_script >= len( scrpit_mission) and loop_count < 50:
+            if  count_script >= len( scrpit_mission) and loop_count < loop_param:
                 count_script = 0
         
     #pop old action

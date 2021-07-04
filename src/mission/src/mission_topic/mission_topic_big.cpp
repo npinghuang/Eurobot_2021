@@ -186,6 +186,12 @@ int camera(){
     int hand_x_l = -6;
     cup_pos_current[0]= cup_pos[current_cup_no - 1][0];
     cup_pos_current[1] = cup_pos[current_cup_no - 1][1];
+    // green test
+    // cup_pos_current[0]= 6;
+    // cup_pos_current[1] = 12;
+    // red test
+    // cup_pos_current[0]= -6;
+    // cup_pos_current[1] = 12;
     cup_pos_current[2] = (int)current_pos[2];
     ROS_INFO("current pos x [%f], y [%f], theta [%f]", current_pos[0], current_pos[1], current_pos[2]);
     cup_color_req = cup_color [current_cup_no - 1];
