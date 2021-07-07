@@ -102,7 +102,7 @@ void print_tx(){
 }
 int angle_test;
 int suction_count = 0;
-float suction_delay = 1;
+float suction_delay = 0;
 float doing_time;
 bool checkST2_state(std::vector<int> &tx){
     // if st2 tx == rx

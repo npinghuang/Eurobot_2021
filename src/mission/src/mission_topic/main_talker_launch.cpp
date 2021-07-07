@@ -49,8 +49,8 @@ int main(int argc, char **argv)
     to_mission.action =  param;
     to_mission.hand = {hand1_param, cup_param};//, cup_pos[0], cup_pos[1]
     to_mission.action_pos = { 0, 0, 3.14 };
-    // to_mission.cup = { cup_param, hand1_param};
-    to_mission.cup = { 25, 2};
+    to_mission.cup = { cup_param, hand1_param};
+    // to_mission.cup = { 25, 2};
     to_mission.NS = false;
     to_mission.reef = {1,1,0,1,0,0,1,0,1,1};
     to_mission.planer_state = 1;

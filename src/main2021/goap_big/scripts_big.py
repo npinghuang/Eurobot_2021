@@ -8,7 +8,7 @@ from precondition import *
 from setting_big_goap import *
 from goap_big_server import *
 
-loop_param = 10 #change loop times here !
+loop_param = 500 #change loop times here !
 
 def GOAP_script(req):
     global penalty_mission
