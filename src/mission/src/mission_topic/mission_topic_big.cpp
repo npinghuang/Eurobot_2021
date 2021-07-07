@@ -24,8 +24,8 @@ using namespace std;
 // ros::Duration onesec(0, 1000000000);
 // ros::Duration onesec(0, 0);
 //time
-ros::Time begin_time;
-ros::Time now_time;
+ros::WallTime begin_time;
+ros::WallTime now_time;
 // #include "mission/mission_function.h"
 ros::Publisher tomain;
 // ros::Publisher forCamera;
@@ -102,26 +102,42 @@ void print_tx(){
 }
 int angle_test;
 int suction_count = 0;
-float suction_delay = 0;
-float doing_time;
+int suction_up_count = 0;
+// float suction_delay = 0.3;
+// float suction_up_delay = 0.2;
+ros::WallDuration suction_delay(1.0);
+ros::WallDuration suction_up_delay;
+// float suction_delay = 0;
+// float suction_up_delay = 0;
+// float doing_time;
+ros::WallDuration doing_time;
 bool checkST2_state(std::vector<int> &tx){
     // if st2 tx == rx
     int state = 1;
     bool newact = false;
     if (old_tx [0] != tx[0] || old_tx [1] != tx[1] || old_tx [2] != tx[2] || old_tx [3] != tx[3] || old_tx [4] != tx[4]){
         suction_count = 0;
+        suction_up_count = 0;
     }
-    if ( (ST2_rx[3] == 1 || ST2_rx[4] == 1)  && ST2_rx[2] == 404){ // if platform is at down position we need to add a delay to it 
+    if ( (ST2_rx[3] != 2 || ST2_rx[4] != 2)  && ST2_rx[2] == 404){ // if platform is at down position we need to add a delay to it 
         if ( state == 1){
             if (suction_count == 0){
-                begin_time = ros::Time::now();
+                begin_time = ros::WallTime::now();
                 suction_count = 1;
             }
-            now_time = ros::Time::now();
-            doing_time = (now_time - begin_time).toSec();
+            now_time = ros::WallTime::now();
+            doing_time = (now_time - begin_time);
             if ( doing_time < suction_delay ){
                 state = 0;
-                ROS_INFO("suction doing time %f %f %d",begin_time.toSec(), doing_time, suction_count);
+                if (ST2_rx[3] == 1 || ST2_rx[4] == 1){
+                    // ROS_INFO("down suction doing time %f %f %d",begin_time.toSec(), doing_time, suction_count);
+                    ROS_INFO("down delay");
+                }
+                else if (ST2_rx[0] == 2 || ST2_rx[4] == 0){
+                    // ROS_INFO("up suction doing time %f %f %d",begin_time.toSec(), doing_time, suction_count);
+                    ROS_INFO("up delay");
+
+                }
             }
             else if (doing_time >= suction_delay){
                 state = 1;
