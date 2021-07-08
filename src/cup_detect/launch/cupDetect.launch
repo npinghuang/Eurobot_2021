@@ -9,7 +9,7 @@
   </node>
   <node name="image_proc" pkg="image_proc" type="image_proc" ns="usb_cam">
   </node>
-  <node name="cameraTransformation" pkg="cup_detect" type="cameraTransformation.exe" output="screen">
+  <node name="cameraTransformation" pkg="cup_detect" type="cameraTransformation_new" output="screen">
   </node>
     <param name="/green_lowH" type="double" value="50" />
     <param name="/green_lowS" type="double" value="50" />
@@ -35,6 +35,6 @@
     <param name="/cannyStrongEdge" type="int" value="100" />
     <param name="/cannyWeakEdge" type="int" value="30" />
     <param name="/detectTimes" type="int" value="3"/>
-  <node name="cupDetect" pkg="cup_detect" type="cupDetect.exe" output="screen" >
+  <node name="cupDetect" pkg="cup_detect" type="cupDetect_new" output="screen" >
   </node>
 </launch>

@@ -8,6 +8,7 @@ project(cup_detect)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
+  OpenCV
   cv_bridge
   image_transport
   roscpp
@@ -58,9 +59,11 @@ find_package(catkin REQUIRED COMPONENTS
 # )
 
 ## Generate services in the 'srv' folder
- add_service_files( FILES transSrv.srv )
- add_service_files( FILES mission_camera.srv )
-
+ add_service_files(
+      FILES 
+      transSrv2.srv 
+      mission_camera.srv
+)
 ## Generate actions in the 'action' folder
 # add_action_files(
 #   FILES
@@ -70,9 +73,9 @@ find_package(catkin REQUIRED COMPONENTS
 
 ## Generate added messages and services with any dependencies listed here
 generate_messages(
-  DEPENDENCIES
-  sensor_msgs
-  std_msgs
+      DEPENDENCIES
+      sensor_msgs
+      std_msgs
  )
 
 ################################################
@@ -107,7 +110,7 @@ generate_messages(
 catkin_package(
     INCLUDE_DIRS include
     LIBRARIES cup_detect
-    CATKIN_DEPENDS cv_bridge image_transport roscpp rospy sensor_msgs std_msgs message_runtime
+    # CATKIN_DEPENDS cv_bridge image_transport roscpp rospy sensor_msgs std_msgs message_runtime
     DEPENDS system_lib
   )
 
@@ -118,8 +121,9 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
-  include
+include
   ${catkin_INCLUDE_DIRS}
+  ${OpenCV_INCLUDE_DIRS}
 )
 
 ## Declare a C++ library
@@ -152,16 +156,16 @@ include_directories(
 #   ${catkin_LIBRARIES}
 # )
 
-find_package(OpenCV)
-include_directories(${OpenCV_INCLUDE_DIRS})
-add_executable(cupDetect.exe src/cupDetect.cpp)
-target_link_libraries(cupDetect.exe ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
-add_dependencies(cupDetect.exe ${catkin_EXPORTED_TARGETS})
-#target_link_libraries(cupDetect.exe ${OpenCV_LIBRARIES})
-add_executable(cameraTransformation.exe src/cameraTransformation.cpp)
-target_link_libraries(cameraTransformation.exe ${catkin_LIBRARIES})
-add_dependencies(cameraTransformation.exe ${catkin_EXPORTED_TARGETS})
+# find_package(OpenCV)
+# include_directories(${OpenCV_INCLUDE_DIRS})
+add_executable(cupDetect_new src/cupDetect_new.cpp)
+target_link_libraries(cupDetect_new ${catkin_LIBRARIES})
+target_link_libraries(cupDetect_new ${OpenCV_LIBRARIES})
+add_dependencies(cupDetect_new ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
+add_executable(cameraTransformation_new src/cameraTransformation_new.cpp)
+target_link_libraries(cameraTransformation_new ${catkin_LIBRARIES})
+add_dependencies(cameraTransformation_new ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 #############
 ## Install ##

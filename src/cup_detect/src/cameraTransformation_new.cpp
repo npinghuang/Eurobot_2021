@@ -2,27 +2,49 @@
 #include <iostream>
 #include <fstream>
 #include <stdlib.h>
-#include "cup_detect/transSrv.h"
+#include "cup_detect/transSrv2.h"
 
 std::vector<std::vector<int>> data;
 std::vector<int> data_2;
 
-bool coordinateTrans(cup_detect::transSrv::Request &cam, cup_detect::transSrv::Response &coor)
+bool coordinateTrans(cup_detect::transSrv2::Request &cam, cup_detect::transSrv2::Response &coor)
 {
-      int distance, leastDis, firstNum = 1;
-      for (int i = 0; i < data.size(); i++)
+      if (!cam.reverse)
       {
-            distance = pow(cam.camera_x - data[i][0], 2) + pow(cam.camera_y - data[i][1], 2);
-            if (firstNum)
+            int distance, leastDis, firstNum = 1;
+            for (int i = 0; i < data.size(); i++)
             {
-                  leastDis = distance;
-                  firstNum = 0;
+                  distance = pow(cam.camera_x - data[i][0], 2) + pow(cam.camera_y - data[i][1], 2);
+                  if (firstNum)
+                  {
+                        leastDis = distance;
+                        firstNum = 0;
+                  }
+                  else if (leastDis > distance)
+                  {
+                        coor.robot_x = data[i][2];
+                        coor.robot_y = data[i][3];
+                        leastDis = distance;
+                  }
             }
-            else if (leastDis > distance)
+      }
+      else
+      {
+            int distance, leastDis, firstNum = 1;
+            for (int i = 0; i < data.size(); i++)
             {
-                  coor.robot_x = data[i][2];
-                  coor.robot_y = data[i][3];
-                  leastDis = distance;
+                  distance = pow(cam.camera_x - data[i][2], 2) + pow(cam.camera_y - data[i][3], 2);
+                  if (firstNum)
+                  {
+                        leastDis = distance;
+                        firstNum = 0;
+                  }
+                  else if (leastDis > distance)
+                  {
+                        coor.robot_x = data[i][0];
+                        coor.robot_y = data[i][1];
+                        leastDis = distance;
+                  }
             }
       }
       return true;

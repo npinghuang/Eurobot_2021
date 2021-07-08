@@ -1,5 +1,6 @@
 int64 camera_x
 int64 camera_y
+bool reverse
 ---
 int64 robot_x
 int64 robot_y

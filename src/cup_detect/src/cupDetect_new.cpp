@@ -7,7 +7,8 @@
 #include <std_msgs/String.h>
 #include <std_msgs/Int32MultiArray.h>
 #include <std_msgs/Int32.h>
-#include "cup_detect/transSrv.h"
+#include <vector>
+#include "cup_detect/transSrv2.h"
 #include "cup_detect/mission_camera.h"
 
 static const std::string GREEN_WINDOW = "Green Cup Window";
@@ -26,10 +27,11 @@ class ImageConverter
       image_transport::ImageTransport it_;
       image_transport::Subscriber image_sub_;
       image_transport::Publisher image_pub_;
-      ros::ServiceClient cli_ = nh_.serviceClient<cup_detect::transSrv>("cameraTransformation");
-      cup_detect::transSrv t_srv;
+      ros::ServiceClient cli_ = nh_.serviceClient<cup_detect::transSrv2>("cameraTransformation");
+      cup_detect::transSrv2 t_srv;
+      cup_detect::transSrv2 t2_srv;
       ros::Publisher pub_ = nh_.advertise<std_msgs::String>("opencv_Cups", 100);
-      ros::ServiceServer ser_ ;
+      ros::ServiceServer ser_;
 
       double green_lowH;
       double green_lowS;
@@ -66,22 +68,24 @@ class ImageConverter
       int centerX_up;
       int centerX_down;
 
-      std::vector<std::vector<double>> resultCup;
+      std::vector<std::vector<double>> resultCup; // {ellipseRect.center.x, ellipseRect.center.y, 0, 0, 0, 0, 1, color}   color [ 1 for red , 0 for green ]
       std::vector<cv::RotatedRect> resultRect;
       int detectTimes;
 
-      int mis_resultX;
-      int mis_resultY;
+      int mis_resultX = -1000;
+      int mis_resultY = -1000;
       int needColor;
       int mis_color;
+      bool letdo5;
 
 public:
       ImageConverter()
           : it_(nh_)
       {
             //image_sub_ = it_.subscribe("/usb_cam/image_raw", 1, &ImageConverter::imageCb, this);
+            image_sub_ = it_.subscribe("/usb_cam/image_rect_color", 1, &ImageConverter::imageCb, this);
             ser_ = nh_.advertiseService("mission_camera", &ImageConverter::mission_camera, this);
-            cv::namedWindow(RESULT_WINDOW);
+            // cv::namedWindow(RESULT_WINDOW);
       }
 
       ~ImageConverter()
@@ -91,18 +95,17 @@ public:
 
       bool mission_camera(cup_detect::mission_camera::Request &mis, cup_detect::mission_camera::Response &cam)
       {
-            centerX_up = mis.coordinate_mission[0] - 50;
-            centerX_down = mis.coordinate_mission[0] + 50;
-            centerY_up = mis.coordinate_mission[1] - 50;
-            centerY_down = mis.coordinate_mission[1] - 50;
+            t2_srv.request.camera_x = mis.coordinate_mission[0];
+            t2_srv.request.camera_y = mis.coordinate_mission[1];
+            t2_srv.request.reverse = true;
+            if (cli_.call(t2_srv))
+            {
+                  centerX_up = t2_srv.response.robot_x - 75;
+                  centerX_down = t2_srv.response.robot_x + 75;
+                  centerY_up = t2_srv.response.robot_y - 75;
+                  centerY_down = t2_srv.response.robot_y - 75;
+            };
             needColor = mis.cup_color_mission;
-            resultCup.clear();
-            resultRect.clear();
-            image_sub_ = it_.subscribe("/usb_cam/image_rect_color", 1, &ImageConverter::imageCb, this);
-            image_sub_ = it_.subscribe("/usb_cam/image_rect_color", 1, &ImageConverter::imageCb, this);
-            image_sub_ = it_.subscribe("/usb_cam/image_rect_color", 1, &ImageConverter::imageCb, this);
-            image_sub_ = it_.subscribe("/usb_cam/image_rect_color", 1, &ImageConverter::imageCb, this);
-            image_sub_ = it_.subscribe("/usb_cam/image_rect_color", 1, &ImageConverter::imageCb, this);
             cam.coordinate_camera = {mis_resultX, mis_resultY};
             cam.cup_color_camera = mis_color;
             return true;
@@ -210,6 +213,7 @@ public:
             cv::findContours(img_green, contours_green, hierarchy_green, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE);
 
             // ------------------------------Result Processing (Filter)------------------------------ //
+
             for (int i = 0; i < resultCup.size(); i++)
             {
                   for (int j = 3; j <= 6; j++)
@@ -218,24 +222,18 @@ public:
                   }
                   resultCup[i][6] = 0;
             }
-            if (needColor)
+            for (int i = 0; i < contours_red.size(); i++)
             {
-                  for (int i = 0; i < contours_red.size(); i++)
+                  if (cv::contourArea(contours_red[i]) > smallestLimitSize)
                   {
-                        if (cv::contourArea(contours_red[i]) > smallestLimitSize)
-                        {
-                              find_Ellipse(contours_red[i], 1);
-                        }
+                        find_Ellipse(contours_red[i], 1);
                   }
             }
-            else
+            for (int i = 0; i < contours_green.size(); i++)
             {
-                  for (int i = 0; i < contours_green.size(); i++)
+                  if (cv::contourArea(contours_green[i]) > smallestLimitSize)
                   {
-                        if (cv::contourArea(contours_green[i]) > smallestLimitSize)
-                        {
-                              find_Ellipse(contours_green[i], 2);
-                        }
+                        find_Ellipse(contours_green[i], 0);
                   }
             }
             for (int i = 0; i < resultCup.size(); i++)
@@ -245,19 +243,19 @@ public:
                   }
                   else
                   {
-                        resultCup[i][0] = 0;
-                        resultCup[i][1] = 0;
+                        resultCup.erase(resultCup.begin() + i);
+                        i--;
                   }
             }
             printEllipse(img_result);
 
             // cv::imshow(ORIGINAL_WINDOW, img);
-            cv::resize(img_canny, img_canny, cv::Size(img_canny.cols * 1.1, img_canny.rows * 1.1));
-            cv::imshow(CANNY_ADD_WINDOW, img_canny);
-            cv::resize(img_result, img_result, cv::Size(img_result.cols * 2.2, img_result.rows * 2.2));
+            // cv::resize(img_canny, img_canny, cv::Size(img_canny.cols * 1.1, img_canny.rows * 1.1));
+            // cv::imshow(CANNY_ADD_WINDOW, img_canny);
+            // cv::resize(img_result, img_result, cv::Size(img_result.cols * 2.2, img_result.rows * 2.2));
             cv::imshow(RESULT_WINDOW, img_result);
-            cv::resize(img_mask, img_mask, cv::Size(img_mask.cols * 1.1, img_mask.rows * 1.1));
-            cv::imshow(MASK_WINDOW, img_mask);
+            // cv::resize(img_mask, img_mask, cv::Size(img_mask.cols * 1.1, img_mask.rows * 1.1));
+            // cv::imshow(MASK_WINDOW, img_mask);
             // cv::imshow(MASK3_WINDOW, img_mask2);
             // cv::imshow(GREEN_WINDOW, img_green);
             // cv::imshow(RED_WINDOW, img_red);
@@ -283,7 +281,7 @@ public:
                   return;
             }
             cv::RotatedRect ellipseRect = cv::fitEllipse(processContours_i);
-            if (ellipseRect.angle < 140 && ellipseRect.angle > 40 && checkCoor(ellipseRect.center.x, ellipseRect.center.y))
+            if (ellipseRect.angle < 140 && ellipseRect.angle > 40 /*&& checkCoor(ellipseRect.center.x, ellipseRect.center.y)*/)
             {
                   for (int i = 0; i < resultCup.size(); i++)
                   {
@@ -317,40 +315,79 @@ public:
             cv::Scalar color_Scalar;
             int red_cup = 0;
             int green_cup = 0;
+            int min_i = -1;
+            float distance = 100000;
             for (int i = 0; i < resultCup.size(); i++)
             {
-                  std_msgs::String msg;
-                  std::stringstream ss;
-                  int times = resultCup[i][2] + resultCup[i][3] + resultCup[i][4] + resultCup[i][5] + resultCup[i][6];
-                  if (times >= detectTimes)
+                  if (pow(distance, 2) > (pow(t2_srv.response.robot_x - resultCup[i][0], 2) + pow(t2_srv.response.robot_y - resultCup[i][1], 2)) && (resultCup[i][2] + resultCup[i][3] + resultCup[i][4] + resultCup[i][5] + resultCup[i][6]) > detectTimes && needColor == resultCup[i][7] && checkCoor(resultCup[i][0], resultCup[i][1]))
                   {
-                        if (resultCup[i][7] == 1)
+                        distance = pow((pow(t2_srv.response.robot_x - resultCup[i][0], 2) + pow(t2_srv.response.robot_y - resultCup[i][1], 2)), 0.5);
+                        min_i = i;
+                  }
+            }
+            if (min_i == -1)
+            {
+                  mis_resultX = -1000;
+                  mis_resultY = -1000;
+                  mis_color = -1;
+            }
+            else
+            {
+                  if (resultCup[min_i][7] == 1)
+                  {
+                        t_srv.request.camera_x = resultRect[min_i].center.x;
+                        t_srv.request.camera_y = resultRect[min_i].center.y;
+                        t_srv.request.reverse = false;
+                        if (cli_.call(t_srv))
                         {
-                              color_String = "Red Cup";
-                              color_Scalar = cv::Scalar(0, 0, 255);
-                              t_srv.request.camera_x = resultRect[i].center.x;
-                              t_srv.request.camera_y = resultRect[i].center.y;
-                              red_cup++;
-                              if (cli_.call(t_srv))
-                              {
-                                    mis_resultX = t_srv.response.robot_x;
-                                    mis_resultY = t_srv.response.robot_y;
-                              }
-                              mis_color = 1;
+                              mis_resultX = t_srv.response.robot_x;
+                              mis_resultY = t_srv.response.robot_y;
                         }
-                        else if (resultCup[i][7] == 2)
+                        printf("Red [ %d , %d ]\n", mis_resultX, mis_resultY);
+                        mis_color = 1;
+                  }
+                  else if (resultCup[min_i][7] == 0)
+                  {
+                        color_String = "Mission Target : Green Cup";
+                        color_Scalar = cv::Scalar(0, 255, 0);
+                        t_srv.request.camera_x = resultRect[min_i].center.x;
+                        t_srv.request.camera_y = resultRect[min_i].center.y;
+                        t_srv.request.reverse = false;
+                        if (cli_.call(t_srv))
                         {
-                              color_String = "Green Cup";
-                              color_Scalar = cv::Scalar(0, 255, 0);
-                              t_srv.request.camera_x = resultRect[i].center.x;
-                              t_srv.request.camera_y = resultRect[i].center.y;
-                              green_cup++;
-                              if (cli_.call(t_srv))
+                              mis_resultX = t_srv.response.robot_x;
+                              mis_resultY = t_srv.response.robot_y;
+                        }
+                        printf("Green[ %d , %d ] \n", mis_resultX, mis_resultY);
+                        mis_color = 0;
+                  }
+                  for (int i = 0; i < resultCup.size(); i++)
+                  {
+                        if (i == min_i)
+                        {
+                              if (resultCup[i][7] == 1)
                               {
-                                    mis_resultX = t_srv.response.robot_x;
-                                    mis_resultY = t_srv.response.robot_y;
+                                    color_String = "Mission Target : Red Cup";
+                                    color_Scalar = cv::Scalar(0, 0, 255);
                               }
-                              mis_color = 0;
+                              else
+                              {
+                                    color_String = "Mission Target : Green Cup";
+                                    color_Scalar = cv::Scalar(0, 255, 0);
+                              }
+                        }
+                        else
+                        {
+                              if (resultCup[i][7] == 1)
+                              {
+                                    color_String = "Other Red Cup";
+                                    color_Scalar = cv::Scalar(0, 0, 255);
+                              }
+                              else
+                              {
+                                    color_String = "Other Green Cup";
+                                    color_Scalar = cv::Scalar(0, 255, 0);
+                              }
                         }
                         cv::ellipse(img_result, resultRect[i], cv::Scalar(255, 255, 255), 2, CV_AA);
                         cv::circle(img_result, resultRect[i].center, 3, cv::Scalar(255, 255, 255), 2);
@@ -360,14 +397,6 @@ public:
                         // cv::putText(img_result, position_x, cv::Point(ellipseRect.center.x, ellipseRect.center.y + 20), CV_FONT_HERSHEY_SIMPLEX, 0.5, color_Scalar, 2);
                         // cv::putText(img_result, position_y, cv::Point(ellipseRect.center.x, ellipseRect.center.y + 40), CV_FONT_HERSHEY_SIMPLEX, 0.5, color_Scalar, 2);
                   }
-            }
-            if (red_cup == 0 && needColor)
-            {
-                  mis_color = -1;
-            }
-            else if (green_cup == 0 && !needColor)
-            {
-                  mis_color = -1;
             }
       }
 };

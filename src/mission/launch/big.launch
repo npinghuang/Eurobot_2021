@@ -5,7 +5,7 @@
 	<param name="/cup_no" type="int" value="2" />
 	<param name="/angle" type="int" value="0" />
 	<!-- <node name="ST2" pkg="mission" output = "screen" type="ST2" />   output = "screen"   -->
-	<!-- <node name="main_talker_launch" pkg="mission" type="main_talker_launch" /> -->
-	<!-- <node name= "camera_fake_server" pkg="mission" type="camera_fake_server" /> -->
+	<node name="main_talker_launch" pkg="mission" type="main_talker_launch" />
+	<node name= "camera_fake_server" pkg="mission" type="camera_fake_server" />
 	<node name="mission_topic_big" pkg="mission" output = "screen" type="mission_topic_big" />
 </launch>

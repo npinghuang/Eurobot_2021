@@ -202,22 +202,27 @@ int camera(){
     int hand_x_l = -6;
     cup_pos_current[0]= cup_pos[current_cup_no - 1][0];
     cup_pos_current[1] = cup_pos[current_cup_no - 1][1];
-    // green test
-    // cup_pos_current[0]= 6;
-    // cup_pos_current[1] = 12;
-    // red test
-    // cup_pos_current[0]= -6;
-    // cup_pos_current[1] = 12;
+
     cup_pos_current[2] = (int)current_pos[2];
     ROS_INFO("current pos x [%f], y [%f], theta [%f]", current_pos[0], current_pos[1], current_pos[2]);
     cup_color_req = cup_color [current_cup_no - 1];
     cup_pos_current = coordinate_transform(cup_pos_current, getcup_hand);
+    // green test
+    cup_pos_current[0]= 6;
+    cup_pos_current[1] = 12;
+    cup_color_req = cup_color [0];
+    // red test
+    // cup_pos_current[0]= -6;
+    // cup_pos_current[1] = 12;
+    // cup_color_req = cup_color [1];
     srv.request.coordinate_mission.resize(2);
     srv.request.coordinate_mission[0] = cup_pos_current[0];
     srv.request.coordinate_mission[1] = cup_pos_current[1];
     srv.request.cup_color_mission = cup_color_req;
+    camera_client.call(srv);
+    ROS_INFO("1st call cup x [%d] y [%d] color [%d]", srv.response.coordinate_camera[0],srv.response.coordinate_camera[1], srv.response.cup_color_camera );
     if (camera_client.call(srv)){
-        ROS_INFO("cup x [%d] y [%d] color [%d]", srv.response.coordinate_camera[0],srv.response.coordinate_camera[1], srv.response.cup_color_camera );
+        ROS_INFO("2nd call cup x [%d] y [%d] color [%d]", srv.response.coordinate_camera[0],srv.response.coordinate_camera[1], srv.response.cup_color_camera );
         if ( srv.response.cup_color_camera == 0){ // green cup :  get cup using right side hand
             angle_hand = atan2( double( cup_pos_current[1]), double(cup_pos_current[0] - hand_x_r));
             angle_hand = angle_hand * 180  / M_PI; // tranform unit from rad to degree
