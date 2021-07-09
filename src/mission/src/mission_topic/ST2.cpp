@@ -30,7 +30,7 @@ int main(int argc, char **argv)
 
 ST2tomission = n.advertise<std_msgs::Int32MultiArray>("ST2ToMission", 1);
   ros::Subscriber sub = n.subscribe("MissionToST2", 1, chatterCallback);
-  ros::Rate loop_rate(10);
+  ros::Rate loop_rate(200);
 
   int count = 0;
   while (ros::ok())

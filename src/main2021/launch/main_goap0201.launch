@@ -3,7 +3,7 @@
 	<!-- <include file="$(find aruco_pose)/launch/CupAndAruco.launch">
 	</include> -->
 
-	<include file="$(find mission)/launch/big.launch" >
+	<include file="$(find mission)/launch/big.launch"  output="screen" >
 	</include>
 
 	<node name="eurobot_gui" pkg="eurobot_gui" type="eurobot_gui.py" output="screen" respawn="false">

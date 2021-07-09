@@ -68,8 +68,6 @@ bool camera_data = 0; // if camera data is most recent
 int current_cup_no;
 int getcup_hand;
 int cupx, cupy, cupcolor; //for param test camera
-int count = 0; //communication with main
-
 class mission_setting{
     public:
         int mission_no;
@@ -108,7 +106,7 @@ int suction_count = 0;
 int suction_up_count = 0;
 // float suction_delay = 0.3;
 // float suction_up_delay = 0.2;
-ros::WallDuration suction_delay(0.8);
+ros::WallDuration suction_delay(1.0);
 ros::WallDuration suction_up_delay;
 // float suction_delay = 0;
 // float suction_up_delay = 0;
@@ -122,34 +120,31 @@ bool checkST2_state(std::vector<int> &tx){
         suction_count = 0;
         suction_up_count = 0;
     }
-    if ( ST2_tx == ST2_rx){
-        if ( (ST2_rx[3] != 2 || ST2_rx[4] != 2)  && ST2_rx[2] == 404){ // if platform is at down position we need to add a delay to it 
-            if ( state == 1){
-                if (suction_count == 0){
-                    begin_time = ros::WallTime::now();
-                    suction_count = 1;
+    if ( (ST2_rx[3] != 2 || ST2_rx[4] != 2)  && ST2_rx[2] == 404){ // if platform is at down position we need to add a delay to it 
+        if ( state == 1){
+            if (suction_count == 0){
+                begin_time = ros::WallTime::now();
+                suction_count = 1;
+            }
+            now_time = ros::WallTime::now();
+            doing_time = (now_time - begin_time);
+            if ( doing_time < suction_delay ){
+                state = 0;
+                if (ST2_rx[3] == 1 || ST2_rx[4] == 1){
+                    // ROS_INFO("down suction doing time %f %f %d",begin_time.toSec(), doing_time, suction_count);
+                    ROS_INFO("down delay");
                 }
-                now_time = ros::WallTime::now();
-                doing_time = (now_time - begin_time);
-                if ( doing_time < suction_delay ){
-                    state = 0;
-                    if (ST2_rx[3] == 1 || ST2_rx[4] == 1){
-                        // ROS_INFO("down suction doing time %f %f %d",begin_time.toSec(), doing_time, suction_count);
-                        ROS_INFO("down delay");
-                    }
-                    else if (ST2_rx[0] == 2 || ST2_rx[4] == 0){
-                        // ROS_INFO("up suction doing time %f %f %d",begin_time.toSec(), doing_time, suction_count);
-                        ROS_INFO("up delay");
+                else if (ST2_rx[0] == 2 || ST2_rx[4] == 0){
+                    // ROS_INFO("up suction doing time %f %f %d",begin_time.toSec(), doing_time, suction_count);
+                    ROS_INFO("up delay");
 
-                    }
-                }
-                else if (doing_time >= suction_delay){
-                    state = 1;
                 }
             }
-        }       
+            else if (doing_time >= suction_delay){
+                state = 1;
+            }
+        }
     }
-
     else if (ST2_rx[2] != 404) { // if i give a angle to ST2 there's some certain way of communication
         for ( int i = 0; i < 6; i++){
             if ( tx[i] != ST2_rx[i] && i != 1){
@@ -178,14 +173,6 @@ void tx_ST2( int hand, int suction_state,  int degree, int platform_right, int p
     ST2_tx[3] = platform_right;  // 0 for up. 1 for down, 2 for no change
     ST2_tx[4] = platform_left; // 0 for up. 1 for down, 2 for no change
     ST2_tx[5] = hand_state; // 0 for down. 1 for up, 2 for no change
-    // for ( int i = 0; i < 6; i++){
-    //     for_st2.data.push_back(ST2_tx[i]);
-    //     // ROS_INFO("publish in for %d %d", ST2_tx[i], for_st2.data[i]);
-    // }
-    for_st2.data = ST2_tx;
-    forST2.publish(for_st2);
-    forST2com.publish(for_st2);
-    // for_st2.data.clear(); 
 }
 int cup_x = 0;
 int cup_y = 0;
@@ -282,8 +269,8 @@ int camera(){
         angle_hand = 30;
     }
     else if ( angle_hand < -30.0 ){
-        ROS_ERROR("angle too small: [%f]", angle_hand);
         angle_hand = -30;
+        ROS_ERROR("angle too small: [%f]", angle_hand);
     }
     ROS_INFO("hand angle %f", angle_hand);
     return angle_hand;
@@ -307,7 +294,7 @@ void placecup(int hand, int degree){
                         tx_ST2( hand, 2, 404, 2, 2, 0);// second action hand turn to up
                     }
                     placecup_h.count ++;  
-                }
+                    }
                 break;
             case 2:
                 if ( checkST2_state(ST2_tx) == 1 ){
@@ -369,7 +356,7 @@ void getcup_one( int hand){
                     tx_ST2( handd, 1, 404, 2, 2, 2);//first action open suction
                 }
                 else{
-                    // angle = int(camera());
+                    // angle = camera();
                     angle = 404;
                     if ( angle == 404 ){ // can't get data from camera
                         if (hand == 2 ||  hand == 4 ||  hand == 9  || hand == 11 ){ // due cordination degree need to be postive or negative
@@ -656,7 +643,6 @@ void chatterCallback(const mission::maintomission::ConstPtr& msg)
     to_main.data[1]=timestep;
     timestep ++;
     tomain.publish(to_main);
-    ROS_INFO("end of mission");
 }
 
 // Hi, Nice to meet you:)))
@@ -679,23 +665,27 @@ int main(int argc, char **argv)
 
     ros::Rate loop_rate(100);
     ROS_INFO("mission publish");
-    // for_st2.data = {0,0,0,0,0,0};
-   
+    
+    int count = 0;
     to_main.data = {2, 1};
     // to_camera.data = 0;
     while (ros::ok())
     {
-        // n.getParam("/angle", angle_test); 
-        // n.getParam("//cupx",  cupx);  
-        // n.getParam("/cupy", cupy);
-        // n.getParam("/cupcolor", cupcolor);    
-        
+        n.getParam("/angle", angle_test); 
+        n.getParam("//cupx",  cupx);  
+        n.getParam("/cupy", cupy);
+        n.getParam("/cupcolor", cupcolor);    
+        for ( int i = 0; i < 6; i++){
+            for_st2.data.push_back(ST2_tx[i]);
+            // ROS_INFO("publish in for %d %d", ST2_tx[i], for_st2.data[i]);
+        }
         forST2.publish(for_st2);
         forST2com.publish(for_st2);
-        // for_st2.data.clear(); 
+        for_st2.data.clear(); 
         ros::spinOnce();
-    // ros::spin();
+
         loop_rate.sleep();
+        ++count;
     }
     return 0;
 }
