@@ -8,7 +8,7 @@
 	<!-- <node name="main_talker_launch" pkg="mission" type="main_talker_launch" /> -->
 	<node name= "camera_fake_server" pkg="mission" type="camera_fake_server" />
 	<node name="mission_topic_big" pkg="mission" output = "screen" type="mission_topic_big" />
-	<param name="/cupx" type="int" value="3" />
-	<param name="/cupy" type="int" value="9" />
-	<param name="/cupcolor" type="int" value="0" />
+	<param name="/cupx" type="int" value="-1" />
+	<param name="/cupy" type="int" value="12" />
+	<param name="/cupcolor" type="int" value="1" />
 </launch>

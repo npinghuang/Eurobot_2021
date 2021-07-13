@@ -8,7 +8,7 @@ project(cup_detect)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
-  OpenCV
+  # OpenCV
   cv_bridge
   image_transport
   roscpp
@@ -156,7 +156,7 @@ include
 #   ${catkin_LIBRARIES}
 # )
 
-# find_package(OpenCV)
+find_package(OpenCV 3.2 REQUIRED)
 # include_directories(${OpenCV_INCLUDE_DIRS})
 add_executable(cupDetect_new src/cupDetect_new.cpp)
 target_link_libraries(cupDetect_new ${catkin_LIBRARIES})

@@ -241,9 +241,10 @@ def GOAP_script(req):
             #                 cup.append(cup_script[ 3* count_script + 1])
             #                 cup.append(cup_script[ 3* count_script + 2])
             count_script += 1 #for appending next action
-            loop_count += 1
+            # loop_count += 1
             # print("loop count :", loop_count)
             if  count_script >= len( scrpit_mission) and loop_count < loop_param:
+                loop_count += 1
                 count_script = 0
         
     #pop old action

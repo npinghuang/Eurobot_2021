@@ -87,29 +87,31 @@ public:
             //image_sub_ = it_.subscribe("/usb_cam/image_raw", 1, &ImageConverter::imageCb, this);
             image_sub_ = it_.subscribe("/usb_cam/image_rect_color", 1, &ImageConverter::savePic, this);
             ser_ = nh_.advertiseService("mission_camera", &ImageConverter::mission_camera, this);
-            // cv::namedWindow(RESULT_WINDOW);
+            cv::namedWindow(RESULT_WINDOW);
       }
 
       ~ImageConverter()
       {
-            cv::destroyAllWindows();
+            // cv::destroyAllWindows();
       }
 
       bool mission_camera(cup_detect::mission_camera::Request &mis, cup_detect::mission_camera::Response &cam)
       {
             t2_srv.request.camera_x = mis.coordinate_mission[0];
             t2_srv.request.camera_y = mis.coordinate_mission[1];
+            printf("%d %d \n",mis.coordinate_mission[0],mis.coordinate_mission[1]);
             t2_srv.request.reverse = true;
             if (cli_.call(t2_srv))
             {
-                  centerX_up = t2_srv.response.robot_x + 50;
-                  centerX_down = t2_srv.response.robot_x - 50;
-                  centerY_up = t2_srv.response.robot_y + 50;
-                  centerY_down = t2_srv.response.robot_y - 50;
+                  centerX_up = t2_srv.response.robot_x + 500;
+                  centerX_down = t2_srv.response.robot_x - 500;
+                  centerY_up = t2_srv.response.robot_y + 500;
+                  centerY_down = t2_srv.response.robot_y - 500;
                   printf("\t %d\n\n", centerY_down);
                   printf("   %d\tCenter\t%d\n\n", centerX_down, centerX_up);
                   printf("\t %d\n\n", centerY_up);
             };
+
             needColor = mis.cup_color_mission;
             resultCup.clear();
             resultRect.clear();
@@ -118,6 +120,7 @@ public:
             {
                   imageCb(pic);
             }
+            cv::destroyAllWindows();
             cam.coordinate_camera = {mis_resultX, mis_resultY};
             cam.cup_color_camera = mis_color;
             printf("Get Result : ");
@@ -172,7 +175,7 @@ public:
                   return;
             }
             imageProcess(cv_ptr->image);
-            cv::waitKey(1);
+            //cv::waitKey(1);
       }
       void imageProcess(cv::Mat img)
       {
@@ -301,7 +304,7 @@ public:
             // cv::resize(img_canny, img_canny, cv::Size(img_canny.cols * 1.1, img_canny.rows * 1.1));
             // cv::imshow(CANNY_ADD_WINDOW, img_canny);
             // cv::resize(img_result, img_result, cv::Size(img_result.cols * 2.2, img_result.rows * 2.2));
-            // cv::imshow(RESULT_WINDOW, img_result);
+            cv::imshow(RESULT_WINDOW, img_result);
             // cv::resize(img_mask, img_mask, cv::Size(img_mask.cols * 1.1, img_mask.rows * 1.1));
             // cv::imshow(MASK_WINDOW, img_mask);
             // cv::imshow(MASK3_WINDOW, img_mask2);

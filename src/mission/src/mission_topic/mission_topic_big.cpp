@@ -108,7 +108,7 @@ int suction_count = 0;
 int suction_up_count = 0;
 // float suction_delay = 0.3;
 // float suction_up_delay = 0.2;
-ros::WallDuration suction_delay(0.8);
+ros::WallDuration suction_delay(0.95);
 ros::WallDuration suction_up_delay;
 // float suction_delay = 0;
 // float suction_up_delay = 0;
@@ -216,8 +216,8 @@ std::vector<int>  coordinate_transform( std::vector<int> &coordinate, int hand )
 int camera(){
     // hand 12 cm long
     float angle_hand;
-    int hand_x_r = 6;//cm distance of on the x axis from the middle point of the robot
-    int hand_x_l = -6;
+    int hand_x_r = 3;//cm distance of on the x axis from the middle point of the robot
+    int hand_x_l = -3;
     // cup_pos_current[0]= 100+85 ;
     // cup_pos_current[1] = -60-60;
     // cup_pos_current[2] = 0;
@@ -228,6 +228,7 @@ int camera(){
     // cup_pos_current[0]= cup_pos[current_cup_no - 1][0];
     // cup_pos_current[1] = cup_pos[current_cup_no - 1][1];
     // cup_pos_current[2] = (int)current_pos[2];
+    cup_color_req = cup_color [current_cup_no - 1];
     // green test
     // cup_pos_current[0]= 6;
     // cup_pos_current[1] = 12;
@@ -244,15 +245,15 @@ int camera(){
     // param
     cup_pos_current[0]= cupx;
     cup_pos_current[1] = cupy;
-    cup_color_req =  cupcolor;
+    // cup_color_req =  cupcolor;
     ROS_INFO("cup relative pos x [%d], y [%d], theta [%d]", cup_pos_current[0], cup_pos_current[1], cup_pos_current[2]);
     srv.request.coordinate_mission.resize(2);
     srv.request.coordinate_mission[0] = cup_pos_current[0];
     srv.request.coordinate_mission[1] = cup_pos_current[1];
     srv.request.cup_color_mission = cup_color_req;
-    srv.request.cup_color_mission = 1; // green
-    camera_client.call(srv);
-    ROS_INFO("1st call cup x [%d] y [%d] color [%d]", srv.response.coordinate_camera[0],srv.response.coordinate_camera[1], srv.response.cup_color_camera );
+    // srv.request.cup_color_mission = 1; // green
+    // camera_client.call(srv);
+    // ROS_INFO("1st call cup x [%d] y [%d] color [%d]", srv.response.coordinate_camera[0],srv.response.coordinate_camera[1], srv.response.cup_color_camera );
     if (camera_client.call(srv)){
         ROS_INFO("2nd call cup x [%d] y [%d] color [%d]", srv.response.coordinate_camera[0],srv.response.coordinate_camera[1], srv.response.cup_color_camera );
         if ( srv.response.cup_color_camera == 0){ // green cup :  get cup using right side hand
@@ -269,7 +270,8 @@ int camera(){
             angle_hand = angle_hand * 180  / M_PI; // tranform unit from rad to degree
         }
         else if ( srv.response.cup_color_camera == -1){ // no cup
-             angle_hand = 404;
+            angle_hand = 404;
+            ROS_ERROR("no cup seen");
         }
         
     }
@@ -369,6 +371,12 @@ void getcup_one( int hand){
                     tx_ST2( handd, 1, 404, 2, 2, 2);//first action open suction
                 }
                 else{
+                    if ( hand == 8 || hand == 10 || hand == 3 || hand == 5){
+                        cup_color_req = 1;
+                    }
+                    else{
+                        cup_color_req = 0;
+                    }
                     // angle = int(camera());
                     angle = 404;
                     if ( angle == 404 ){ // can't get data from camera
@@ -675,11 +683,11 @@ int main(int argc, char **argv)
     subST2com = n.subscribe("rxST2", 1000, chatterCallback_ST2com);
     // subCamera =  n.subscribe("opencv_Cups", 100, camera);
 
-    camera_client = n.serviceClient<mission::mission_camera>("camera_fake_server");
+    camera_client = n.serviceClient<mission::mission_camera>("mission_camera");
 
     ros::Rate loop_rate(100);
     ROS_INFO("mission publish");
-    // for_st2.data = {0,0,0,0,0,0};
+    for_st2.data = {1,2,404,2,2,2};
    
     to_main.data = {2, 1};
     // to_camera.data = 0;

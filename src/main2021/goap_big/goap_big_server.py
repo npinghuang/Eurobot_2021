@@ -380,11 +380,18 @@ previous_team = None
 
 def GOAP(req):
     print("-------------------------------------------------")
+    # global action
+    # global position
+    # global cup
+    action_last = []
+    position_last = []
+    cup_last = []
+
     if req.strategy == 0:
-        (action, position, cup) = GOAP_nornal(req)
+        (action_last, position_last, cup_last) = GOAP_nornal(req)
     elif req.strategy == 1:
-        (action, position, cup) = GOAP_script(req)
-    return action, position, cup
+        (action_last, position_last, cup_last) = GOAP_script(req)
+    return action_last, position_last, cup_last
     
 
 def goap_server():
