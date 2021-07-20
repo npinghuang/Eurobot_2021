@@ -59,8 +59,8 @@ def GOAP_script(req):
             # cup_script = [0, 21, 0, 34, 0, 0, 0, 0, 0, 0, 20, 7, 19, 5, 16, 8, 15, 6, 10, 9, 9, 11, 6, 10, 5, 12, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
             # position_script = [ 800.0, 2700.0, 0.0, 300.0, 2775.0, 0.0, ]
             if req.ns == False:
-		        scrpit_mission =[31,35,7,26,27,37,11,30,32,33,34]
-		        position_script = [ 1078, 2804,math.pi,#back away
+                scrpit_mission =[31,35,7,26,27,37,11,30,32,33,34]
+                position_script = [ 1078, 2804,math.pi,#back away
                 700, 2804,math.pi, #move forward a little bit
                 371.9, 2155.79, 3.12,#in front of reef 
                 41.92, 2155.79,  3.12, #get cup
@@ -72,8 +72,8 @@ def GOAP_script(req):
                 272.188,2780.306,-1.57,#spin
                 272.188,2889.034,-1.57]# back away
             elif req.ns == True:
-		        scrpit_mission =[31,35,7,26,27,11,30,32,33,34]
-		        position_script = [ 1078, 2804,math.pi,#back away
+                scrpit_mission =[31,35,7,26,27,11,30,32,33,34]
+                position_script = [ 1078, 2804,math.pi,#back away
                 700, 2804,math.pi,#move forward a little bit
                 371.9, 2155.79, 3.12,#in front of reef 
                 41.92, 2155.79,  3.12,#get cup

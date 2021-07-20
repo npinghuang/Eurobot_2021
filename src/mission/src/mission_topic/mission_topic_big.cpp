@@ -67,7 +67,7 @@ int timestamp_camera_previous = 0;
 bool camera_data = 0; // if camera data is most recent 
 int current_cup_no;
 int getcup_hand;
-int cupx, cupy, cupcolor; //for param test camera
+int cupx, cupy, cupcolor, angle_param; //for param test camera
 int count = 0; //communication with main
 
 class mission_setting{
@@ -194,16 +194,19 @@ int cup_color_req = 0; // 0 for green 1 for red
 std::vector<int>  coordinate_transform( std::vector<int> &coordinate, int hand ){
     int xi = coordinate[0];
     int yi = coordinate[1];
+    int front_or_back = 2;
     int half_of_robot_width = 170/2; // mm
     if ( hand < 6){// front side of the robot : axis rotate (theta)
         // coordinate[0] = cos ( coordinate[2] - M_PI_2) * xi - sin ( coordinate[2] - M_PI_2) * yi;
         // coordinate[1] = sin ( coordinate[2] - M_PI_2) * xi - cos ( coordinate[2] - M_PI_2) * yi - half_of_robot_width;  
         coordinate[0] = -cos ( current_pos[2] ) * yi + sin ( current_pos[2] ) * xi;
-        coordinate[1] = sin ( current_pos[2] ) * yi + cos ( current_pos[2]  ) * xi - half_of_robot_width;  
+        coordinate[1] = sin ( current_pos[2] ) * yi + cos ( current_pos[2]  ) * xi - half_of_robot_width; 
+        front_or_back = 0;
     }
     else if ( hand >= 6 && hand < 12){// back side of the robot : axis rotate (theta + 180)
         coordinate[0] = -cos ( current_pos[2] + M_PI) * yi + sin ( current_pos[2] + M_PI ) * xi;
         coordinate[1] = sin ( current_pos[2] + M_PI) * yi + cos ( current_pos[2]  + M_PI) * xi - half_of_robot_width; 
+        front_or_back = 1;
         // coordinate[0] = cos ( coordinate[2] + M_PI_2) * xi - sin ( coordinate[2] + M_PI_2) * yi;
         // coordinate[1] = sin ( coordinate[2] + M_PI_2) * xi - cos ( coordinate[2] + M_PI_2) * yi - half_of_robot_width;  
     }
@@ -211,24 +214,25 @@ std::vector<int>  coordinate_transform( std::vector<int> &coordinate, int hand )
     // turn unit from mm to cm
     coordinate[0] = coordinate[0] / 10;
     coordinate[1] = coordinate[1] / 10;
+    coordinate[2] = front_or_back;
     return coordinate;
 }
 int camera(){
     // hand 12 cm long
     float angle_hand;
-    int hand_x_r = 3;//cm distance of on the x axis from the middle point of the robot
-    int hand_x_l = -3;
+    int hand_x_r = 5;//cm distance of on the x axis from the middle point of the robot
+    int hand_x_l = -5;
     // cup_pos_current[0]= 100+85 ;
     // cup_pos_current[1] = -60-60;
     // cup_pos_current[2] = 0;
-    current_pos[0] = 0;
-    current_pos[1] = 0;
-    current_pos[2] =  0;
+    // current_pos[0] = 0;
+    // current_pos[1] = 0;
+    // current_pos[2] =  0;
     // for real
     // cup_pos_current[0]= cup_pos[current_cup_no - 1][0];
     // cup_pos_current[1] = cup_pos[current_cup_no - 1][1];
     // cup_pos_current[2] = (int)current_pos[2];
-    cup_color_req = cup_color [current_cup_no - 1];
+    // cup_color_req = cup_color [current_cup_no - 1];
     // green test
     // cup_pos_current[0]= 6;
     // cup_pos_current[1] = 12;
@@ -245,11 +249,14 @@ int camera(){
     // param
     cup_pos_current[0]= cupx;
     cup_pos_current[1] = cupy;
-    // cup_color_req =  cupcolor;
-    ROS_INFO("cup relative pos x [%d], y [%d], theta [%d]", cup_pos_current[0], cup_pos_current[1], cup_pos_current[2]);
+    cup_pos_current[2] = 1; // front
+    
+    cup_color_req =  cupcolor;
+    ROS_INFO("cup relative pos x [%d], y [%d], theta [%d] color [%d]", cup_pos_current[0], cup_pos_current[1], cup_pos_current[2], cup_color_req);
     srv.request.coordinate_mission.resize(2);
     srv.request.coordinate_mission[0] = cup_pos_current[0];
     srv.request.coordinate_mission[1] = cup_pos_current[1];
+    srv.request.coordinate_mission[2] = cup_pos_current[2];// 0 for front 1 for back
     srv.request.cup_color_mission = cup_color_req;
     // srv.request.cup_color_mission = 1; // green
     // camera_client.call(srv);
@@ -288,6 +295,7 @@ int camera(){
         angle_hand = -30;
     }
     ROS_INFO("hand angle %f", angle_hand);
+    // angle_hand = angle_param;
     return angle_hand;
 }
 void placecup(int hand, int degree){
@@ -296,7 +304,7 @@ void placecup(int hand, int degree){
             switch (placecup_h.count)
             {
             case  0:
-                tx_ST2( hand, 0, degree, 2, 2, 2 ); //first action hand to assigned degree
+                // tx_ST2( hand, 0, degree, 2, 2, 2 ); //first action hand to assigned degree
                 placecup_h.count ++;    
                 state_mission = ing;
                 break;
@@ -377,8 +385,10 @@ void getcup_one( int hand){
                     else{
                         cup_color_req = 0;
                     }
-                    // angle = int(camera());
-                    angle = 404;
+                    angle = int(camera());
+                    // angle = 404;
+                    // angle = angle_param;
+
                     if ( angle == 404 ){ // can't get data from camera
                         if (hand == 2 ||  hand == 4 ||  hand == 9  || hand == 11 ){ // due cordination degree need to be postive or negative
                             tx_ST2( handd, 1, getcup_theta[1], 2, 2, 2);//first action hand to assigned degree
@@ -498,7 +508,7 @@ bool newaction(const mission::maintomission::ConstPtr& msg){
 }
 // for running on pi
 void chatterCallback_ST2com(const std_msgs::Int32MultiArray::ConstPtr& msg){
-    // ROS_INFO("I heard ST2: [%d]", msg->data[0]);
+    ROS_INFO("I heard ST2: [%d %d %d %d %d %d]", msg->data[0], msg->data[1], msg->data[2], msg->data[3],msg->data[4],msg->data[5]);
     for ( int i = 0; i < 6; i++){
         ST2_rx[i] = msg -> data[i];
     }   
@@ -691,15 +701,33 @@ int main(int argc, char **argv)
    
     to_main.data = {2, 1};
     // to_camera.data = 0;
+    // while(!subST2com.getNumPublishers() && ros::ok()){
+    //     ros::Subscriber     subST2com = n.subscribe("rxST2", 1000, chatterCallback_ST2com);
+    //     ROS_INFO("no subscription to  rx");
+    // }
+    while(!sub.getNumPublishers() && ros::ok()){
+        ros::Subscriber     sub = n.subscribe("mainToMission", 100, chatterCallback);
+        ROS_INFO("no subscription to main");
+    }
     while (ros::ok())
     {
-        // n.getParam("/angle", angle_test); 
-        // n.getParam("//cupx",  cupx);  
-        // n.getParam("/cupy", cupy);
-        // n.getParam("/cupcolor", cupcolor);    
+        while(!subST2com.getNumPublishers() && ros::ok())
+            ros::Subscriber     subST2com = n.subscribe("rxST2", 1000, chatterCallback_ST2com);
+        while(!sub.getNumPublishers() && ros::ok()){
+            ros::Subscriber     sub = n.subscribe("mainToMission", 100, chatterCallback);
+            ROS_INFO("no subscription to main");
+        }
+            
+        n.getParam("/angle", angle_test); 
+        n.getParam("//cupx",  cupx);  
+        n.getParam("/cupy", cupy);
+        n.getParam("/cupcolor", cupcolor);    
+        n.getParam("/angle", angle_param );    
+
         
         forST2.publish(for_st2);
         forST2com.publish(for_st2);
+        // ROS_INFO("txST2: [%d %d %d %d %d %d]", for_st2.data[0], for_st2.data[1], for_st2.data[2], for_st2.data[3], for_st2.data[4], for_st2.data[5]);
         // for_st2.data.clear(); 
         ros::spinOnce();
     // ros::spin();

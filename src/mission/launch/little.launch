@@ -4,8 +4,7 @@
 	<param name="/hand2" type="int" value="4" />
 	<!-- <node name="ST2_little" pkg="mission" output = "screen" type="ST2_little" /> -->
 	<node name="main_talker_launch" pkg="mission" type="main_talker_launch" />
-	<!-- <node name="mission_topic_big" pkg="mission" type="mission_action"/>  -->
-	<node name="planer" pkg="mission" type="planer" />
+	<!-- <node name="planer" pkg="mission" type="planer" /> -->
 	<node name="mission_topic_little" pkg="mission" output = "screen" type="mission_topic_little" />
 	
 </launch>
