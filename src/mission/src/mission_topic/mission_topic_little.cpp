@@ -23,10 +23,10 @@ ros::Publisher forST2_little;
 ros::Publisher forplaner;
 std_msgs::Int32MultiArray for_ST2_little;
 //time
-ros::Time begin_time;
-ros::Time now_time;
+ros::WallTime begin_time;
+ros::WallTime now_time;
 float doing_time;
-float wait_sec = 0.0; //wait for big chicken 10.0
+float wait_sec = 15.0; //wait for big chicken 10.0
 ros::Publisher forST2_littlecom;
 ros::Subscriber sub;
 ros::Subscriber subplaner;
@@ -242,6 +242,7 @@ void chatterCallback(const mission::maintomission::ConstPtr& msg)
 //   }
     if ( newaction(msg) == 1){
         mission_wait.count = 0;
+        state_mission = ing;
     }
     if (msg->emerg == 1){
         // ST2_little_tx[0] = 0;
@@ -638,6 +639,7 @@ void chatterCallback(const mission::maintomission::ConstPtr& msg)
                         }
                         break;
                     default:
+                        do_nothing();
                         break;
                     }
                         
@@ -661,10 +663,10 @@ void chatterCallback(const mission::maintomission::ConstPtr& msg)
             case 31:{ // delay wait for big chicken to walk away
                 if (state_planer == 1){
                     if (mission_wait.count == 0){
-                        begin_time = ros::Time::now();
+                        begin_time = ros::WallTime::now();
                         mission_wait.count = 1;
                     }
-                    now_time = ros::Time::now();
+                    now_time = ros::WallTime::now();
                     doing_time = (now_time - begin_time).toSec();
                     if (doing_time < wait_sec){
                         state_mission = ing;

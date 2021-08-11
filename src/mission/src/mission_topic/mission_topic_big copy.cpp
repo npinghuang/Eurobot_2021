@@ -103,9 +103,6 @@ class mission_setting{
     mission_setting getcup_12( 13, "getcup_12", 0, 0);
     mission_setting getcup_34( 14, "getcup_34", 0, 0);
     mission_setting mission_wait( 31, "wait", 0, 0);
-    mission_setting sucktwo( 45, "sucktwo", 0, 0);
-
-    
 void print_tx(){
     ROS_INFO("TX { %d %d %d %d %d %d}", ST2_tx[0],ST2_tx[1],ST2_tx[2],ST2_tx[3],ST2_tx[4],ST2_tx[5]);
 }
@@ -255,7 +252,7 @@ int camera(){
     // param
     cup_pos_current[0]= cupx;
     cup_pos_current[1] = cupy;
-    cup_pos_current[2] = 0; // front
+    cup_pos_current[2] = 1; // front
     
     cup_color_req =  cupcolor;
     ROS_INFO("cup relative pos x [%d], y [%d], theta [%d] color [%d]", cup_pos_current[0], cup_pos_current[1], cup_pos_current[2], cup_color_req);
@@ -345,7 +342,7 @@ void placecup(int hand, int degree){
                 break;
             case 5:
                 if ( checkST2_state(ST2_tx) == 1 ){
-                    // placecup_h.count = 0;
+                    placecup_h.count = 0;
                     state_mission = success;
                 }
                 break;
@@ -474,7 +471,7 @@ void getcup_one( int hand){
                 break;
             case 7:
                 if ( checkST2_state(ST2_tx) == 1 ){
-                    // getcup.count = 0;
+                    getcup.count = 0;
                     state_mission = success;
                 }
                 break;
@@ -503,30 +500,18 @@ void chatterCallback_ST2(const std_msgs::Int32MultiArray::ConstPtr& msg)
     }
 }
 bool newaction(const mission::maintomission::ConstPtr& msg){
-    if (msg->action != old_command[0] || msg ->cup[0] != old_command[1] || msg->cup[1] != old_command[2]){
-        return 1;
+    if (old_command [0] == msg-> action && old_command [1] == msg -> cup[0] &&
+        old_command [2] == msg -> cup[1] && old_command [3] == msg -> hand[0] &&
+        old_command [4] == msg -> hand[1]){
+        return false;
     }
     else{
-        return 0;
+        return true;
     }
-    // if (old_command [0] == msg-> action && old_command [1] == msg -> cup[0] &&
-    //     old_command [2] == msg -> cup[1] && old_command [3] == msg -> hand[0] &&
-    //     old_command [4] == msg -> hand[1]){
-    // //             old_command[0] = msg->action;
-    // // old_command[1] = msg->cup[0];
-    // // old_command[2] = msg->cup[1];
-    // // old_command[3] = msg->hand[0];
-    // // old_command[4] = msg->hand[1];
-    //     return 0;
-    // }
-
-    // else{
-    //     return 1;
-    // }
 }
 // for running on pi
 void chatterCallback_ST2com(const std_msgs::Int32MultiArray::ConstPtr& msg){
-    // ROS_INFO("I heard ST2: [%d %d %d %d %d %d]", msg->data[0], msg->data[1], msg->data[2], msg->data[3],msg->data[4],msg->data[5]);
+    ROS_INFO("I heard ST2: [%d %d %d %d %d %d]", msg->data[0], msg->data[1], msg->data[2], msg->data[3],msg->data[4],msg->data[5]);
     for ( int i = 0; i < 6; i++){
         ST2_rx[i] = msg -> data[i];
     }   
@@ -551,24 +536,6 @@ void chatterCallback(const mission::maintomission::ConstPtr& msg)
     }
     if ( newaction(msg) == 1){
         mission_wait.count = 0;
-        windsock.count = 0;
-        lhouse.count = 0;
-        flag.count = 0;
-        anchorN.count = 0;
-        anchorS.count = 0;
-        reef_l.count = 0;
-        reef_r.count = 0;
-        reef_p.count = 0;
-        placecup_h.count = 0;
-        placecup_p.count = 0;
-        placecup_r.count = 0;
-        getcup.count = 0;
-        getcup_12.count = 0;
-        getcup_34.count = 0;
-         mission_wait.count = 0;
-         sucktwo.count = 0;
-
-        state_mission = ing;
     }
     if (msg->emerg == 1){
         tx_ST2(0, 2, 404, 2, 2, 2);
@@ -576,13 +543,8 @@ void chatterCallback(const mission::maintomission::ConstPtr& msg)
     }
     else if ( state_mission == success && newaction(msg) == 0 ){
         state_mission = success;
-        tx_ST2(1, 2, 404, 2, 2, 2);
-
         ROS_INFO("old action!");
     }
-    // if (state_mission == success){
-    //     state_mission = ing;
-    // }
     else if ( state_mission != success || newaction(msg) == 1){
         switch (msg->action)
         {
@@ -691,7 +653,7 @@ void chatterCallback(const mission::maintomission::ConstPtr& msg)
                             break;
                         case 3:
                             if ( checkST2_state(ST2_tx) == 1){
-                                // getcup_12.count = 0;
+                                getcup_12.count = 0;
                                 state_mission = success;
                             }
                             break;
@@ -724,59 +686,8 @@ void chatterCallback(const mission::maintomission::ConstPtr& msg)
                 }
                 break;
             }
-            case 45:{ // delay wait for big chicken to walk away
-                if (state_planer == 1){
-                int handd = 48;
-                int angle_ = 30;
-                switch (sucktwo.count)
-                {
-                case 0:
-                tx_ST2( handd , 0, angle_, 2, 2, 2);
-                sucktwo.count ++;
-                state_mission = ing;
-                break;
-                case 1:
-                if ( checkST2_state(ST2_tx) == 1 ){
-                tx_ST2( handd, 2, 404, 2, 2, 1); // second action hand turn to down
-                sucktwo.count ++;
-                }
-                break;
-                case 2:
-                if ( checkST2_state(ST2_tx) == 1 ){
-                tx_ST2( handd, 1, 404, 2, 2, 2); // third open suction
-                sucktwo.count ++;
-                }
-                break;
-                case 3:
-                if ( checkST2_state(ST2_tx) == 1 ){
-                tx_ST2( handd, 2, 404, 1, 1, 2); // fourth action platform down
-                sucktwo.count ++;
-                }
-                break;
-                case 4:
-                if ( checkST2_state(ST2_tx) == 1 ){
-                tx_ST2( handd, 2, 404, 0, 0, 2); // fifth action platform up
-                sucktwo.count ++;
-                }
-                break;
-                case 5:
-                if ( checkST2_state(ST2_tx) == 1 ){
-                // sucktwo.count = 0;
-                state_mission = success;
-                }
-                default:
-                break;
-                }
-
-                }
-                else{
-                state_mission = ing;
-                }
-                break;
-                }
             default:
                 do_nothing();
-                
                 break;
         }
         
@@ -790,9 +701,7 @@ void chatterCallback(const mission::maintomission::ConstPtr& msg)
     to_main.data[1]=timestep;
     timestep ++;
     tomain.publish(to_main);
-
-
-    // ROS_INFO("end of mission");
+    ROS_INFO("end of mission");
 }
 
 // Hi, Nice to meet you:)))
@@ -806,14 +715,14 @@ int main(int argc, char **argv)
     forST2 = n.advertise<std_msgs::Int32MultiArray>("MissionToST2", 1);
     forST2com = n.advertise<std_msgs::Int32MultiArray>("txST2", 1);
     tomain = n.advertise<std_msgs::Int32MultiArray>("missionToMain", 10);
-    sub = n.subscribe("mainToMission", 1, chatterCallback);
+    sub = n.subscribe("mainToMission", 100, chatterCallback);
     subST2 = n.subscribe("ST2ToMission", 1000, chatterCallback_ST2);
     subST2com = n.subscribe("rxST2", 1000, chatterCallback_ST2com);
     // subCamera =  n.subscribe("opencv_Cups", 100, camera);
 
     camera_client = n.serviceClient<mission::mission_camera>("mission_camera");
 
-    ros::Rate loop_rate(500);
+    ros::Rate loop_rate(100);
     ROS_INFO("mission publish");
     for_st2.data = {1,2,404,2,2,2};
    
@@ -824,16 +733,16 @@ int main(int argc, char **argv)
     //     ROS_INFO("no subscription to  rx");
     // }
     while(!sub.getNumPublishers() && ros::ok()){
-        ros::Subscriber     sub = n.subscribe("mainToMission", 1, chatterCallback);
-        ROS_INFO("no subscription to main1");
+        ros::Subscriber     sub = n.subscribe("mainToMission", 100, chatterCallback);
+        ROS_INFO("no subscription to main");
     }
     while (ros::ok())
     {
         while(!subST2com.getNumPublishers() && ros::ok())
             ros::Subscriber     subST2com = n.subscribe("rxST2", 1000, chatterCallback_ST2com);
         while(!sub.getNumPublishers() && ros::ok()){
-            ros::Subscriber     sub = n.subscribe("mainToMission", 1000, chatterCallback);
-            ROS_INFO("no subscription to main2");
+            ros::Subscriber     sub = n.subscribe("mainToMission", 100, chatterCallback);
+            ROS_INFO("no subscription to main");
         }
             
         n.getParam("/angle", angle_test); 

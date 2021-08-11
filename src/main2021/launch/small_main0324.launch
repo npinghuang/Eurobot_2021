@@ -6,8 +6,8 @@
 	<include file="$(find mission)/launch/little.launch" >
 	</include>
 
-	<node name="eurobot_gui" pkg="eurobot_gui" type="eurobot_gui.py" output="screen" respawn="false">
-	</node>
+	<!-- <node name="eurobot_gui" pkg="eurobot_gui" type="eurobot_gui.py" output="screen" respawn="false">
+	</node> -->
 
 	<node name="data_node" pkg="main2021" type="Data_small" output="screen" respawn="false">
 	</node>

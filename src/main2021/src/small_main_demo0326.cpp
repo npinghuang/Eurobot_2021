@@ -305,8 +305,8 @@ int main(int argc, char** argv)
                             states.set_m_state(DOING);
                         }
                         else{
-                            // states.set_p_state(SUCCESS);
-                            states.set_p_state(position.get_p_state());
+                            states.set_p_state(SUCCESS);
+                            // states.set_p_state(position.get_p_state());
                             //To Do*******
                             // ROS_INFO("ACT:%d", goap.sameActionOrNot());
                             mission.give_mission(&states, &goap);

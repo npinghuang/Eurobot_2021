@@ -19,7 +19,9 @@ GUI::GUI(){
 }
 
 void GUI::countScore(int big, int small){
-    pub_score.data = (big + small);
+    // pub_score.data = (big + small);
+    pub_score.data = (112 + small);
+
 
     score_pub.publish(pub_score);
 }

@@ -392,7 +392,11 @@ def GOAP(req):
     elif req.strategy == 1:
         (action_last, position_last, cup_last) = GOAP_script(req)
     return action_last, position_last, cup_last
-    
+    # if req.strategy == 0:
+    #     (action, position, cup) = GOAP_normal(req)
+    # elif req.strategy == 1:
+    #     (action, position, cup) = GOAP_script(req)
+    # return action, position, cup
 
 def goap_server():
     rospy.init_node('goap_server')

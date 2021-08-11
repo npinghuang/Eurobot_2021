@@ -26,7 +26,7 @@ class ImageConverter
       ros::NodeHandle nh_;
       image_transport::ImageTransport it_;
       image_transport::Subscriber image_sub_;
-      image_transport::Publisher image_pub_;
+      image_transport::Subscriber image_sub2_;
       ros::ServiceClient cli_ = nh_.serviceClient<cup_detect::transSrv2>("cameraTransformation");
       cup_detect::transSrv2 t_srv;
       cup_detect::transSrv2 t2_srv;
@@ -67,6 +67,8 @@ class ImageConverter
       int centerY_down;
       int centerX_up;
       int centerX_down;
+      int centerX;
+      int centerY;
 
       std::vector<std::vector<double>> resultCup; // {ellipseRect.center.x, ellipseRect.center.y, 0, 0, 0, 0, 1, color}   color [ 1 for red , 0 for green ]
       std::vector<cv::RotatedRect> resultRect;
@@ -79,6 +81,7 @@ class ImageConverter
       bool letdo5;
 
       sensor_msgs::ImageConstPtr pic;
+      sensor_msgs::ImageConstPtr pic2;
 
 public:
       ImageConverter()
@@ -86,6 +89,7 @@ public:
       {
             //image_sub_ = it_.subscribe("/usb_cam/image_raw", 1, &ImageConverter::imageCb, this);
             image_sub_ = it_.subscribe("/usb_cam/image_rect_color", 1, &ImageConverter::savePic, this);
+            //image_sub2_ = it_.subscribe("/usb_cam/image_rect_color2", 1, &ImageConverter::savePic2, this);
             ser_ = nh_.advertiseService("mission_camera", &ImageConverter::mission_camera, this);
             cv::namedWindow(RESULT_WINDOW);
             cv::waitKey(1);
@@ -104,10 +108,13 @@ public:
             t2_srv.request.reverse = true;
             if (cli_.call(t2_srv))
             {
-                  centerX_up = t2_srv.response.robot_x + 50;
-                  centerX_down = t2_srv.response.robot_x - 50;
+                  centerX_up = t2_srv.response.robot_x + 75;
+                  centerX_down = t2_srv.response.robot_x - 75;
                   centerY_up = t2_srv.response.robot_y + 50;
                   centerY_down = t2_srv.response.robot_y - 50;
+                  centerX = t2_srv.response.robot_x;
+                  centerY = t2_srv.response.robot_y;
+
                   printf("\t %d\n\n", centerY_down);
                   printf("   %d\tCenter\t%d\n\n", centerX_down, centerX_up);
                   printf("\t %d\n\n", centerY_up);
@@ -116,6 +123,15 @@ public:
             resultCup.clear();
             resultRect.clear();
             printf("Processing........\n\n");
+            sensor_msgs::ImageConstPtr _pic;
+            if (mis.coordinate_mission[2] == 0)
+            {
+                  _pic = pic;
+            }
+            else
+            {
+                  _pic = pic2;
+            }
             for (int i = 0; i < 5; i++)
             {
                   imageCb(pic);
@@ -159,6 +175,10 @@ public:
       void savePic(const sensor_msgs::ImageConstPtr &msg)
       {
             pic = msg;
+      }
+      void savePic2(const sensor_msgs::ImageConstPtr &msg)
+      {
+            pic2 = msg;
       }
 
       void imageCb(const sensor_msgs::ImageConstPtr &msg)
@@ -310,7 +330,7 @@ public:
             // cv::imshow(MASK3_WINDOW, img_mask2);
             // cv::imshow(GREEN_WINDOW, img_green);
             // cv::imshow(RED_WINDOW, img_red);
-            cv::imshow(CANNY_WINDOW, img_canny);
+            // cv::imshow(CANNY_WINDOW, img_canny);
 
             // cv::waitKey(1);
       }
@@ -414,43 +434,34 @@ public:
                         mis_color = 0;
                   }
             }
-            for (int i = 0; i < resultCup.size(); i++)
-            {
-                  if (i == min_i)
-                  {
-                        if (resultCup[i][7] == 1)
-                        {
-                              color_String = "Mission Target : Red Cup";
-                              color_Scalar = cv::Scalar(0, 0, 255);
-                        }
-                        else
-                        {
-                              color_String = "Mission Target : Green Cup";
-                              color_Scalar = cv::Scalar(0, 255, 0);
-                        }
-                  }
-                  else
-                  {
-                        if (resultCup[i][7] == 1)
-                        {
-                              color_String = "Other Red Cup";
-                              color_Scalar = cv::Scalar(0, 0, 255);
-                        }
-                        else
-                        {
-                              color_String = "Other Green Cup";
-                              color_Scalar = cv::Scalar(0, 255, 0);
-                        }
-                  }
-                  cv::ellipse(img_result, resultRect[i], cv::Scalar(255, 255, 255), 2, CV_AA);
-                  cv::circle(img_result, resultRect[i].center, 3, cv::Scalar(255, 255, 255), 2);
-                  cv::putText(img_result, color_String, resultRect[i].center, CV_FONT_HERSHEY_SIMPLEX, 0.5, color_Scalar, 2);
 
-                  // std::string position_x = std::to_string((int)ellipseRect.center.x);
-                  // std::string position_y = std::to_string((int)ellipseRect.center.y);
-                  // cv::putText(img_result, position_x, cv::Point(ellipseRect.center.x, ellipseRect.center.y + 20), CV_FONT_HERSHEY_SIMPLEX, 0.5, color_Scalar, 2);
-                  // cv::putText(img_result, position_y, cv::Point(ellipseRect.center.x, ellipseRect.center.y + 40), CV_FONT_HERSHEY_SIMPLEX, 0.5, color_Scalar, 2);
+            if (resultCup[min_i][7] == 1)
+            {
+                  color_String = "Actual Mission Target : Red Cup";
+                  color_Scalar = cv::Scalar(0, 0, 255);
             }
+            else
+            {
+                  color_String = "Actual Mission Target : Green Cup";
+                  color_Scalar = cv::Scalar(0, 255, 0);
+            }
+            cv::ellipse(img_result, resultRect[min_i], cv::Scalar(255, 255, 255), 2, CV_AA);
+            cv::circle(img_result, resultRect[min_i].center, 3, cv::Scalar(255, 255, 255), 2);
+            cv::putText(img_result, color_String, resultRect[min_i].center, CV_FONT_HERSHEY_SIMPLEX, 0.5, color_Scalar, 2);
+
+            if (abs(centerX - resultRect[min_i].center.x) > 50 && abs(centerY - resultRect[min_i].center.y) > 50)
+            {
+                  cv::Point2i targetCenter;
+                  targetCenter.x = centerX;
+                  targetCenter.y = centerY;
+                  cv::circle(img_result, targetCenter, 3, cv::Scalar(255, 255, 0), 2);
+            }
+
+            // std::string position_x = std::to_string((int)ellipseRect.center.x);
+            // std::string position_y = std::to_string((int)ellipseRect.center.y);
+            // cv::putText(img_result, position_x, cv::Point(ellipseRect.center.x, ellipseRect.center.y + 20), CV_FONT_HERSHEY_SIMPLEX, 0.5, color_Scalar, 2);
+            // cv::putText(img_result, position_y, cv::Point(ellipseRect.center.x, ellipseRect.center.y + 40), CV_FONT_HERSHEY_SIMPLEX, 0.5, color_Scalar, 2);
+            // }
             cv::imshow(RESULT_WINDOW, img_result);
             cv::waitKey(1);
       }
